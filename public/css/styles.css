@@ -1,0 +1,9 @@
+a {
+    font-size: medium;
+  }
+
+  .div-table {
+    overflow: auto;
+    height:19rem;
+    margin-top: 0.5rem;
+  }
