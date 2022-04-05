@@ -64,8 +64,11 @@ class ProductCategoryController extends Controller
         //
     }
 
-    public function destroy(ProductCategory $productcategory)
+    public function destroy($id)
     {
-        //
+        $productcategories = ProductCategory::find($id);
+        $productcategories->status = 'Inactivo';
+        $productcategories->save();
+        return redirect()->route('maintenance.productcategories.index')->with('status',"Ok_Eliminación de Categoria de Producto $productcategories->description");
     }
 }

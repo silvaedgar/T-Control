@@ -36,33 +36,25 @@
                 </thead>
                 <tbody>
                     @foreach ($unitmeasures as $unitmeasure)
-                    <tr style="height: 1%">
+                    <tr>
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ $unitmeasure->description }} </td>
                         <td> {{ $unitmeasure->symbol }} </td>
                         <td>
-                            <div class="row">
-                                <div class="col-2">
-                                    <a href="{{route('maintenance.unitmeasures.edit',$unitmeasure->id)}}">
-                                        <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Unidad de Medida">
-                                            <i class="fa fa-edit"></i> </button> </a>
-                                </div>
-                                <div class="col-2">
-                                    <form action="{{ route('maintenance.unitmeasures.destroy',$unitmeasure->id)}}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                           <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Unidad de Medida"
-                                                    onclick = "return DeleteRecord('Seguro que desea eliminar la Unidad de Medida  seleccionada?')">
-                                            <i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                    </form>
-                                </div>
-                            </div>
-
+                            <a href="{{route('maintenance.unitmeasures.edit',$unitmeasure->id)}}">
+                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Unidad de Medida">
+                                <i class="fa fa-edit"></i> </button> </a>
+                            <input type="hidden" id="message-item-delete" value = " la Unidad de Medida: {{ $unitmeasure->description}}">
+                            <form action="{{ route('maintenance.unitmeasures.destroy',$unitmeasure->id)}}"  method="post"
+                                    class = "d-inline" id="delete-item">
+                                @csrf
+                                @method('delete')
+                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Unidad de Medida">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                            </form>
                         </td>
                     </tr>
-
                     @endforeach
-
                 </tbody>
               </table>
             </div>
@@ -76,7 +68,7 @@
 @push('js')
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{asset('js')}}\functions.js"> </script>
+    <script src="{{asset('js')}}\globalvars.js"> </script>
     <script>
         $(document).ready(function() {
             $('#unitmeasures').DataTable({

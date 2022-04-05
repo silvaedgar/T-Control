@@ -16,7 +16,7 @@ class PaymentClientController extends Controller
 {
     public function index()
     {
-        $paymentclients = PaymentClient::orderBy('client_id')->get();
+        $paymentclients = PaymentClient::orderBy('payment_date','desc')->get();
         return view('payment-clients.index',compact('paymentclients'));
         //
     }
@@ -30,7 +30,15 @@ class PaymentClientController extends Controller
             ->orderBy('client_id')->get();
         $base = Coin::where('calc_currency_sale','S')->orwhere('base_currency','S')
             ->where('status','Activo')->orderBy('base_currency')->get();
-        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id, 'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name];
+        if (count($base) > 2) {
+            $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
+            $purchases = Purchase::orderBy('id','desc')->get();
+            return view('purchases.index',compact('purchases','message'));
+        }
+        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_symbol' => $base[0]->symbol,
+            'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id,
+            'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name,
+            'base_calc_symbol'=> isset($base[1]->symbol)?$base[1]->symbol:$base[0]->symbol];
 
         return view('payment-clients.create',compact('clients','paymentforms','base_coins','pendingsales'));
     }
@@ -57,7 +65,6 @@ class PaymentClientController extends Controller
 
         $paymentcurrency = $request->coin_id;
         $balance_sale = $sale->mount - $sale->paid_mount;
-        echo "BALANCE: $balance_sale";
         if ($paymentcurrency == $sale->coin_id){ //Moneda de Pago es igual a la FC
             return $this->calc_balance_sale($request->mount,$balance_sale);
         }

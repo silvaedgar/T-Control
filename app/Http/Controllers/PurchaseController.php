@@ -42,14 +42,16 @@ class PurchaseController extends Controller
         $products = Product::where('status','Activo')->orderBy('name')->get();
         $suppliers = Supplier::where('status','Activo')->get();
         $base = Coin::where('calc_currency_purchase','S')->orwhere('base_currency','S')
-                ->where('status','=','Activo')->orderBy('base_currency')->get();
+                ->where('status','Activo')->orderBy('base_currency')->get();
         if (count($base) > 2) {
             $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
             $purchases = Purchase::orderBy('id','desc')->get();
             return view('purchases.index',compact('purchases','message'));
         }
-        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name,'base_calc_id'=>
-                isset($base[1]->id)?$base[1]->id:$base[0]->id, 'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name];
+        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_symbol' => $base[0]->symbol,
+        'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id,
+        'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name,
+        'base_calc_symbol'=> isset($base[1]->symbol)?$base[1]->symbol:$base[0]->symbol];
         return view('purchases.create',compact('suppliers','products','base_coins'));
     }
 
@@ -57,11 +59,15 @@ class PurchaseController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->status = ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada');
-
             $purchase = Purchase::create($request->all());
-            $supplier = Supplier::find($request->supplier_id);
+            $purchase->status = ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada');
+            $purchase->paid_mount = ($request->conditions == "Credito" ?  0 : $request->mount);
+            $purchase->save();
+            // $purchase->update ([    Haciendo asi no me funcionaba no se porque
+            //     'status' => ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada'),
 
+            // ]);
+            $supplier = Supplier::find($request->supplier_id);
             $amount = $request->mount;
             if($request->conditions == "Credito") {
                 if ($request->rate_exchange <> 1) {
@@ -78,7 +84,8 @@ class PurchaseController extends Controller
                      "item"=>$item,"quantity"=>$request->quantity[$key], "price"=>$request->price[$key],
                      "tax"=>$request->tax[$key]);
                 $product = Product::find($request->product_id[$key]);
-                $product->cost_price = $request->price[$key];
+                //La linea de abajo mantiene la situacion de leer el factor de la moneda de calculo con la monea de la orden
+                $product->cost_price = ($request->coin_id == 1 ? $request->price[$key] / $request->rate_exchange : $request->price[$key]) ;
                 $product->save();
                 $item++;
             }
@@ -91,7 +98,6 @@ class PurchaseController extends Controller
             DB::rollback();
             $message =  'Error_Error generando Factura de Compra verifique';
         }
-        // echo $message;
         return redirect()->route('purchases.index')->with('status',$message);
 
     }

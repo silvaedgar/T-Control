@@ -24,12 +24,12 @@ class StorePaymentClientRequest extends FormRequest
     public function rules()
     {
         return [
-            'client_id' => 'required',
+            'client_id' => 'gt:0',
             'coin_id' => 'required',
-            'payment_form_id' => 'required',
+            'payment_form_id' => 'gt:0',
             'payment_date' => 'required',
             'rate_exchange' => 'required',
-            'mount' => 'required'
+            'mount' => 'required|gt:0'
         ];
     }
 
@@ -42,6 +42,14 @@ class StorePaymentClientRequest extends FormRequest
             'payment_date' => 'Fecha',
             'rate_exchange' => 'Tasa de cambio',
             'mount' => 'Monto a Pagar'
+        ];
+    }
+
+    public function messages() {
+        return [
+            'payment_form_id.gt' => "Seleccione la Forma de Pago",
+            'client_id.gt' => "Seleccione el Cliente",
+            'mount.gt' => "El monto a pagar debe ser mayor a 0"
         ];
     }
 }

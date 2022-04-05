@@ -12,7 +12,12 @@
                             onchange="SearchSaleClients()" >
                     <option value= 0> Seleccione un Cliente ... </option>
                     @foreach ($clients as $client)
-                        <option value="{{ $client->id}}"> {{ $client->names}} </option>
+                        <option
+                            @if (old('client_id') == $client->id)
+                                selected
+                            @endif
+                            value="{{ $client->id}}"> {{ $client->names}}
+                        </option>
                     @endforeach
                 </select>
                 @if ($errors->has('client_id'))
@@ -36,7 +41,12 @@
                 <select name="payment_form_id" id="payment_form_id" class="form-control">
                     <option value= 0> Seleccione Forma de Pago ... </option>
                     @foreach ($paymentforms as $paymentform)
-                        <option value="{{ $paymentform->id }}"> {{ $paymentform->payment_form}} </option>
+                        <option
+                            @if (old('payment_form_id') == $paymentform->id)
+                                selected
+                            @endif
+                            value="{{ $paymentform->id }}"> {{ $paymentform->payment_form}}
+                        </option>
                     @endforeach
                 </select>
                 @if ($errors->has('payment_form_id'))
@@ -59,7 +69,8 @@
             </div>
             <div class="col-md-2 col-sm-2">
                 <input type="number" name="rate_exchange" id="rate_exchange" class="form-control"
-                        step="any" value = "{{ old('rate_exchange', (isset($sale) ? $sale->rate_exchange :'')) }}">
+                onchange = "CalculateMountOtherCoin()" step="any"
+                value = "{{ old('rate_exchange', (isset($sale) ? $sale->rate_exchange :'')) }}">
                 @if ($errors->has('rate_exchange'))
                     <span id="rate_exchange-error" class="error text-danger" for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
                 @endif
@@ -70,7 +81,7 @@
             </div>
             <div class="col-sm-3 col-md-2">
                 <input type="number" name="mount" id="mount" class="form-control"
-                        step="any">
+                        step="any" onchange = "CalculateMountOtherCoin()">
                 @if ($errors->has('mount'))
                     <span id="mount-error" class="error text-danger" for="input-mount">{{ $errors->first('mount') }}</span>
                 @endif

@@ -7,13 +7,17 @@
 @section('content')
 <input type="hidden" id = "base_currency" value = "{{ $base_coins['base_id']}}">
 <input type="hidden" id = "calc_currency" value = "{{ $base_coins['base_calc_id']}}">
+<input type="hidden" id = "factor">
+<input type="hidden" id = "last_rate">
+<input id="symbol_coin" type="hidden" value = "{{ $base_coins['base_calc_symbol']}}">
+<input id="symbol_coin_calc" type="hidden" value = "{{ $base_coins['base_calc_symbol']}}">
 
     <div class="content">
       <div class="row">
         <div class="col-md-12">
             <form method="post" action="{{route('paymentclients.store')}}" autocomplete="off" class="form-horizontal">
             @csrf
-            <div class="card ">
+            <div class="card">
                 <div class="card-header card-header-primary">
                     <div class="row">
                         <div class="col-xl-4 col-sm-5">
@@ -43,14 +47,13 @@
                 @endif
                 @include('payment-clients.formheader')
                 @include('payment-clients.formdetails')
-
               </div>
-              <div class="card-footer ml-auto mr-auto">
+              <div class="card-footer mx-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Procesar Pago') }}</button>
               </div>
+              <a href = "{{ route('paymentclients.index') }}"> {{ __('Volver al listado') }} </a>
             </div>
           </form>
-          <a href = "{{ route('paymentclients.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>
@@ -58,6 +61,7 @@
 @endsection
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="{{ asset('js') }}/searchfunctions1.js"> </script>
-    <script src="{{ asset('js') }}/tabledetails1.js"> </script>
+    <script src="{{ asset('js') }}/globalvars.js"> </script>
+    <script src="{{ asset('js') }}/searchfunctions.js"> </script>
+    <script src="{{ asset('js') }}/tabledetails.js"> </script>
 @endpush

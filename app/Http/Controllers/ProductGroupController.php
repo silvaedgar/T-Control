@@ -59,8 +59,12 @@ class ProductGroupController extends Controller
         //
     }
 
-    public function destroy(ProductGroup $productRubric)
+    public function destroy($id)
     {
-        //
+        $productgroup = ProductCategory::find($id);
+        $productgroup->status = 'Inactivo';
+        $productgroup->save();
+
+        return redirect()->route('maintenance.productgroups.index')->with('status',"Ok_Eliminación de Grupo de Producto $productgroup->description");
     }
 }

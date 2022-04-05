@@ -1,30 +1,15 @@
-var item = 0;
-var total = 0;
-var totaltax = 0;
-var subtotal = [];
-var price_base;
+function CalculateMountOtherCoin() {
 
-
-$(document).ready(function() {
-    if ($('#pidproduct').length > 0)
-        $('#pidproduct').select2();
-
-    if ($('#supplier_id').length > 0) {
-        $('#supplier_id').select2();
-        if ($('#calc_currency').length > 0) {  // en jquery verifica si existe
-            LoadCoins();  // usado aqui como api por si en la BD no esta la relacion 1 a 1 de la moneda base y de calculo
-        }
+    let calc_coin = document.getElementById('calc_currency').value
+    let coin_id = document.getElementById('coin_id').value
+    if (calc_coin !=coin_id) {
+        let factor = document.getElementById('factor').value;
+        let mount_calc_coin = (factor == "*" ? document.getElementById("mount").value / document.getElementById("rate_exchange").value :
+            document.getElementById("mount").value * document.getElementById("rate_exchange").value);
+        document.getElementById('payment_mount').innerHTML = "Monto en " + document.getElementById("symbol_coin_calc").value + " " + parseFloat(mount_calc_coin).toFixed(2);
+        document.getElementById('last_rate').value = document.getElementById('rate_exchange').value
     }
-
-    if ($('#client_id').length > 0) {
-        $('#client_id').select2();
-        let calc_coin = document.getElementById('calc_currency')
-        if (calc_coin){
-            LoadCoins();  // usado aqui como api por si en la BD no esta la relacion 1 a 1 de la moneda base y de calculo
-        }   // en javascript verifica si existe
-    }
-    // recordar que este se llama details1 porque existe un details que leia el create y no lo ubique
-});
+}
 
 function CalcInvoice (itemactual,operacion) {
 
@@ -42,12 +27,13 @@ function CalcInvoice (itemactual,operacion) {
             subtotal[i].tax = subtotal[i + 1].tax
         }
     }
-    document.getElementById('mountlabel').innerHTML = parseFloat(total).toFixed(2);
+    document.getElementById('mountlabel').innerHTML = parseFloat(total).toFixed(2) + document.getElementById('symbol_coin').value;
     document.getElementById('mount').value = parseFloat(total).toFixed(2);
     document.getElementById('tax').value = parseFloat(totaltax).toFixed(2);
     let payment_mount = document.getElementById('payment_mount').innerHTML;
     if (payment_mount != ''){
-        document.getElementById('payment_mount').innerHTML = "Monto en $ " + parseFloat(document.getElementById("mount").value / document.getElementById("rate_exchange").value).toFixed(2);
+        console.log("OTHER COIN en CALCINOICE")
+        CalculateMountOtherCoin();
     }
 
 }
@@ -65,14 +51,15 @@ function CalcSubtotal() {
 
 function RecalculateInvoice(tasa,filas) {
 
+    let factor = document.getElementById("factor").value;
     total = 0;
     totaltax = 0;
     let rowactual = 0
     for (const element of filas) {
         if (rowactual > 0) {  // salta el encabezado
-            subtotal[rowactual - 1].precio = subtotal[rowactual - 1].precio * tasa;
-            subtotal[rowactual - 1].tax = subtotal[rowactual - 1].tax * tasa;
-            subtotal[rowactual - 1].monto = subtotal[rowactual - 1].monto * tasa;
+            subtotal[rowactual - 1].precio = (factor=="*" ? subtotal[rowactual - 1].precio * tasa : subtotal[rowactual - 1].precio / tasa);
+            subtotal[rowactual - 1].tax = (factor == "*" ? subtotal[rowactual - 1].tax * tasa :  subtotal[rowactual - 1].tax / tasa) ;
+            subtotal[rowactual - 1].monto = (factor == "*" ? subtotal[rowactual - 1].monto * tasa : subtotal[rowactual - 1].monto / tasa);
             element.cells[3].innerHTML = parseFloat(subtotal[rowactual - 1].precio).toFixed(2);
             element.cells[4].innerHTML = parseFloat(subtotal[rowactual - 1].tax).toFixed(2);
             element.cells[5].innerHTML = parseFloat(subtotal[rowactual - 1].monto).toFixed(2);
@@ -114,6 +101,47 @@ function CreateElementCell(type,name,value,content,cell,row) {
     celda.appendChild(elemento);
 }
 
+function CreateTable(table,data,tipo) {
+
+    let item = 0;
+    let balance = 0;
+    data.forEach(element => {
+        if (element.status == 'Pendiente' || element.status == 'Parcial' ) {
+            var row = table.insertRow(item + 1);
+            row.id = "fila" + item;
+            row.style = "font-size: smaller; background: white; text-align: left "
+            CreateElementCell("hidden","item[]",element.id,item + 1, 0,row)
+            if (tipo == "Venta")
+                CreateElementCell("hidden","sale_date[]",'',element.sale_date, 1,row)
+            else
+                CreateElementCell("hidden","purchase_date[]",'',element.purchase_date, 1,row)
+            CreateElementCell("hidden","invoice[]",'',element.invoice,2,row)
+            CreateElementCell("hidden","amount[]",'',parseFloat(element.mount).toFixed(2) + element.symbol,3,row)
+            CreateElementCell("hidden","tax_mount[]",'',parseFloat(element.tax_mount).toFixed(2) + element.symbol,4,row)
+            CreateElementCell("hidden","balance[]",'',parseFloat(element.mount - element.paid_mount).toFixed(2)+ element.symbol,5,row)
+            item ++;
+            balance += (element.mount - element.paid_mount);
+        }
+    });
+    // if (item == 0) {
+    //     let row = table.insertRow(1);
+    //     row.style = "font-size: small; background: white; text-align: left "
+    //     row.appendChild(celda);
+    // }
+}
+
+function DeleteTable(table) {
+    var filas = table.rows.length;
+    try {
+        for (let i=1; i < filas;) {
+            table.deleteRow(i);
+            filas--;
+        }   // elimina las celdas existentes comienza en uno para no eliminar el encabezado
+    } catch (e) {
+        alert (e);
+    }
+}
+
 function RenumberItems() {
     var table = document.getElementById('details-table');
     var rowCount = table.rows.length;
@@ -131,7 +159,8 @@ function AddItem(){
     let precio = parseFloat(document.getElementById('pprecio').value);
     let porcentaje = parseFloat(document.getElementById("ptax").value)
     let sel = document.getElementById('pidproduct');
-    let product = sel.options[sel.selectedIndex].text;
+    if (sel.selectedIndex >= 0) // prevee la limpieza del select2 abajo que pone el indice en -1
+        var product = sel.options[sel.selectedIndex].text;
 
     if (tasa > 0 && cantidad > 0 && precio > 0 ) {
         let tax =    cantidad * (precio * porcentaje /100);
@@ -162,16 +191,16 @@ function AddItem(){
         item ++;
 
         document.getElementById('totalrenglones').innerHTML = parseInt(item);
-        document.getElementById('pidproduct').value = 0;
-        document.getElementById('pidproduct').selectedIndex = 0
-        document.getElementById('pidproduct').selectedIndex = 0
 
-        sel.options[sel.selectedIndex].text = "Seleccione un producto ..."
         document.getElementById('pcantidad').value = 0;
         document.getElementById('pprecio').value = 0;
         document.getElementById("ptax").value =0;
+
+        $('#pidproduct').select2("val",0);
+        document.getElementById('pidproduct').focus();
     }
     else {
         alert("Verifique los datos de entrada.")
     }
 }
+

@@ -49,18 +49,27 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'App\Http\Controllers\ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'App\Http\Controllers\ProfileController@password']);
 
-    Route::resource('productcategories', ProductCategoryController::class)->names('maintenance.productcategories');
+    Route::get('suppliers/listprint',[SupplierController::class,'listprint'])->name('suppliers.listprint');
+    Route::get('suppliers/balance/{id}',[SupplierController::class,'balance'])->name('suppliers.balance');
+
     Route::resource('suppliers', SupplierController::class)->names('suppliers');
+
+    Route::get('clients/listprint',[ClientController::class,'listprint'])->name('clients.listprint');
+    Route::resource('clients', ClientController::class)->names('clients');
+
+    Route::get('products/listprint',[ProductController::class,'listprint'])->name('products.listprint');
+    Route::resource('products', ProductController::class)->names('products');
+
+    Route::resource('productcategories', ProductCategoryController::class)->names('maintenance.productcategories');
+
     Route::resource('sales', SaleController::class)->names('sales');
 
-    Route::resource('products', ProductController::class)->names('products');
     Route::resource('purchases', PurchaseController::class)->names('purchases');
     Route::resource('productgroups', ProductGroupController::class)->names('maintenance.productgroups');
     Route::resource('paymentforms', PaymentFormController::class)->names('maintenance.paymentforms');
     Route::resource('coins', CoinController::class)->names('maintenance.coins');
     Route::resource('currencyvalues', CurrencyValueController::class)->names('maintenance.currencyvalues');
     Route::resource('taxes', TaxController::class)->names('maintenance.taxes');
-    Route::resource('clients', ClientController::class)->names('clients');
     Route::resource('unitmeasures', UnitMeasureController::class)->names('maintenance.unitmeasures');
     Route::resource('paymentsuppliers', PaymentSupplierController::class)->names('paymentsuppliers');
     Route::resource('paymentclients', PaymentClientController::class)->names('paymentclients');
@@ -101,9 +110,4 @@ Route::group(['middleware' => 'auth'], function () {
 // 		return view('pages.upgrade');
 // 	})->name('upgrade');
 // });
-
-// Route::get('coinbases', function () {
-//     return view('maintenance.coins.base');
-// })->name('coins.base');
-
 

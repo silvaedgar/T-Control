@@ -6,14 +6,20 @@
                 <label for="" class="form-label">Proveedor</label>
             </div>
             <div class="col-xl-5 col-sm-10">
-                <select name="supplier_id" id="supplier_id" class="form-control"
-                    {{(isset($purchase) ? 'disabled' : '') }} >
+                <select name="supplier_id" id="supplier_id" class="form-control" {{(isset($purchase) ? 'disabled' : '') }}
+                        value = {{ old('supplier_id', (isset($purchase) ? $purchase->supplier_id :'')) }}>
                     <option value= 0> Seleccione un Proveedor ... </option>
                     @foreach ($suppliers as $supplier)
                         <option
-                            @if (isset($purchase))
-                                @if ($purchase->supplier_id == $supplier->id)
-                                    selected
+                            @if (isset($purchase) || old('supplier_id') > 0)
+                                @if (isset($purchase))
+                                    @if ($purchase->supplier_id == $supplier->id)
+                                        selected
+                                    @endif
+                                @else
+                                    @if (old('supplier_id') == $supplier->id)
+                                        selected
+                                    @endif
                                 @endif
                             @endif
                         value="{{ $supplier->id}}"> {{ $supplier->name}} </option>
@@ -27,7 +33,7 @@
                 <label for="" class="form-label">Fecha</label>
             </div>
             <div class="col-xl-2 col-sm-5">
-                <input type="datetime" name="purchase_date" id="purchase_date" class="form-control"
+                <input type="date" name="purchase_date" id="purchase_date" class="form-control"
                     value = "{{ old('purchase_date', (isset($purchase) ? $purchase->purchase_date :'')) }}">
                 @if ($errors->has('purchase_date'))
                     <span id="purchase_date-error" class="error text-danger" for="input-purchase_date">{{ $errors->first('purchase_date') }}</span>
@@ -39,9 +45,6 @@
             <div class="col-xl-2 col-sm-4">
                 <input type="text" name="invoice" id="invoice" class="form-control"
                  value = "{{ old('invoice', (isset($purchase) ? $purchase->invoice :'')) }}">
-
-                {{-- {!! Form::text('invoice', isset($purchases) ? $purchase->invoice : '',
-                ['class'=>'form-control']) !!} --}}
             </div>
         </div>
         <div class="row mt-1">
@@ -58,8 +61,10 @@
 
             </div>
             <div class="col-xl-2 col-sm-3">
-                <input type="number" name="rate_exchange" id="rate_exchange" class="form-control" onchange="SearchCoinBase('Compra')"
-                        step="any" value = "{{ old('rate_exchange', (isset($purchase) ? $purchase->rate_exchange :'')) }}">
+                <input type="number" name="rate_exchange" id="rate_exchange" class="form-control"
+                    onfocus = "VerifyGetFocusRateExchange()" step="any"
+                    onchange="CalculateMountOtherCoin()"
+                     value = "{{ old('rate_exchange', (isset($purchase) ? $purchase->rate_exchange :'')) }}">
                 @if ($errors->has('rate_exchange'))
                     <span id="rate_exchange-error" class="error text-danger" for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
                 @endif
@@ -69,8 +74,8 @@
                 <label for="" class="form-label">Condiciones</label>
             </div>
             <div class="col-sm-4  col-xl-2">
-                <input type="radio" name="conditions" value='Credito' checked> Credito
-                <input type="radio" name="conditions" value='Contado'> Contado
+                <input type="radio" name="conditions" value='Credito' id="conditions" checked> Credito
+                <input type="radio" name="conditions" value='Contado' id="conditions"> Contado
             </div>
             <div class="col-sm-1">
                 <label for="" class="form-label">Notas</label>

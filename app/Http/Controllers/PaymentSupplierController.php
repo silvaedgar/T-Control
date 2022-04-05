@@ -17,7 +17,7 @@ class PaymentSupplierController extends Controller
 {
     public function index()
     {
-        $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->orderBy('supplier_id','desc')->get();
+        $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->get();
         return view('payment-suppliers.index',compact('paymentsuppliers'));
         //
     }
@@ -28,13 +28,15 @@ class PaymentSupplierController extends Controller
         $suppliers = Supplier::where('status','Activo')->get();
         $base = Coin::where('calc_currency_purchase','S')->orwhere('base_currency','S')
                 ->where('status','=','Activo')->orderBy('base_currency')->get();
-        // if (count($base) > 2) {
-        //     $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
-        //     $purchases = Purchase::orderBy('id','desc')->get();
-        //     return view('purchases.index',compact('purchases','message'));
-        // }
-        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name,'base_calc_id'=>
-                isset($base[1]->id)?$base[1]->id:$base[0]->id, 'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name];
+        if (count($base) > 2) {
+            $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
+            $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->orderBy('supplier_id','desc')->get();
+            return view('payment-suppliers.index',compact('paymentsuppliers','message'));
+        }
+        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_symbol' => $base[0]->symbol,
+        'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id,
+        'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name,
+        'base_calc_symbol'=> isset($base[1]->symbol)?$base[1]->symbol:$base[0]->symbol];
         $pendingpurchases = Purchase::where('status','Parcial')->orwhere('status','Pendiente')
             ->orderBy('supplier_id')->get();
         return view('payment-suppliers.create',compact('suppliers','paymentforms','base_coins','pendingpurchases'));

@@ -1,4 +1,3 @@
-<div class = "div-table">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped"
                 id="details-table">
         <thead style="background: rgb(186, 186, 219); text-align: center; font-size: small;  ">
@@ -15,4 +14,4 @@
 
         </tbody>
     </table>
-</div>
+

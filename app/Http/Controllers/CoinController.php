@@ -19,7 +19,7 @@ class CoinController extends Controller
 
     public function index()
     {
-        $coins = Coin::where('status','Activo')->get();
+        $coins = Coin::where('status','Activo')->orderby('name')->get();
         return view('maintenance.coins.index',compact('coins'));
     }
 
@@ -53,10 +53,6 @@ class CoinController extends Controller
             'name' => "required|unique:coins,name,$request->id",
             'symbol' => ["required","max:3",Rule::unique('coins')->ignore($request->id)]
         ]);
-        // if ($request->base_coin == 'S')
-        // {
-
-        // }
         $coin = Coin::find($request->id);
         $coin->update($request->all());
         return redirect()->route('maintenance.coins.index')->with('status',"Ok_Actualización de Moneda $request->name");
@@ -65,10 +61,9 @@ class CoinController extends Controller
     public function destroy($id)
     {
         $coin = Coin::find($id);
-        $coin->status = 'Inactivo';
-        $coin->save();
+        // $coin->status = 'Inactivo';
+        // $coin->save();
         return redirect()->route('maintenance.coins.index')->with('status',"Ok_Eliminar Moneda $coin->name satisfactorio");
-
         //
     }
 }

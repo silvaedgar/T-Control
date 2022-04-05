@@ -27,9 +27,9 @@
             @enderror
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-sm-6">
         <div class="row">
-            <label for="name" class="col-sm-2 col-form-label mr-2 text-center">Roles</label> <br/>
+            <label for="name" class="col-sm-3 col-md-2 col-form-label mr-2 text-center">Roles</label> <br/>
             <div class="col-sm-7">
                 <div class="form-group">
                     <div class="tab-content">

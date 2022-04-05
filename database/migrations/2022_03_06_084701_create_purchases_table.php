@@ -19,7 +19,7 @@ class CreatePurchasesTable extends Migration
             $table->unsignedBigInteger('supplier_id');
             $table->unsignedBigInteger('coin_id');
             $table->float('rate_exchange',13,3)->default(1);
-            $table->dateTime('purchase_date')->default(now());
+            $table->date('purchase_date')->default(now());
             $table->string('invoice',10)->nullable(); // Numero de factura
             $table->float('mount',13,3);
             $table->float('tax_mount',13,3);

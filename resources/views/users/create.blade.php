@@ -28,14 +28,13 @@
                   </div>
                 @endif
                 @include('users.form')
-
               </div>
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Usuario') }}</button>
               </div>
+              <a href = "{{ route('users.index') }}"> {{ __('Volver al listado') }} </a>
             </div>
           </form>
-          <a href = "{{ route('users.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>

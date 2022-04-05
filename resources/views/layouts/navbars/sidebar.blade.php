@@ -17,8 +17,8 @@
                   <span class="small">Usuario:{{ Auth::user()->name}}   </span>
               </div>
               <div class="col-4 small justify-end">
-                  <a class="small justify-end " href="{{ route('logout') }}" style="display: inline"
-                  onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                  <a class="small justify-end " href="{{ route ('logout')}}"  style="display: inline"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit()">
                       <i class="material-icons">logout</i> Salir
                       </a>
               </div>

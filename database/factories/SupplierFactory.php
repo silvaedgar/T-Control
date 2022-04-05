@@ -16,10 +16,10 @@ class SupplierFactory extends Factory
     {
 
 
-        $data = [['Alejandro Chorizos',0],['Distribuidora ITC',10],['Cafe Flor de Patria',0],
-            ['Gerardo Delgado',20],['Guillermo Beltran',42.9],['Jose Andres Pescado',0],['Comercializadora KJK',0],
-            ['Pedro Queso',10],['Rayma Leon',7],['Simon Cigarros',20],['Supermarket 81 C.A',40],
-            ['Suplymos',18.72]];
+        $data = [['Alejandro Chorizos',0],['Distribuidora ITC',10],['Cafe Flor de Patria',0],['Cafe Amanecer',10],
+            ['Cafe JP',15.90],['Gerardo Delgado',45],['Guillermo Beltran',15],['Jose Andres Pescado',40],
+            ['Comercializadora KJK',8],['Pedro Queso',87.31],['Ramón Conservas',9],['Rayma Leon',7],
+            ['Simon Cigarros',40],['Supermarket 81 C.A',35],['Suplymos',18.72]];
         $supplier = $this->faker->unique()->randomElement($data);
 
             // $balances = [0,10,0,77,46.8,48,15,70,7,70,40,18.72];

@@ -6,14 +6,21 @@
                 <label for="" class="form-label">Cliente</label>
             </div>
             <div class="col-xl-5 col-sm-10">
-                <select name="client_id" id="client_id" class="form-control"
-                    {{(isset($sale) ? 'disabled' : '') }} >
+                {{-- {{ $clients}} --}}
+                <select name="client_id" id="client_id" class="form-control"  {{(isset($sale) ? 'disabled' : '') }}
+                    value = {{ old('client_id', (isset($sale) ? $sale->client_id :'')) }}>
                     <option value= 0> Seleccione un Cliente ... </option>
                     @foreach ($clients as $client)
                         <option
-                            @if (isset($sale))
-                                @if ($sale->client_id == $client->id)
-                                    selected
+                            @if (isset($sale) || old('client_id') > 0)
+                                @if (isset($sale))
+                                    @if ($sale->client_id == $client->id)
+                                        selected
+                                    @endif
+                                @else
+                                    @if (old('client_id') == $client->id)
+                                        selected
+                                    @endif
                                 @endif
                             @endif
                         value="{{ $client->id}}"> {{ $client->names}} </option>
@@ -39,9 +46,6 @@
             <div class="col-xl-2 col-sm-4">
                 <input type="text" name="invoice" id="invoice" class="form-control"
                  value = "{{ old('invoice', (isset($sale) ? $sale->invoice :'')) }}">
-
-                {{-- {!! Form::text('invoice', isset($sales) ? $sale->invoice : '',
-                ['class'=>'form-control']) !!} --}}
             </div>
         </div>
         <div class="row mt-1">
@@ -59,7 +63,9 @@
             </div>
             <div class="col-xl-2 col-sm-3">
                 <input type="number" name="rate_exchange" id="rate_exchange" class="form-control"
-                        step="any" value = "{{ old('rate_exchange', (isset($sale) ? $sale->rate_exchange :'')) }}">
+                     onfocus = "VerifyGetFocusRateExchange()" step="any"
+                     onchange="CalculateMountOtherCoin()"
+                     value = "{{ old('rate_exchange', (isset($purchase) ? $purchase->rate_exchange :'')) }}">
                 @if ($errors->has('rate_exchange'))
                     <span id="rate_exchange-error" class="error text-danger" for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
                 @endif
@@ -68,7 +74,7 @@
                 <label for="" class="form-label">Condiciones</label>
             </div>
              <div class="col-sm-4  col-xl-2">
-                <input type="radio" name="conditions" value='Credito' checked> Credito
+                <input type="radio" name="conditions" id="conditions" value='Credito' checked> Credito
                 <input type="radio" name="conditions" value='Contado'> Contado
             </div>
             <div class="col-sm-1">

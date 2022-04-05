@@ -40,7 +40,7 @@
                     <tr>
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ $paymentsupplier->Supplier->name }} </td>
-                        <td> {{ $paymentsupplier->payment_date }} </td>
+                        <td> {{ date("d-m-Y",strtotime($paymentsupplier->payment_date)) }} </td>
                         <td> {{ $paymentsupplier->mount }} ({{$paymentsupplier->Coin->symbol }}) </td>
                         <td> {{ $paymentsupplier->PaymentForm->description }} </td>
                    </tr>

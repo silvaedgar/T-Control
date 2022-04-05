@@ -3,18 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Coin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
-
+use PDF;
 
 class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Client::all();
-        return view('clients.index',compact('clients'));
+        $symbolcoin = Coin::where('calc_currency_sale','S')->where('status','Activo')->first();
+
+        $clients = Client::where('status','Activo')->orderBy('names')->get();
+        return view('clients.index',compact('clients','symbolcoin'));
     }
 
     public function create()
@@ -52,14 +55,21 @@ class ClientController extends Controller
 
     public function destroy(Client $client)
     {
-        // echo $client;
-        // $cliente = Client::find($client->id);
-        // $cliente->update(['status' => 'Inactivo']);
-        // $client->save();
-        // echo $cliente;
+        $cliente = Client::find($client->id);
+        $client->status = 'Inactivo';
+        $client->save();
 
-        // return redirect()->route('clients.index')->with("status","Ok_Se elimino el cliente $client->names con exito");
+        return redirect()->route('clients.index')->with("status","Ok_Se elimino el cliente $client->names con exito");
 
+    }
+
+    public function listprint() {
+
+        $clients = Client::orderBy('names')->where('balance','>',0)->get();
+        $pdf = PDF::loadView('clients.report',['clients' => $clients]);
+        // return view('clients.report',compact('clients'));
+        // $pdf = PDF::loadHTML('<h1>Test</h1>');
+        return $pdf->stream();
     }
 
     //

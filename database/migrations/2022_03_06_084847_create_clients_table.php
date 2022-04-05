@@ -20,7 +20,7 @@ class CreateClientsTable extends Migration
             $table->string('document',10); // rif o cedula
             $table->string('names',100);
             $table->string('address', 200);
-            $table->float('balance',13,3);
+            $table->float('balance',13,3)->default(0);
             $table->enum('status',['Activo','Inactivo'])->default('Activo');
             $table->timestamps();
 

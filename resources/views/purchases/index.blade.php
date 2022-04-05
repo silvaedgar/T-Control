@@ -43,7 +43,7 @@
                     <tr>
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ $purchase->Supplier->name }} </td>
-                        <td> {{ $purchase->purchase_date }} </td>
+                        <td> {{ date("d-m-Y",strtotime($purchase->purchase_date)) }} </td>
                         <td> {{ $purchase->mount }}({{$purchase->Coin->symbol}}) </td>
                         <td> {{ $purchase->mount - $purchase->paid_mount }}({{$purchase->Coin->symbol}})</td>
                         <td> {{ ($purchase->status == "Parcial"? "Parcialmente Cancelada" : $purchase->status) }} </td>

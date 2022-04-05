@@ -8,13 +8,19 @@
                 <label for="" class="form-label">Proveedor</label>
             </div>
             <div class="col-xl-4 col-sm-10 col-md-6">
-                <select name="supplier_id" id="supplier_id" class="form-control" onchange="SearchPurchaseSuppliers()" >
+                <select name="supplier_id" id="supplier_id" class="form-control"
+                            onchange="SearchPurchaseSuppliers()" >
                     <option value= 0> Seleccione un Proveedor ... </option>
                     @foreach ($suppliers as $supplier)
-                        <option value="{{ $supplier->id}}"> {{ $supplier->name}} </option>
+                        <option
+                            @if (old('supplier_id') == $supplier->id)
+                                selected
+                            @endif
+                            value="{{ $supplier->id}}"> {{ $supplier->name}}
+                        </option>
                     @endforeach
                 </select>
-                @if ($errors->has('supplier_id'))
+               @if ($errors->has('supplier_id'))
                     <span id="supplier_id-error" class="error text-danger" for="input-supplier_id">{{ $errors->first('supplier_id') }}</span>
                 @endif
             </div>
@@ -35,7 +41,12 @@
                 <select name="payment_form_id" id="payment_form_id" class="form-control">
                     <option value= 0> Seleccione Forma de Pago ... </option>
                     @foreach ($paymentforms as $paymentform)
-                        <option value="{{ $paymentform->id }}"> {{ $paymentform->payment_form}} </option>
+                        <option
+                            @if (old('payment_form_id') == $paymentform->id)
+                                selected
+                            @endif
+                            value="{{ $paymentform->id }}"> {{ $paymentform->payment_form}}
+                        </option>
                     @endforeach
                 </select>
                 @if ($errors->has('payment_form_id'))
@@ -57,7 +68,8 @@
 
             </div>
             <div class="col-md-2 col-sm-2">
-                <input type="number" name="rate_exchange" id="rate_exchange" class="form-control" onchange = "ShowMountCurrencyCalc()"
+                <input type="number" name="rate_exchange" id="rate_exchange" class="form-control"
+                     onchange = "CalculateMountOtherCoin()"
                     step="any" value = "{{ old('rate_exchange', (isset($purchase) ? $purchase->rate_exchange :'')) }}">
                 @if ($errors->has('rate_exchange'))
                     <span id="rate_exchange-error" class="error text-danger" for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
@@ -69,7 +81,7 @@
             </div>
             <div class="col-sm-3 col-md-2">
                 <input type="number" name="mount" id="mount" class="form-control"
-                        step="any" onchange = "ShowMountCurrencyCalc()">
+                        step="any" onchange="CalculateMountOtherCoin()">
                 @if ($errors->has('mount'))
                     <span id="mount-error" class="error text-danger" for="input-mount">{{ $errors->first('mount') }}</span>
                 @endif

@@ -40,7 +40,7 @@
                     @foreach ($sales as $sale)
                         <tr style="font-size: small; cursor: pointer" >
                             <td><a href = "{{ route('sales.show',$sale->id) }}"> {{ $loop->iteration }} </a> </td>
-                            <td> {{ $sale->sale_date }} </td>
+                            <td> {{ date("d-m-Y",strtotime($sale->sale_date)) }} </td>
                             <td> {{ $sale->Client->names }} </td>
                             <td> {{ $sale->mount }}({{$sale->Coin->symbol}}) </td>
                             <td> {{ $sale->mount - $sale->paid_mount }}({{$sale->Coin->symbol}}) </td>

@@ -33,9 +33,9 @@ class DatabaseSeeder extends Seeder
         // DB::table('sales')->truncate();
         // DB::table('payment_clients')->truncate();
         // DB::table('payment_suppliers')->truncate();
-        DB::table('products')->truncate();
-        // DB::table('clients')->truncate();
-        // DB::table('suppliers')->truncate();
+        // DB::table('products')->truncate();
+        DB::table('clients')->truncate();
+        DB::table('suppliers')->truncate();
         // DB::table('sale_details')->truncate();
         // DB::table('sales')->truncate();
         // DB::table('purchase_details')->truncate();
@@ -67,9 +67,9 @@ class DatabaseSeeder extends Seeder
         // Tax::factory(1)->create();
         // ProductGroup::factory(13)->create();
         // ProductCategory::factory(35)->create();
-        // Supplier::factory(12)->create();
-        //  Client::factory(27)->create();
-        Product::factory(225)->create();
+        Supplier::factory(15)->create();
+         Client::factory(25)->create();
+        // Product::factory(225)->create();
     }
 }
 

@@ -14,10 +14,15 @@
         <div class="card">
           <div class="card-header card-header-primary">
               <div class="row">
-                <div class="col-8 align-middle">
+                <div class="col-xl-7 col-md-5 col-sm-3 align-middle">
                     <h4 class="card-title ">Listado de Clientes</h4>
                 </div>
-                <div class="col-3 justify-end">
+                <div class="col-xl-5 col-md-7 col-sm-9">
+                    <a href = "{{ route('clients.listprint')}}">
+                        <button class="btn btn-info">Generar PDF
+                            <i class="material-icons" aria-hidden="true">print</i>
+                        </button> </a>
+
                     <a href="{{route('clients.create')}}">
                         <button class="btn btn-info"> Crear Cliente
                             <i class="material-icons" aria-hidden="true">person_add</i>
@@ -41,14 +46,15 @@
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ $client->document_type }}-{{$client->document}} </td>
                         <td> {{ $client->names }} </td>
-                        <td> {{ $client->balance }} </td>
+                        <td> {{ $client->balance }} {{ $symbolcoin->symbol }} </td>
                         <td>
                             <a href="{{route('clients.edit',$client->id)}}">
                                 <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Cliente">
-                                <i class="fa fa-edit"></i> </button> </a>
+                                <i class="fa fa-edit"></i> </button>
+                            </a>
                             <input type="hidden" id="message-item-delete" value = " Al Cliente: {{ $client->names}}">
-                            <form action="{{ route('clients.destroy',$client)}}"  method="post"
-                                    class = "d-inline" id="delete-item">
+                            <form action="{{ route('clients.destroy',$client)}}"  id="delete-item" method="post"
+                                    class = "d-inline">
                                 @csrf
                                 @method('delete')
                                 <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Cliente">
@@ -70,7 +76,7 @@
 @push('js')
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ asset('js')}}\functions.js"></script>
+    <script src="{{ asset('js')}}\globalvars.js"></script>
     <script>
         $(document).ready(function() {
             $('#clients').DataTable({
@@ -80,5 +86,6 @@
             });
         });
     </script>
+
 @endpush
 

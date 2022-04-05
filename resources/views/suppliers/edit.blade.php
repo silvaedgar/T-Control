@@ -38,9 +38,10 @@
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Proveedor') }}</button>
               </div>
+              <a href = "{{ route('suppliers.index') }}"> {{ __('Volver al listado') }} </a>
+
             </div>
           </form>
-          <a href = "{{ route('suppliers.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>

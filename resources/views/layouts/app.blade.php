@@ -9,7 +9,7 @@
     {{-- <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('material') }}/img/apple-icon.png">
     <link rel="icon" type="image/png" href="{{ asset('material') }}/img/favicon.png"> --}}
 
-    <link rel="icon" type="image/png" href="/t-control/public/vesil.png">
+    <link rel="icon" type="image/png" href=" {{ asset('/') }}vesil.png">
 
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
     <!--     Fonts and icons     -->
@@ -155,7 +155,6 @@
         <script src="{{ asset('material') }}/js/settings.js"></script>
 
         <script>
-
             if (document.getElementById('mensaje')) {
                 message = document.getElementById('mensaje').value;
                 if (message != "") {
@@ -170,6 +169,26 @@
                     )
                 }
             }
+
+            $('#logout-form').submit(function(e) {
+                e.preventDefault();
+                alert("entre");
+                Swal.fire({
+                    title: 'Salir del Sistema? ',
+                    text: "Seguro??",
+                    icon: 'question',
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Si'
+                }).then((result) => {
+                    if (result.value) {
+                        this.submit()
+                    }
+                })
+            })
+
         </script>
         @stack('js')
     </body>

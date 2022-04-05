@@ -50,8 +50,10 @@ class SaleController extends Controller
             $sales = Sale::orderBy('id','desc')->get();
             return view('sales.index',compact('sales','message'));
         }
-        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name,'base_calc_id'=>
-                isset($base[1]->id)?$base[1]->id:$base[0]->id, 'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name];
+        $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_symbol' => $base[0]->symbol,
+        'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id,
+        'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name,
+        'base_calc_symbol'=> isset($base[1]->symbol)?$base[1]->symbol:$base[0]->symbol];
         return view('sales.create',compact('clients','products','base_coins'));
     }
 
@@ -59,9 +61,11 @@ class SaleController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->status = ($request->condition == "Credito" ? 'Pendiente' : 'Cancelada');
-
             $sale = Sale::create($request->all());
+            $sale->status = ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada');
+            $sale->paid_mount = ($request->conditions == "Credito" ? 0 : $request->mount);
+            $sale->save();
+            echo $sale;
             $client = Client::find($request->client_id);
 
             $amount = $request->mount;
@@ -70,7 +74,6 @@ class SaleController extends Controller
                     $amount = $request->mount / $request->rate_exchange;
                 }
                 $balance_client = $client->balance + $amount;
-
                 $client->balance = $balance_client;
                 $client->save();
             }
@@ -96,10 +99,9 @@ class SaleController extends Controller
 
     public function show($id)
     {
-
         $clients = Client::where('status','Activo')->get();
         $coins = Coin::where('status','Activo')->get();
-        $sale = Sale::select('sales.*','clients.names as cliente','coins.name as moneda')
+        $sale = Sale::select('sales.*','clients.names as cliente','coins.name as moneda','coins.symbol as simbolo')
                 ->join('clients','sales.client_id','clients.id')
                 ->join('coins','sales.coin_id','coins.id')
                 ->where('sales.id',$id)->first();

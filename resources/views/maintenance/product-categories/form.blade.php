@@ -16,9 +16,6 @@
                     value="{{ $group->id }}"> {{ $group->description}} </option>
             @endforeach
         </select>
-        {{-- {{ Form::select('group_id', $groups,isset($productcategory) ? $productcategory->group_id : null,
-                ['class' => 'form-control']) }} --}}
-        {{-- $errors->has('group_id') ? ' is-invalid' : '' --}}
         @if ($errors->has('group_id'))
           <span id="group_id-error" class="error text-danger" for="input-group_id">{{ $errors->first('group_id') }}</span>
         @endif

@@ -25,10 +25,11 @@ class StoreSaleRequest extends FormRequest
     {
 
         return [
-            'client_id' => 'required',
-            'coin_id' => 'required',
-            'rate_exchange' => 'required',
-            'sale_date' => 'required',
+        'client_id' => 'gt:0',
+        'coin_id' => 'gt:0',
+        'rate_exchange' => 'gt:0',
+        'sale_date' => 'required',
+        'mount' => 'gt:0',
         ];
     }
 
@@ -38,6 +39,17 @@ class StoreSaleRequest extends FormRequest
             'coin_id' => 'Moneda',
             'rate_exchange' => 'Tasa de Cambio',
             'sale_date' => 'fecha',
+            'mount' => 'Monto'
+        ];
+    }
+
+    public function messages() {
+
+        return [
+            'mount.gt' => 'Ingrese los productos de la factura',
+            'client.gt' => 'Seleccione el Cliente',
+            'rate_exchange.gt' => 'Ingrese el valor de la tasa de cambio',
+            'purchase_date.required' => 'Ingrese la Fecha de la Factura'
         ];
     }
 }

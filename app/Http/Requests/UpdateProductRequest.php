@@ -27,4 +27,13 @@ class UpdateProductRequest extends FormRequest
             //
         ];
     }
+
+    public function attributes() {
+        return [
+            'code' => 'Codigo del Producto',
+            'name' => 'Descripcion del Producto'
+        ];
+
+    }
+
 }

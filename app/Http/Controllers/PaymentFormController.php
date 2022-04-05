@@ -53,14 +53,16 @@ class PaymentFormController extends Controller
         $request->validate ([
             'payment_form' => ["required","max:20",Rule::unique('payment_forms')->ignore($request->id)]
         ]);
-        $productRubric = PaymentForm::find($request->id);
-        $productRubric->update($request->all());
+        $paymentform = PaymentForm::find($request->id);
+        $paymentform->update($request->all());
         return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Forma de Pago $request->description. Actualizado exitosamente");;
         //
     }
 
-    public function destroy(PaymentForm $productRubric)
+    public function destroy($id)
     {
-        //
+        $paymentform = PaymentForm::find($id);
+        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Eliminación de Forma de Pago  $paymentform->description. NO AFECTA BD");
     }
+
 }

@@ -6,10 +6,14 @@
 @endsection
 
 @section('content')
-
-<input type="hidden" id = "base_currency" value = "{{ $base_coins['base_id']}}">
-<input type="hidden" id = "calc_currency" value = "{{ $base_coins['base_calc_id']}}">
 <div class="content">
+    <input type="hidden" id = "base_currency" value = "{{ $base_coins['base_id']}}">
+    <input type="hidden" id = "calc_currency" value = "{{ $base_coins['base_calc_id']}}">
+    <input type="hidden" id = "factor">
+    <input type="hidden" id = "last_rate">
+    <input id="symbol_coin" type="hidden" value = "{{ $base_coins['base_calc_symbol']}}">
+    <input id="symbol_coin_calc" type="hidden" value = "{{ $base_coins['base_calc_symbol']}}">
+
       <div class="row">
         <div class="col-md-12">
             <form method="post" action="{{route('sales.store')}}" autocomplete="off" class="form-horizontal">
@@ -22,6 +26,10 @@
                         </div>
                         <div class="col-sm-3 justify-center">
                             <h5> Monto Factura: <span id="mountlabel">  </h5>
+                            @if ($errors->has('mount'))
+                                <span id="mount-error" class="error text-light" for="input-mount">{{ $errors->first('mount') }}</span>
+                            @endif
+
                         </div>
                         <div class="col-sm-2">
                             <h5 class="card-category" id="payment_mount"></h5>
@@ -33,6 +41,7 @@
                     <span id="base_calc_name" > Moneda de Calculo: {{ $base_coins['base_calc_name']}} </span>
                     <input id="mount" name = "mount" type="hidden">
                     <input id="tax" name = "tax_mount" type="hidden">
+
                 </div>
                 <div class="card-body ">
                 @if (session('status'))
@@ -59,9 +68,9 @@
 @endsection
 
 @push('js')
-    {{-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="{{ asset('js') }}/searchfunctions1.js"> </script>
-    <script src="{{ asset('js') }}/tabledetails1.js"> </script>
+    <script src="{{ asset('js') }}/globalvars.js"> </script>
+    <script src="{{ asset('js') }}/searchfunctions.js"> </script>
+    <script src="{{ asset('js') }}/tabledetails.js"> </script>
 @endpush
 

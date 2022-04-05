@@ -9,7 +9,6 @@
         <div class="col-md-12">
           <form method="post" action="{{route('maintenance.productgroups.store')}}" autocomplete="off" class="form-horizontal">
             @csrf
-
             <div class="card ">
               <div class="card-header card-header-primary">
                 <h4 class="card-title">{{ __('Crear Grupo') }}</h4>
@@ -32,10 +31,10 @@
               </div>
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Grupo') }}</button>
-            </div>
+              </div>
+              <a href = "{{ route('maintenance.productgroups.index') }}"> {{ __('Volver al listado') }} </a>
             </div>
           </form>
-          <a href = "{{ route('maintenance.productgroups.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>

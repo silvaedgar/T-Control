@@ -35,14 +35,14 @@
                 </thead>
                 <tbody>
                     @foreach ($productgroups as $group)
-                    <tr style="height: 1%">
+                    <tr>
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ $group->description }} </td>
                         <td>
                             <a href="{{route('maintenance.productgroups.edit',$group->id)}}">
                                 <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Grupo de Producto">
                                 <i class="fa fa-edit"></i> </button> </a>
-                            <input type="hidden" id="message-item-delete" value = " Al Grupo de producto: {{ $group->description}}">
+                            <input type="hidden" id="message-item-delete" value = " Al Grupo de Producto: {{ $group->description}}">
                             <form action="{{ route('maintenance.productgroups.destroy',$group->id)}}"  method="post"
                                     class = "d-inline" id="delete-item">
                                 @csrf
@@ -69,7 +69,7 @@
 @push('js')
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ asset('js')}}/functions.js"> </script>
+    <script src="{{ asset('js')}}/globalvars.js"> </script>
 
     <script>
         $(document).ready(function() {

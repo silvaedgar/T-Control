@@ -34,7 +34,7 @@
 </div>
 @endif
 
-<div class = "div-table" style="height: 20rem">
+<div class = "div-table" style="height: 16.5rem">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped"
                         id="details-table">
         <thead style="background: rgb(202, 202, 236); text-align: center; ">

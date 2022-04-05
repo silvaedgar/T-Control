@@ -19,7 +19,7 @@ class CreateSalesTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('coin_id');
             $table->float('rate_exchange',13,3)->default(1);
-            $table->dateTime('sale_date')->default(now());
+            $table->date('sale_date')->default(now());
             $table->string('invoice',10)->nullable(); // Numero de factura no es obligatorio en las primeras de cambios
             $table->float('mount',13,3);
             $table->float('tax_mount',13,3);

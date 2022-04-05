@@ -17,3 +17,5 @@ Route::get('/products/{id}/categories',[ApiController::class,'loadcategories']);
 Route::get('/purchases/{id}/suppliers',[PurchaseController::class,'suppliers'])->name('purchase.suppliers');
 Route::get('/sales/{id}/clients',[SaleController::class,'clients'])->name('sale.clients');
 Route::get('/coins/{id}/loadcoins',[ApiController::class,'loadcoins'])->name('loadcoins');
+
+Route::get('/suppliers/{id}/balancesuppliers',[ApiController::class,'balancesuppliers'])->name('balancesuppliers');

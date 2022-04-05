@@ -32,9 +32,10 @@
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Producto') }}</button>
               </div>
+              <a href = "{{ route('products.index') }}"> {{ __('Volver al listado') }} </a>
+
             </div>
           </form>
-          <a href = "{{ route('products.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>
@@ -42,11 +43,7 @@
 @endsection
 
 @push('js')
-<script
-  src="https://code.jquery.com/jquery-3.6.0.js"
-  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-  crossorigin="anonymous"></script>
-
-<script src="{{ asset('js') }}/functions.js"> </script>
+    <script src="{{ asset('js') }}/searchfunctions.js"> </script>
+    <script src="{{ asset('js') }}/globalvars.js"> </script>
 
 @endpush

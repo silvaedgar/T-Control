@@ -12,10 +12,10 @@
         <div class="card">
           <div class="card-header card-header-primary">
               <div class="row">
-                <div class="col-8 align-middle">
+                <div class="col-sm-6 col-md-8 flex-column ">
                     <h4 class="card-title ">Listado de Monedas</h4>
                 </div>
-                <div class="col-3 justify-end">
+                <div class="col-sm-4 float-end ">
                     <a href="{{route('maintenance.coins.create')}}">
                         <button class="btn btn-info"> Crear Moneda
                             <i class="material-icons" aria-hidden="true">person_add</i>
@@ -31,7 +31,7 @@
                     <th>Item</th>
                     <th>Nombre</th>
                     <th>Simbolo</th>
-                    <th> Acciones </th>
+                    <th>Acciones </th>
                 </thead>
                 <tbody>
                     @foreach ($coins as $coin)
@@ -52,22 +52,17 @@
                         <td> {{ $coin->name }} </td>
                         <td> {{ $coin->symbol }} </td>
                         <td>
-                            <div class="row">
-                                <div class="col-2">
-                                    <a href="{{route('maintenance.coins.edit',$coin->id)}}">
-                                        <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Moneda">
-                                            <i class="fa fa-edit"></i> </button> </a>
-                                </div>
-                                <div class="col-2">
-                                    <form action="{{ route('maintenance.coins.destroy',$coin->id)}}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                           <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Moneda"
-                                                    onclick = "return DeleteRecord('Seguro que desea eliminar la moneda?')">
-                                            <i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                    </form>
-                                </div>
-                            </div>
+                            <a href="{{route('maintenance.coins.edit',$coin->id)}}">
+                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Moneda">
+                                <i class="fa fa-edit"></i> </button> </a>
+                            <input type="hidden" id="message-item-delete" value = " Al Moneda: {{ $coin->name}}">
+                            <form action="{{ route('maintenance.coins.destroy',$coin->id)}}"  method="post"
+                                    class = "d-inline" id="delete-item">
+                                @csrf
+                                @method('delete')
+                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Moneda">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                            </form>
                         </td>
                     </tr>
                     @endforeach
@@ -85,8 +80,7 @@
 @push('js')
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ asset('js') }}/functions.js"> </script>
-
+    <script src="{{ asset('js')}}/globalvars.js"> </script>
     <script>
         $(document).ready(function() {
             $('#coins').DataTable({
@@ -95,31 +89,5 @@
                 autoWidth : false
             });
         });
-
-    function EliminarRegistro(value){
-
-        alert("entre a eliminar registro")
-        // confirm(value) ? true: event.preventDefault()
-
-        // confirm(value) ? true: event.preventDefault()
-            // event.preventDefault();
-            // Swal.fire({
-            //     title: 'Esta Seguro?',
-            //     text: value,
-            //     icon: 'question',
-            //     showCancelButton: true,
-            //     confirmButtonColor: '#3085d6',
-            //     cancelButtonColor: '#d33',
-            //     confirmButtonText: 'Si'
-            // }).then((result) => {
-
-            //     if (result.isConfirmed) {
-            //         $(this).trigger('click');
-            //     }
-            // })
-
-            // this.closest('form').submit()
-    }
-
     </script>
 @endpush

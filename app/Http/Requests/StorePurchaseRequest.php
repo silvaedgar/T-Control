@@ -25,12 +25,11 @@ class StorePurchaseRequest extends FormRequest
     {
 
         return [
-            'supplier_id' => 'required',
-            'coin_id' => 'required',
-            'rate_exchange' => 'required',
+            'supplier_id' => 'gt:0',
+            'coin_id' => 'gt:0',
+            'rate_exchange' => 'gt:0',
             'purchase_date' => 'required',
-            'mount' => 'required',
-            'product_id' => 'required'
+            'mount' => 'gt:0',
         ];
     }
 
@@ -39,7 +38,19 @@ class StorePurchaseRequest extends FormRequest
             'supplier_id' => 'Proveedor',
             'coin_id' => 'Moneda',
             'rate_exchange' => 'Tasa de Cambio',
-            'purchase_date' => 'fecha',
+            'purchase_date' => 'Fecha',
+            'mount' => "Monto"
         ];
     }
+
+    public function messages() {
+
+        return [
+        'mount.gt' => 'Debe Ingresar los productos de la factura',
+        'supplier.gt' => 'Debe Seleccionar el Proveedor',
+        'rate_exchange.gt' => 'Ingrese el valor de la tasa de cambio',
+        'purchase_date.required' => 'Ingrese la Fecha'
+    ];
+    }
+
 }
