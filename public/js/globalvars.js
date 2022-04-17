@@ -9,6 +9,7 @@ var price_base;
 // -----------------------------------------------------------------------------------------------------
 
 $(document).ready(function() {
+
     if ($('#pidproduct').length > 0)
         $('#pidproduct').select2({
             placeholder : 'Seleccione un Producto ...'
@@ -39,6 +40,28 @@ $(document).ready(function() {
     if (categories) {   // esta en productos
         LoadCategories();
     }
+
+    $('#data-table').DataTable({
+            stateSave: true,
+            scrollX: true,
+            lengthMenu : [[6,10,20,-1],[6,10,20,"Todos los"]],
+            autoWidth : true,
+            language : {
+                search: "Buscar: ",
+                emptyTable: "No hay registros que mostrar",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "",
+                lengthMenu: "Mostrar _MENU_ registros x pagina",
+                infoFiltered: "(Filtrado de un total de _MAX_  registros)",
+                paginate: {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Sig",
+                    "previous": "Ant"
+                },
+            }
+
+        })
 });
 
 
@@ -60,4 +83,14 @@ $('#delete-item').submit(function(e) {
         }
     })
 })
+
+// Funcion que muestra la imagen(usada solo en productos hasta los moemntos Abril 2022)
+function preview(event) {
+    let reader = new FileReader()
+    reader.onload =  (e) => {
+        document.getElementById('display-image').innerHTML = "<img src='" + e.target.result +
+            "' height = '150px' width = '150px' />";
+    }
+    reader.readAsDataURL(event.target.files[0])
+}
 

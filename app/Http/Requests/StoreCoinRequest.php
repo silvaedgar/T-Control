@@ -30,10 +30,19 @@ class StoreCoinRequest extends FormRequest
             'name' => "required:unique:coins",
         ];
     }
+
     public function attributes() {
         return [
             'name' => ' "Nombre de Moneda" ',
             'symbol' => ' "Simbolo de Moneda" '
+
+        ];
+    }
+
+    public function messages() {
+        return [
+            'name.unique' => ' Nombre de  moneda ya existe ',
+            'symbol.unique' => ' Simbolo de la Moneda ya existe '
 
         ];
     }

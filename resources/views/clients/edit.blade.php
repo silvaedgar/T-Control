@@ -11,6 +11,7 @@
             @csrf
             @method('put')
             <div class="card ">
+              <input type="hidden" value = "{{ $userclient }}" name="userclient">
               <div class="card-header card-header-primary">
                 <h4 class="card-title">{{ __('Editar Cliente') }}</h4>
                 <p class="card-category">{{ __('Detalle del Cliente') }}</p>
@@ -34,9 +35,11 @@
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Cliente') }}</button>
               </div>
+              @if ($userclient == "user")
+                <a href = "{{ route('clients.index') }}"> {{ __('Volver al listado') }} </a>
+              @endif
             </div>
           </form>
-          <a href = "{{ route('clients.index') }}"> {{ __('Volver al listado') }} </a>
         </div>
       </div>
     </div>

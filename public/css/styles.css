@@ -2,8 +2,30 @@ a {
     font-size: medium;
   }
 
-  .div-table {
+.div-table {
     overflow: auto;
     height:19rem;
-    margin-top: 0.5rem;
-  }
+    margin-top: 10rem;
+}
+
+.btn-image{
+    display: block;
+    padding: 5px 10px;
+    border: none;
+    color: #fff;
+    font-size: 12px;
+    background-color: #3991A9;
+    border-radius: 3px;
+    cursor: pointer;
+    border-bottom: 1px solid #237085;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.btn-image:hover{
+    transition: all .4s;
+    background-color: #338aa1;
+}
+/* #image {
+    display : none;
+} */

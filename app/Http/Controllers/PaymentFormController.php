@@ -13,7 +13,7 @@ class PaymentFormController extends Controller
 {
 
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+        $this->middleware('role.admin');
     }
 
     public function index()
@@ -48,11 +48,11 @@ class PaymentFormController extends Controller
         //
     }
 
-    public function update(Request $request)
+    public function update(UpdatePaymentFormRequest $request)
     {
-        $request->validate ([
-            'payment_form' => ["required","max:20",Rule::unique('payment_forms')->ignore($request->id)]
-        ]);
+        // $request->validate ([
+        //     'payment_form' => ["required","max:20",Rule::unique('payment_forms')->ignore($request->id)]
+        // ]);
         $paymentform = PaymentForm::find($request->id);
         $paymentform->update($request->all());
         return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Forma de Pago $request->description. Actualizado exitosamente");;

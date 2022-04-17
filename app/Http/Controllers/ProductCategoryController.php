@@ -12,21 +12,23 @@ use Spatie\Permission\Models\Role;
 class ProductCategoryController extends Controller
 {
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
-    // $this->middleware('can:users.create')->only('create');
+        $this->middleware('role.admin');
     }
 
     public function index()
     {
-        $productcategories = ProductCategory::all();
+        $productcategories = ProductCategory::select('product_categories.*')
+            ->join('product_groups','product_groups.id','product_categories.group_id')->orderBy('description')
+            ->orderBy('product_groups.description')->get();
+        // return $productcategories;
         return view('maintenance.product-categories.index',compact('productcategories'));
     }
 
     public function create()
     {
       $groups = ProductGroup::where('status','Activo')->orderby('description')->get();
-      if (count($groups) == 0) {
-        $productcategories = ProductCategory::all();
+      if (count($groups) == 0) {  // cuando sucede esto?????
+        $productcategories = ProductCategory::where('status','Activo')->orderBy('description')->get();
         return view('maintenance.product-categories.index',compact('productcategories'));
       }
       return view('maintenance.product-categories.create',compact('groups'));
@@ -53,13 +55,10 @@ class ProductCategoryController extends Controller
         //
     }
 
-    public function update(Request $request)
+    public function update(UpdateProductCategoryRequest $request, ProductCategory $productcategory)
     {
-        $request->validate ([
-            'description' => "required|string|min:3|unique:product_groups,description,$request->id"
-        ]);
-        $productcategory = ProductCategory::find($request->id);
-        $productcategory->update($request->all());
+        $productcategory1 = ProductCategory::find($request->id);
+        $productcategory1->update($request->all());
         return redirect()->route('maintenance.productcategories.index')->with('status',"Ok_Actualización de Categoria de Producto $request->description");
         //
     }

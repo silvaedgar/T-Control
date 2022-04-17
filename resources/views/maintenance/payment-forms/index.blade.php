@@ -26,7 +26,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="paymentforms" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th>Item</th>
                     <th>Forma de Pago</th>
@@ -41,14 +41,14 @@
                         <td> {{ $paymentform->description }} </td>
                         <td>
                             <a href="{{route('maintenance.paymentforms.edit',$paymentform->id)}}">
-                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Forma de Pago">
+                                <button class="btn-info" data-bs-toggle="tooltip" title="Editar Forma de Pago">
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " La Forma de Pago: {{ $paymentform->description}}">
                             <form action="{{ route('maintenance.paymentforms.destroy',$paymentform->id)}}" method="post"
                                 class = "d-inline" id="delete-item">
                                 @csrf
                                 @method('delete')
-                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Forma de Pago">
+                                <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Forma de Pago">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                             </form>
                         </td>
@@ -68,13 +68,4 @@
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="{{ asset('js')}}/globalvars.js"> </script>
-    <script>
-        $(document).ready(function() {
-            $('#paymentforms').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-     </script>
 @endpush

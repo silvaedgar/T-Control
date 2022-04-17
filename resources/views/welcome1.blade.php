@@ -1,4 +1,4 @@
-@extends('layouts.app', ['class' => 'off-canvas-sidebar', 'activePage' => 'home', 'titlePage' => __('T-Control(Material Dashboard)')])
+@extends('layouts.app', ['class' => 'bg-info', 'activePage' => 'home', 'titlePage' => __('T-Control(Material Dashboard)')])
 
 @section('content')
 <div class="content">

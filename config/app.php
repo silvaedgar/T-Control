@@ -175,8 +175,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
         Collective\Html\HtmlServiceProvider::class,
+        App\Providers\UserClientServiceProvider::class,
+
 
     ],
 
@@ -234,6 +235,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Form' => Collective\Html\FormFacde::class,
         'Html' => Collective\Html\HtmlFacde::class,
+        'UserClient' => App\UserClientFacade::class,
     ],
 
 ];

@@ -14,12 +14,13 @@ class CoinController extends Controller
 {
 
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+
+        $this->middleware('role.admin');
     }
 
     public function index()
     {
-        $coins = Coin::where('status','Activo')->orderby('name')->get();
+        $coins = Coin::GetCoins()->orderby('name')->get();
         return view('maintenance.coins.index',compact('coins'));
     }
 
@@ -47,12 +48,8 @@ class CoinController extends Controller
         //
     }
 
-    public function update(Request $request)
+    public function update(UpdateCoinRequest $request)
     {
-        $request->validate ([
-            'name' => "required|unique:coins,name,$request->id",
-            'symbol' => ["required","max:3",Rule::unique('coins')->ignore($request->id)]
-        ]);
         $coin = Coin::find($request->id);
         $coin->update($request->all());
         return redirect()->route('maintenance.coins.index')->with('status',"Ok_Actualización de Moneda $request->name");
@@ -61,7 +58,7 @@ class CoinController extends Controller
     public function destroy($id)
     {
         $coin = Coin::find($id);
-        // $coin->status = 'Inactivo';
+        $coin->status = 'Inactivo';
         // $coin->save();
         return redirect()->route('maintenance.coins.index')->with('status',"Ok_Eliminar Moneda $coin->name satisfactorio");
         //

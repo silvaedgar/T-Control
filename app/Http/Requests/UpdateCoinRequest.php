@@ -13,18 +13,25 @@ class UpdateCoinRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
+        $coin = $this->route('coin');
         return [
-            //
+            'symbol' => 'required|max:3|unique:coins,symbol,' . $coin,
+            'name' => "required",
+        ];
+    }
+
+    public function messages() {
+        return [
+            'name.unique' => 'Nombre de moneda ya existe ',
+            'name.required' => 'Nombre de Moneda es obligatorio',
+            'symbol.unique' => 'Simbolo de Moneda ya existe',
+            'symbol.required' => 'Simbolo de Moneda es obligatorio',
+            'symbol.max' => 'Longitud máxima de 3 caracteres para del Simbolo de Moneda',
         ];
     }
 }

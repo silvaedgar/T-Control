@@ -17,7 +17,7 @@
                     <h4 class="card-title ">Listado de Productos</h4>
                 </div>
                 <div class="col-xl-5 col-md-7 col-sm-9">
-                    <a href = "{{ route('products.listprint')}}">
+                    <a href = "{{ route('products.listprint')}}" target="_blank">
                     <button class="btn btn-info">Generar PDF
                         <i class="material-icons" aria-hidden="true">print</i>
                     </button> </a>
@@ -30,7 +30,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="products" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th>Item</th>
                     <th>Codigo</th>
@@ -53,14 +53,14 @@
                         <td> {{ $product->cost_price }} {{ $symbolcoin[0]->symbol }} </td>
                         <td>
                             <a href="{{route('products.edit',$product->id)}}">
-                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Producto">
+                                <button class="btn-info" data-bs-toggle="tooltip" title="Editar Producto">
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " Al Producto: {{ $product->name}}">
                             <form action="{{ route('products.destroy',$product->id)}}"  method="post"
                                     class = "d-inline" id="delete-item">
                                 @csrf
                                 @method('delete')
-                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Producto">
+                                <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Producto">
                                 <i class="fa fa-trash-o"></i></button>
                             </form>
                        </td>
@@ -81,15 +81,6 @@
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="{{ asset('js')}}\globalvars.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#products').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-    </script>
 @endpush
 
 

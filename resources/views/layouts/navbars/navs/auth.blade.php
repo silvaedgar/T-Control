@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+<nav class="navbar navbar-expand-lg navbar-absolute fixed-top shadow bg-info ">
     <div class="container-fluid">
         <div class="navbar-wrapper">
             <a class="navbar-brand" href="#">{{ $titlePage }}</a>

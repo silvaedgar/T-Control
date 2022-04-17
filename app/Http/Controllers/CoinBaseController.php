@@ -17,21 +17,18 @@ class CoinBaseController extends Controller
 {
 
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+        $this->middleware('role.admin');
     }
 
     public function index()
     {
-        $basecoin = Coin::where('base_currency','S')->first(); // moneda base
+        $basecoin = Coin::GetCoinBase()->first(); // moneda base
         $calccoinpurchase = Coin::where('calc_currency_purchase','S')->first(); // moneda base de calculo
         $calccoinsale = Coin::where('calc_currency_sale','S')->first(); // moneda base de calculo
 
-        $coins = Coin::where('status','Activo')->get();
+        $coins = Coin::GetCoins()->get();
 
         return view('maintenance.coins.base',compact('basecoin','calccoinpurchase','coins','calccoinsale'));
-
-        // $calccoins = $basecoins;
-        // return view('maintenance.coins.base',compact('basecoins','calccoins','basecoin','calccoin'));
     }
 
     private function FindRateExchange($currency_calc_old,$currency_calc_new,$price) {
@@ -45,7 +42,7 @@ class CoinBaseController extends Controller
     {
         DB::beginTransaction();
         try {
-            $basecoin = Coin::where('base_currency','S')->first(); // moneda base
+            $basecoin = Coin::GetCoinBase()->first(); // moneda base
             $calccoinpurchase = Coin::where('calc_currency_purchase','S')->first(); // moneda base de calculo
             $calccoinsale = Coin::where('calc_currency_sale','S')->first(); // moneda base de calculo
             if ($calccoinpurchase->id != $request->calc_currency_purchase) {
@@ -61,12 +58,10 @@ class CoinBaseController extends Controller
             if ($calccoinsale->id != $request->calc_currency_sale) {
                 $rate_exchange = $this->FindRateExchange($calccoinsale->id,$request->calc_currency_sale,
                     'sale_price');
-                    echo $rate_exchange;
                 if ($rate_exchange < 0) {
                     DB::rollback();
                     return redirect()->route('coinbase.index')->with('status',"Error_No existe valor de divisa relacionado entre la anterior y la nueva. Verifique");
                 }
-                echo $rate_exchange;
                 DB::update('UPDATE clients SET balance = balance * '.$rate_exchange);
             }
             // Deja sin moneda base el modelo
@@ -79,7 +74,7 @@ class CoinBaseController extends Controller
             Coin::where('id',$request->calc_currency_purchase)->update(['calc_currency_purchase' => 'S']);
             Coin::where('id',$request->calc_currency_sale)->update(['calc_currency_sale' => 'S']);
 
-            $coins = Coin::where('status','S')->get();
+            // $coins = Coin::GetCoins()->get();
             DB::commit();
             $message = "Ok_Se actualizaron las monedas base y de calculo";
         } catch (\Throwable $th) {

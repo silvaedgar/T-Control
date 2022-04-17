@@ -24,16 +24,21 @@ class StorePaymentFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'payment_form' => 'required|string|max:20|unique:payment_forms',
-            'description' => 'required|string|min:5',            //
+            'payment_form' => 'required|max:20|min:3|unique:payment_forms,payment_form',
+            'description' => 'required|min:5|max:50',            //
         ];
     }
 
-    public function attributes() {
+    public function messages() {
         return [
-            'description' => 'descripcion de forma de pago',
-            'payment_form' => ' forma de pago'
+            'payment_form.required' => ' Tiene que ingresar la Forma de Pago',
+            'payment_form.unique' => 'Forma de Pago ya existente',
+            'payment_form.max' => 'Longitud maxima de la Forma de Pago de 20 caracteres',
+            'payment_form.min' => 'Longitud minima de la Forma de Pago de 3 caracteres',
+            'description.required' => 'Tiene que ingresar la descripción de la Forma de Pago',
+            'description.min' => 'Longitud minima de la descripción de la forma de pago de 5 caracteres',
+            'description.max' => 'Longitud maxima de la descripción de la forma de pago de 50 caracteres',
         ];
     }
-
 }
+

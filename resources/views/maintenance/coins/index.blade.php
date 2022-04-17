@@ -25,7 +25,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="coins" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th> </th>
                     <th>Item</th>
@@ -53,15 +53,15 @@
                         <td> {{ $coin->symbol }} </td>
                         <td>
                             <a href="{{route('maintenance.coins.edit',$coin->id)}}">
-                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Moneda">
+                                <button class="btn-info" data-bs-toggle="tooltip" title="Editar Moneda">
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " Al Moneda: {{ $coin->name}}">
                             <form action="{{ route('maintenance.coins.destroy',$coin->id)}}"  method="post"
                                     class = "d-inline" id="delete-item">
                                 @csrf
                                 @method('delete')
-                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Moneda">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                <button class="btn-danger" data-bs-toggle="tooltip" title="Eliminar Moneda">
+                                X</i></button>
                             </form>
                         </td>
                     </tr>
@@ -81,13 +81,4 @@
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="{{ asset('js')}}/globalvars.js"> </script>
-    <script>
-        $(document).ready(function() {
-            $('#coins').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-    </script>
 @endpush

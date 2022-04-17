@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activePage' => 'maintenance', 'titlePage' => __('Modulo de Usuarios')])
+@extends('layouts.app', ['activePage' => 'users', 'titlePage' => __('Modulo de Usuarios')])
 
 
 @section('css')
@@ -30,7 +30,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="users" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <tr>
                         <th>Item</th>
@@ -49,22 +49,25 @@
                             <td >
                                 @forelse ($user->roles as $rol)
                                    <span class="text-dark "> {{ $rol->name }} </span>
+                                   @if ($rol->name == 'Client' && $user->names <> '')
+                                    <span style="color: red"> Asociado a: {{ $user->names }} </span>
+                                   @endif
                                 @empty
                                     <span class=" text-danger "> No tiene rol asignado </span>
                                 @endforelse
                             </td>
                             <td>
                                 <a href="{{route('users.edit',$user->id)}}">
-                                    <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Usuario">
+                                    <button class="btn-info" data-bs-toggle="tooltip" title="Editar Usuario">
                                     <i class="fa fa-edit"></i> </button> </a>
                                 <input type="hidden" id="message-item-delete" value = " Al usuario: {{ $user->name}}">
-                                <form action="{{ route('users.destroy',$user->id)}}"  method="post"
+                                {{-- <form action="{{ route('users.destroy',$user->id)}}"  method="post"
                                         class = "d-inline" id="delete-item">
                                     @csrf
                                     @method('delete')
-                                    <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Usuario">
+                                    <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Usuario">
                                     <i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
 
@@ -116,20 +119,9 @@
   @endsection
 
 @push('js')
-    {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> --}}
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="{{asset('js')}}/globalvars.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#users').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-
-    </script>
-
 @endpush
 

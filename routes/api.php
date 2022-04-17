@@ -11,7 +11,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/purchases/{id}/product_price',[ProductController::class,'product_price'])->name('product.price');
+Route::get('/purchases/{id}/product_price',[ApiController::class,'product_price'])->name('product.price');
 Route::get('/currencyvalues/{id}/rate_exchange',[ApiController::class,'rate_exchange']);
 Route::get('/products/{id}/categories',[ApiController::class,'loadcategories']);
 Route::get('/purchases/{id}/suppliers',[PurchaseController::class,'suppliers'])->name('purchase.suppliers');

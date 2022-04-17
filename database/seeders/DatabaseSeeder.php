@@ -34,8 +34,8 @@ class DatabaseSeeder extends Seeder
         // DB::table('payment_clients')->truncate();
         // DB::table('payment_suppliers')->truncate();
         // DB::table('products')->truncate();
-        DB::table('clients')->truncate();
-        DB::table('suppliers')->truncate();
+        // DB::table('clients')->truncate();
+        // DB::table('suppliers')->truncate();
         // DB::table('sale_details')->truncate();
         // DB::table('sales')->truncate();
         // DB::table('purchase_details')->truncate();
@@ -55,9 +55,9 @@ class DatabaseSeeder extends Seeder
 
         DB::statement('SET FOREIGN_KEY_CHECKS = 1;'); // Reactivamos la revisión de claves foráneas
 
-        // $this->call(PermissionSeeder::class);
-        // $this->call(RoleSeeder::class);
-        // $this->call(UserSeeder::class);
+        $this->call(PermissionSeeder::class);
+        $this->call(RoleSeeder::class);
+        $this->call(UserSeeder::class);
         // $this->call(CoinSeeder::class);
         // Coin::factory(2)->create();    hay que crear los datos bien. Creo las moneda id 1 bsd y id 2 $
         // CurrencyValue::factory(2)->create(); Crea dos currency coin 1 base 2 valores 4,5 4,8 y coin 2 base 1 va;ore ,222 ,208
@@ -67,8 +67,8 @@ class DatabaseSeeder extends Seeder
         // Tax::factory(1)->create();
         // ProductGroup::factory(13)->create();
         // ProductCategory::factory(35)->create();
-        Supplier::factory(15)->create();
-         Client::factory(25)->create();
+        // Supplier::factory(15)->create();
+        //  Client::factory(25)->create();
         // Product::factory(225)->create();
     }
 }

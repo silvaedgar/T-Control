@@ -37,4 +37,12 @@ class Coin extends Model
         return $this->hasMany(PaymentSupplier::class, 'coin_id', 'id');
     }
 
+    public function GetCoinBase() {
+        return Coin::where('base_currency','S')->where('status','Activo');
+    }
+
+    public function GetCoins() {
+        return Coin::where('status','Activo');
+    }
+
 }

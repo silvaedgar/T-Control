@@ -34,7 +34,7 @@
 </div>
 @endif
 
-<div class = "div-table" style="height: 16.5rem">
+<div style="height: 16.5rem">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped"
                         id="details-table">
         <thead style="background: rgb(202, 202, 236); text-align: center; ">
@@ -55,10 +55,10 @@
              <tr style = "font-size:small ; background: white; text-align: left" >
                 <td> {{ $detail->item }}</td>
                 <td> {{ $detail->name }}</td>
-                <td> {{ $detail->quantity }}</td>
-                <td> {{ $detail->price }}</td>
-                <td> {{ $detail->tax }}</td>
-                <td> {{ $detail->tax + $detail->price * $detail->quantity  }}</td>
+                <td> {{ number_format($detail->quantity,2) }}</td>
+                <td> {{ number_format($detail->price,2) }}</td>
+                <td> {{ number_format($detail->tax,2) }}</td>
+                <td> {{ number_format($detail->tax + $detail->price * $detail->quantity,2)  }}</td>
             </tr>
              @endforeach
             @endif

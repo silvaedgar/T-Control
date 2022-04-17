@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activePage' => 'profile', 'titlePage' => __('User Profile')])
+@extends('layouts.app', ['activePage' => 'profile', 'titlePage' => __('Perfil de Usuario')])
 
 @section('content')
   <div class="content">
@@ -15,7 +15,7 @@
                 <p class="card-category">{{ __('Detalle del Usuario') }}</p>
               </div>
               <div class="card-body ">
-                @if (session('status'))
+                {{-- @if (session('status'))
                   <div class="row">
                     <div class="col-sm-12">
                       <div class="alert alert-success">
@@ -26,7 +26,7 @@
                       </div>
                     </div>
                   </div>
-                @endif
+                @endif --}}
                 <div class="row">
                   <label class="col-sm-2 col-form-label">{{ __('Name') }}</label>
                   <div class="col-sm-7">
@@ -69,7 +69,7 @@
                 <p class="card-category">{{ __('Password') }}</p>
               </div>
               <div class="card-body ">
-                @if (session('status_password'))
+                {{-- @if (session('status_password'))
                   <div class="row">
                     <div class="col-sm-12">
                       <div class="alert alert-success">
@@ -80,7 +80,7 @@
                       </div>
                     </div>
                   </div>
-                @endif
+                @endif --}}
                 <div class="row">
                   <label class="col-sm-2 col-form-label" for="input-current-password">{{ __('Password Actual') }}</label>
                   <div class="col-sm-7">

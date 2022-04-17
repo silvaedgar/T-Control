@@ -89,7 +89,7 @@ function SearchPurchaseSuppliers() {   // usado para la lista de las facturas pe
     var table = document.getElementById('details-table');
     DeleteTable(table);
     if (supplier_id > 0) {
-        fetch( url_base + 'api/purchases/' + supplier_id + '/suppliers')
+        fetch( url_base + 'api/suppliers/' + supplier_id + '/balancesuppliers')
         .then(datos => {
             return datos.json();
         })

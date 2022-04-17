@@ -10,6 +10,7 @@ use App\Models\Coin;
 use App\Models\UnitMeasure;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
@@ -17,9 +18,8 @@ use PDF;
 
 class ProductController extends Controller
 {
-    public function product_price($id) {
-        return  DB::table('products')->select('products.*','percent')
-            ->join('taxes','taxes.id','products.tax_id')->where('products.id',$id)->first();
+    public function __construct() {
+        $this->middleware('role');
     }
 
     public function index()
@@ -44,6 +44,7 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
+        $imagen = $this->getimage($request);
         Product::create($request->all());
         return redirect()->route('products.index')->with('status',"Ok_Creación del producto $request->name");
     }
@@ -75,9 +76,11 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request)
     {
-        $request->validate ([
-            'code' => "required|string|min:5|unique:products,code,$request->id"
-        ]);
+        // $request->validate ([
+        //     'imagefile' => 'image',
+        //     'code' => "required|string|min:5|unique:products,code,$request->id"
+        // ]);
+        $imagen = $this->getimage($request);
         $product = Product::find($request->id);
         $product->update($request->all());
         return redirect()->route('products.index')->with('status',"Ok_Actualización del producto $request->name");
@@ -101,6 +104,12 @@ class ProductController extends Controller
         // return view('products.report',compact('products'));
         // $pdf = PDF::loadHTML('<h1>Test</h1>');
         return $pdf->stream();
+    }
+
+    public function getimage($request) {
+        if ($request->imagefile  != '')  // Variable imagen es la que se guarda en la BD
+            return Storage::url($request->file('imagefile')->store('public\images'));
+        return '';
     }
 
 }

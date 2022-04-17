@@ -29,7 +29,7 @@
             </div>
             <div class="col-xl-2 col-sm-4 col-md-3">
                 <input type="date" name="payment_date" id="payment_date" class="form-control"
-                    value = "{{ old('payment_date', (isset($sale) ? $sale->payment_date :'')) }}">
+                    value = "{{ old('payment_date', (isset($sale) ? $sale->payment_date : date('Y-m-d'))) }}">
                 @if ($errors->has('payment_date'))
                     <span id="payment_date-error" class="error text-danger" for="input-payment_date">{{ $errors->first('payment_date') }}</span>
                 @endif

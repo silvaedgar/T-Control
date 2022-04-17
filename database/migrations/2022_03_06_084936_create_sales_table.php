@@ -26,7 +26,7 @@ class CreateSalesTable extends Migration
             $table->float('paid_mount',13,3)->default(0);
             $table->enum('conditions',['Credito','Contado'])->default('Credito');
             $table->string('observations',150)->nullable();
-            $table->enum('status',['Pendiente','Parcial','Cancelada','Anulada'])->default('Pendiente');
+            $table->enum('status',['Pendiente','Parcial','Cancelada','Anulada','Historico'])->default('Pendiente');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');

@@ -1,5 +1,4 @@
-@extends('layouts.app', ['activePage' => 'purchases', 'titlePage' => __('Modulo de Proveedores'),
-            'enableNavBar' => 'true'])
+@extends('layouts.app', ['activePage' => 'purchases', 'titlePage' => __('Modulo de Proveedores')])
 
 @section('css')
     <link href="{{ asset('css') }}/styles.css" rel="stylesheet">
@@ -16,20 +15,7 @@
                 <h4 class="card-title">{{ __('Creando Proveedor') }}</h4>
               </div>
               <div class="card-body ">
-                @if (session('status'))
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <div class="alert alert-success">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                          <i class="material-icons">close</i>
-                        </button>
-                        <span>{{ session('status') }}</span>
-                      </div>
-                    </div>
-                  </div>
-                @endif
                 @include('suppliers.form')
-
               </div>
               <div class="card-footer ml-auto mr-auto">
                 <button type="submit" class="btn btn-primary">{{ __('Grabar Proveedor') }}</button>

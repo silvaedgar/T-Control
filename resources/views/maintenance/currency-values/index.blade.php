@@ -40,7 +40,7 @@
                     @foreach ($coinvalues as $coin)
                     <tr style="height: 1%">
                         <td> {{ $loop->iteration }} </td>
-                        <td> {{ $coin->date_value }} </td>
+                        <td> {{ date(('d-m-Y H:i:s'),strtotime($coin->date_value)) }} </td>
                         <td> {{ $coin->Coin->name }} ({{ $coin->Coin->symbol }}) </td>
                         <td> 1{{$base_currency->symbol}}  =  {{ $coin->Coin->symbol }} {{ number_format($coin->purchase_price,2) }} </td>
                         <td> 1{{$base_currency->symbol}} = {{ $coin->Coin->symbol }} {{ number_format($coin->sale_price,2) }} </td>

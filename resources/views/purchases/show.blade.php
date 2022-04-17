@@ -13,18 +13,24 @@
             <div class="card ">
               <div class="card-header card-header-primary">
                   <div class="row">
-                    <div class="col-sm-3 col-xl-4">
+                    <div class="col-sm-5 col-xl-4">
                         <h4 class="card-title">{{ __('Detalle ODC') }} </h4>
                     </div>
-                    <div class="col-sm-5 col-xl-5">
-                        <h5> Monto Factura: <span id="mountlabel"> {{ $purchase->mount }} {{ $purchase->simbolo }} </h5>
+                    <div class="col-sm-3 justify-center">
+                        <h5> Monto Factura: <span id="mountlabel"> {{ number_format($purchase->mount,2) }} {{ $purchase->simbolo }} </span> </h5>
                     </div>
-                        <div class="col-sm-4 col-xl-3 justify-end">
-                            <a class="text-white " href = "{{ route('purchases.index') }}"> {{ __('Volver al listado') }} </a>
-                        </div>
+                    <div class="col-sm-2">
+                        @if ($base_coins['base_calc_id'] != $purchase->coin_id)
+                            <h5>  Monto en {{ $base_coins['base_symbol']}}
+                                {{ number_format($purchase->mount / $purchase->rate_exchange,2) }}</h5>
+                        @endif
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="text-white " href = "{{ url()->previous() }}"> {{ __('Volver al listado') }} </a>
+                    </div>
                   </div>
-                  <span id="base_calc_name"> Moneda de Calculo: {{ $purchase->moneda }}</span>
-              </div>
+                  <span id="base_calc_name"> Moneda de Calculo: {{ $base_coins['base_calc_name']}} </span>
+                </div>
               <div class="card-body ">
                 @include('purchases.formheader')
                  @include('purchases.formdetails')

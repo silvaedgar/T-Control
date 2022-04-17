@@ -28,7 +28,7 @@
           </div>
           <div class="card-body ">
             <div class="table-responsive ">
-              <table class="table-sm table-hover table-striped " id="purchases" style="width: 100%">
+              <table class="table-sm table-hover table-striped " id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th width="3%">Item</th>
                     <th>Proveedor</th>
@@ -50,7 +50,9 @@
                         <td> <a href = "{{ route('purchases.show',$purchase->id) }}">
                                 <button class="btn-sm btn-danger">Ver Detalle</button> </a></td>
 
-                        <td>           </td>
+                        <td>
+
+                        </td>
                    </tr>
                     @endforeach
                 </tbody>
@@ -68,17 +70,6 @@
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> --}}
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#purchases').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-
-    </script>
-
+    <script src="{{ asset('js') }}/globalvars.js"> </script>
 @endpush
 

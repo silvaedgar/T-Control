@@ -27,20 +27,15 @@ class ProfileController extends Controller
     public function update(ProfileRequest $request)
     {
         auth()->user()->update($request->all());
-
-        return back()->withStatus(__('Profile successfully updated.'));
+        return back()->with('status',"Ok_Actualización Datos de ".auth()->user()->name);
+        // return back()->withStatus(__('Profile successfully updated.'));
     }
 
-    /**
-     * Change the password
-     *
-     * @param  \App\Http\Requests\PasswordRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function password(PasswordRequest $request)
     {
         auth()->user()->update(['password' => Hash::make($request->get('password'))]);
+        return back()->with('status',"Ok_Cambio de Password");
 
-        return back()->withStatusPassword(__('Password successfully updated.'));
+        // return back()->withStatusPassword(__('Password successfully updated.'));
     }
 }

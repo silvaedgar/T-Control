@@ -1,16 +1,16 @@
-@extends('layouts.app', ['class' => 'off-canvas-sidebar', 'activePage' => 'login', 'title' => __('Material Dashboard')])
+@extends('layouts.app-guest', ['class'=> 'bg-info','activePage' => 'dashboard', 'titlePage' => __('Inicio')])
 
 @section('content')
-<div class="container" style="height: auto;">
+<div class="container mt-5" style="height: auto;">
   <div class="row align-items-center">
-    <div class="col-md-9 ml-auto mr-auto mb-3 text-center">
+    <div class="col-md-9 ml-auto mr-auto mt-5 text-center">
       <h3>{{ __('Sistema de Control de Tiendas(T-Control). Modulo de Acceso') }} </h3>
     </div>
     <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
       <form class="form" method="POST" action="{{ route('login') }}">
         @csrf
 
-        <div class="card card-login card-hidden mb-3">
+        <div class="card card-login card-hidden mt-5">
           <div class="card-header card-header-primary text-center">
             <h4 class="card-title"><strong>{{ __('Login') }}</strong></h4>
             {{-- <div class="social-line">
@@ -67,8 +67,8 @@
               </label>
             </div> --}}
           </div>
-          <div class="card-footer justify-content-center">
-            <button type="submit" class="btn btn-primary btn-link btn-lg">{{ __('Ingresar') }}</button>
+          <div class="card-footer mx-auto">
+            <button type="submit" class="btn btn-info btn-lg text-white" >{{ __('Ingresar') }}</button>
           </div>
         </div>
       </form>

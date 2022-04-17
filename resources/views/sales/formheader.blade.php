@@ -34,8 +34,8 @@
                 <label for="" class="form-label">Fecha</label>
             </div>
             <div class="col-xl-2 col-sm-5">
-                <input type="date" name="sale_date" id="sale_date" class="form-control"
-                    value = "{{ old('sale_date', (isset($sale) ? $sale->sale_date :'')) }}">
+                <input type="date" name="sale_date" id="sale_date" class="form-control" {{(isset($sale) ? 'disabled' : '') }}
+                    value = "{{ old('sale_date', (isset($sale) ? $sale->sale_date : date('Y-m-d')))}}">
                 @if ($errors->has('sale_date'))
                     <span id="sale_date-error" class="error text-danger" for="input-sale_date">{{ $errors->first('sale_date') }}</span>
                 @endif
@@ -44,7 +44,7 @@
                 <label for="" class="form-label">Factura</label>
             </div>
             <div class="col-xl-2 col-sm-4">
-                <input type="text" name="invoice" id="invoice" class="form-control"
+                <input type="text" name="invoice" id="invoice" class="form-control" {{(isset($sale) ? 'disabled' : '') }}
                  value = "{{ old('invoice', (isset($sale) ? $sale->invoice :'')) }}">
             </div>
         </div>
@@ -64,8 +64,8 @@
             <div class="col-xl-2 col-sm-3">
                 <input type="number" name="rate_exchange" id="rate_exchange" class="form-control"
                      onfocus = "VerifyGetFocusRateExchange()" step="any"
-                     onchange="CalculateMountOtherCoin()"
-                     value = "{{ old('rate_exchange', (isset($purchase) ? $purchase->rate_exchange :'')) }}">
+                     onchange="CalculateMountOtherCoin()"  {{(isset($sale) ? 'disabled' : '') }}
+                     value = "{{ old('rate_exchange', (isset($sale) ? $sale->rate_exchange :'')) }}">
                 @if ($errors->has('rate_exchange'))
                     <span id="rate_exchange-error" class="error text-danger" for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
                 @endif
@@ -81,7 +81,7 @@
                 <label for="" class="form-label">Notas</label>
             </div>
             <div class="col-sm-4 col-md-10 col-xl-3">
-                <input type="text" name="observations" id="observations" class="form-control"
+                <input type="text" name="observations" id="observations" class="form-control" {{(isset($sale) ? 'disabled' : '') }}
                         value = "{{ old('observations', (isset($sale) ? $sale->observations :'')) }}">
             </div>
         </div>

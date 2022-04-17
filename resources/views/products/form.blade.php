@@ -4,7 +4,7 @@
 
 {{-- <div class="col-12 col-md-4 col-sm-1"> --}}
 <div class="row">
-    <div class="col-sm-9">
+    <div class="col-sm-10">
         <div class="row">
             <div class="col-sm-3 col-md-1">
                 <label class="col-form-label">{{ __('Codigo') }}</label>
@@ -109,7 +109,18 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-3 border">
-        AQUI VA LA IMAGEN
+    <div class="col-sm-2 border">
+        <label for="imagefile"> <i class="fa fa-plus" aria-hidden="true"
+            style="font-size:15px;  padding: 5px; cursor: pointer; margin-left:-15px; ">
+        </i></label>
+        {{-- <button class="btn-image" onclick="document.getElementById('imagefile').click()"> Leer Archivo</button> --}}
+        <input type="file" name="imagefile" id="imagefile" accept="image/*"
+            onchange="preview(event)" style = "display:none">
+        <div id="display-image">
+        </div>
+        @error('imagefile')
+            <span class="text-danger"> {{$message}} </span> <br/>
+        @enderror
+
     </div>
 </div>

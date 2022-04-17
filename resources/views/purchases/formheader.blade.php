@@ -34,7 +34,7 @@
             </div>
             <div class="col-xl-2 col-sm-5">
                 <input type="date" name="purchase_date" id="purchase_date" class="form-control"
-                    value = "{{ old('purchase_date', (isset($purchase) ? $purchase->purchase_date :'')) }}">
+                    value = "{{ old('purchase_date', (isset($purchase) ? $purchase->purchase_date : date('Y-m-d'))) }}">
                 @if ($errors->has('purchase_date'))
                     <span id="purchase_date-error" class="error text-danger" for="input-purchase_date">{{ $errors->first('purchase_date') }}</span>
                 @endif

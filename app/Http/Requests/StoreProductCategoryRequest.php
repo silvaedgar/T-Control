@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class StoreProductCategoryRequest extends FormRequest
 {
@@ -19,13 +21,18 @@ class StoreProductCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => 'required|string|min:3|unique:product_categories'
+            'description' => ['required','min:3',Rule::unique('product_categories')
+                    ->where('group_id',$this->group_id)],
+            'group_id' => 'exists:product_groups,id',
         ];
     }
 
-    public function attributes() {
+    public function messages() {
         return [
-            'description' => 'descripcion de categoria'
+            'description.required' => 'La descripción es obligatoria',
+            'description.unique' => 'Descripcion de Categoria en Grupo ya existe',
+            'description.min' => 'La Descripcion de Categoria  debe contener al menos 3 caracteres',
+            'group_id.exists' => 'Debe seleccionar un grupo'
         ];
     }
 }

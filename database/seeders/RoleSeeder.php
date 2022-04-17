@@ -17,6 +17,7 @@ class RoleSeeder extends Seeder
     {
         $roladmin = Role::create(['name' => 'Admin']);
         $roluser = Role::create(['name' => 'User']);
+        $rolclient = Role::create(['name' => 'Client']);
 
         $roladmin->givePermissionTo(Permission::all()->pluck('id'));
 

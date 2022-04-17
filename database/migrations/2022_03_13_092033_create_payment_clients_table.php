@@ -23,6 +23,7 @@ class CreatePaymentClientsTable extends Migration
             $table->float('rate_exchange');
             $table->float('mount');
             $table->string('observations',100)->nullable();
+            $table->enum('status',['Procesado','Anulado','Historico'])->default('Procesado');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('Cascade')->onDelete('cascade');

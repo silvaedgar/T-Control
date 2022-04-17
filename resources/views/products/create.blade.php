@@ -7,7 +7,8 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
-            <form method="post" action="{{route('products.store')}}" autocomplete="off" class="form-horizontal">
+            <form method="post" action="{{route('products.store')}}" autocomplete="off"
+                class="form-horizontal" enctype="multipart/form-data">
             @csrf
             <div class="card ">
               <div class="card-header card-header-primary">
@@ -45,5 +46,4 @@
 @push('js')
     <script src="{{ asset('js') }}/searchfunctions.js"> </script>
     <script src="{{ asset('js') }}/globalvars.js"> </script>
-
 @endpush

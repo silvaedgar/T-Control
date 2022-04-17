@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends FormRequest
 {
@@ -25,10 +26,20 @@ class StoreClientRequest extends FormRequest
     {
         return [
             // regex:/^V[0-9]{6,9}$/|^[J|G][0-9]{9}$|^E[0-9]{8}$/   Esta expresion regulkar funciona en regexr pero aqui no averiguar
-            'document' => 'required',
-            'names' => 'required|string|max:60',
+            'document' => ['required',Rule::unique('clients')->where('document_type',$this->document_type)],
+            'names' => 'required|max:60|min:5',
             'address' => 'required',
-// la expresion de arriba es para el telefono funciona afuera pero aqui no
+        ];
+    }
+
+    public function messages() {
+        return [
+            'document.required' => 'El Número de Identificación es obligatoria',
+            'document.unique' => 'Número de Identificación ya existe',
+            'names.required' => 'El Nombre del cliente es obligatorio',
+            'names.max' => 'Longitud máxima de 60 caracteres para el Nombre del cliente',
+            'names.min' => 'Longitud minima  de 5 caracteres para el Nombre del cliente',
+            'address.required' => 'La Dirección es obligatoria',
         ];
     }
 }

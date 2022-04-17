@@ -13,26 +13,37 @@ use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
+
+    public function product_price($id) {
+        return  DB::table('products')->select('products.*','percent')
+            ->join('taxes','taxes.id','products.tax_id')->where('products.id',$id)->first();
+    }
+
+
     public function balancesuppliers($id) {
+        $first = Supplier::select('purchase_date as date','suppliers.id as supplier','symbol','mount','rate_exchange','suppliers.name','balance','purchases.id')
+        ->selectRaw("'Compras' as type")->selectRaw('mount / rate_exchange as mountbalance')
+        ->join('purchases','suppliers.id','purchases.supplier_id')->join('coins','purchases.coin_id','coins.id')
+        ->where('supplier_id',$id);
 
-        // $orders = DB::table('purchase_details')->select('id')
-        //         ->selectRaw('price * ? as price_with_tax', [2])
-        //         ->get();
+        return  Supplier::select('payment_date as date','suppliers.id as supplier','symbol','mount','rate_exchange','suppliers.name','balance','payment_suppliers.id')
+        ->selectRaw("'Pagos' as type")->selectRaw('mount / rate_exchange  as mountbalance')
+        ->join('payment_suppliers','suppliers.id','payment_suppliers.supplier_id')
+        ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id)
+        ->union($first)
+        ->orderBy('date','desc')->get();
 
-        // $orders = DB::table('purchase_details')->whereRaw('price > IF(status = "Activo", 100, 500)', [200])->get();
-
-        $first = Supplier::select('purchase_date','symbol','suppliers.name',DB::raw("'Supplier'"))
+        $first = Supplier::select('purchase_date as date','symbol','mount','rate_exchange','suppliers.name','balance','purchases.id')
+            ->selectRaw("'Compras' as type")->selectRaw('mount / rate_exchange as mountbalance')
             ->join('purchases','suppliers.id','purchases.supplier_id')->join('coins','purchases.coin_id','coins.id')
-            ->where('supplier_id',$id)->get();
+            ->where('supplier_id',$id)->where('purchases.status','<>','Historico');
 
-        $second = Supplier::select('payment_date','mount','rate_exchange','symbol','suppliers.name',DB::raw("'Client'"))
+        return  Supplier::select('payment_date as date','symbol','mount','rate_exchange','suppliers.name','balance','payment_suppliers.id')
+                ->selectRaw("'Pagos' as type")->selectRaw('mount / rate_exchange  as mountbalance')
                 ->join('payment_suppliers','suppliers.id','payment_suppliers.supplier_id')
-                ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id)->get();
-        // $a = Supplier::select('name',DB::raw("'Suppliers'"))->get();
-        // $b = Client::select('names',DB::raw("'Clients'"))->get();
-        return $first->union($second);
+                ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id)
+                ->where('payment_suppliers.status','<>','Historico')->union($first)->orderBy('date','desc')->get();
 
-        // return $orders;
     }
 
     public function loadcoins ($id) {

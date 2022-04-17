@@ -12,13 +12,13 @@ use Spatie\Permission\Models\Role;
 class CurrencyValueController extends Controller
 {
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+        $this->middleware('role.admin');
     }
 
     public function index()
     {
         // busca la moneda base de calculo
-        $base_currency = Coin::where('base_currency','S')->where('status','Activo')->first();
+        $base_currency = Coin::GetCoinBase()->first();
 
         if (isset($base_currency)) {
         // busca las relacion de precios de las monedas con la de base
@@ -46,20 +46,12 @@ class CurrencyValueController extends Controller
                     ->where('coin_id','=',$request->coin_id)
                     ->update(['status' => 'Inactivo']);
             CurrencyValue::create($request->all());
-
-            // $base_currency = Coin::where('base_currency','S')->where('status','=','Activo')->first();
-            // if (isset($base_currency)) {
-            //     $coinvalues = CurrencyValue::where('base_currency_id','=',$base_currency->id)
-            //             ->where('status','Activo')
-            //             ->orderBy('coin_id')->get();
-            // }
             $message = "Ok_Se establecieron el Precio Compra y Venta de la moneda ";
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
             $message = "Error_No se pudo actualizar el  precio Compra Venta de la moneda";
         }
-        echo $message;
         return redirect()->route('maintenance.currencyvalues.index')->with('status',$message);
     }
 
@@ -72,7 +64,7 @@ class CurrencyValueController extends Controller
     public function edit($coinid)
     {
         $base_currency = Coin::find($coinid);
-        $coins = Coin::where('status','Activo')->get();
+        $coins = Coin::GetCoins()->get();
         return view('maintenance.currency-values.edit',compact('coins','base_currency'));
     }
 

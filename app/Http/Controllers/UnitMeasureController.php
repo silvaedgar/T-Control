@@ -10,7 +10,7 @@ use Spatie\Permission\Models\Role;
 class UnitMeasureController extends Controller
 {
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+        $this->middleware('role.admin');
         // $this->middleware('can:users.create')->only('create');
 
     }

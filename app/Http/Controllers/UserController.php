@@ -14,14 +14,18 @@ class UserController extends Controller
     // This function shows a way to perform route protection. RoleController is another way
     // -----------------------------------------------------------------
     public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
-        $this->middleware('can:maintenance');
+        $this->middleware('role.admin');
         // $this->middleware('can:users.create')->only('create');
 
     }
 
     public function index() {
 
-        $users = User::all();
+        $users = User::select('users.*','clients.names')
+            ->leftjoin('user_clients','user_clients.user_id','users.id')->leftjoin('clients','clients.id','user_clients.client_id')
+            ->get();
+        // $users = User::with('userclient')->with('purchase')->get();
+        // return $users;
         return view('users.index',compact('users'));
     }
 

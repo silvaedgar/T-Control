@@ -15,9 +15,13 @@ use App\Http\Requests\UpdatePaymentSupplierRequest;
 
 class PaymentSupplierController extends Controller
 {
+    public function __construct() {
+        $this->middleware('role');
+    }
+
     public function index()
     {
-        $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->get();
+        $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->orderBy('created_at','desc')->get();
         return view('payment-suppliers.index',compact('paymentsuppliers'));
         //
     }
@@ -25,9 +29,9 @@ class PaymentSupplierController extends Controller
     public function create()
     {
         $paymentforms = PaymentForm::where('status','Activo')->get();
-        $suppliers = Supplier::where('status','Activo')->get();
+        $suppliers = Supplier::where('status','Activo')->orderBy('name')->get();
         $base = Coin::where('calc_currency_purchase','S')->orwhere('base_currency','S')
-                ->where('status','=','Activo')->orderBy('base_currency')->get();
+                ->where('status','Activo')->orderBy('base_currency')->get();
         if (count($base) > 2) {
             $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
             $paymentsuppliers = PaymentSupplier::orderBy('payment_date','desc')->orderBy('supplier_id','desc')->get();
@@ -78,6 +82,14 @@ class PaymentSupplierController extends Controller
         $balance_supplier = $supplier->balance - $this->calc_balance_supplier($request,$coin_calc_id);
         $supplier->balance = $balance_supplier;
         $supplier->save();
+        if ($balance_supplier == 0) {
+            Purchase::where('supplier_id',$supplier->id)->update([
+                'status' => 'Historico'
+            ]);
+            PaymentSupplier::where('supplier_id',$supplier->id)->update([
+                'status' => 'Historico'
+            ]);
+        }
     }
 
     public function store(StorePaymentSupplierRequest $request)
@@ -87,17 +99,9 @@ class PaymentSupplierController extends Controller
             $paymentsupplier = PaymentSupplier::create($request->all());
             $paymentcurrency = $request->coin_id;
             $supplier = Supplier::find($request->supplier_id);
-
-            $base = Coin::where('calc_currency_sale','S')->orwhere('base_currency','S')
-            ->where('status','Activo')->orderBy('base_currency')->get();
-
-
             $base = Coin::where('calc_currency_purchase','S')->orwhere('base_currency','S')
-            ->where('status','Activo')->orderBy('base_currency')->get();
-
+                ->where('status','Activo')->orderBy('base_currency')->get();
             $coin_calc_id = isset($base[1]->id)?$base[1]->id:$base[0]->id;
-
-            $this->update_supplier($request,$supplier,$coin_calc_id);
             $purchase_pendings =  Purchase::where('supplier_id',$request->supplier_id)->where('status','Pendiente')
                 ->orwhere('status','Parcial')->orderBy('purchase_date')->get();
             $purchase_update = [];
@@ -105,14 +109,13 @@ class PaymentSupplierController extends Controller
             foreach ($purchase_pendings as $key => $value) {
                 if ($monto > 0) {
                     array_push($purchase_update,$this->verify_data_purchase($request,$purchase_pendings[$key],$coin_calc_id));
-                    // dump($purchase_update);
                     $purchase_pendings[$key]->paid_mount = $purchase_pendings[$key]->paid_mount + $purchase_update[$key]['paid_mount'];
                     $purchase_pendings[$key]->status = $purchase_update[$key]['status'];
                     $purchase_pendings[$key]->save();
-
                     $monto = $purchase_update[$key]['mount'];
                 }
             }
+            $this->update_supplier($request,$supplier,$coin_calc_id);
             $message = "Ok_Pago a Proveedor $supplier->name  procesado con exito. Se actualizaron Balance y Facturas de Compra";
             DB::commit();
         } catch (\Throwable $th) {

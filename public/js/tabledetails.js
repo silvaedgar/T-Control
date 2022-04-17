@@ -32,7 +32,6 @@ function CalcInvoice (itemactual,operacion) {
     document.getElementById('tax').value = parseFloat(totaltax).toFixed(2);
     let payment_mount = document.getElementById('payment_mount').innerHTML;
     if (payment_mount != ''){
-        console.log("OTHER COIN en CALCINOICE")
         CalculateMountOtherCoin();
     }
 
@@ -75,6 +74,7 @@ function RecalculateInvoice(tasa,filas) {
     }
 
 }
+
 function CreateElementInput(type,name,value) {
     var elemento  = document.createElement("input");  // elemto del product id
     elemento.type = type;

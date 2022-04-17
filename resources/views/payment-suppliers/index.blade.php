@@ -27,7 +27,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="suppliers" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th>Item</th>
                     <th>Proveedor</th>
@@ -57,20 +57,9 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#suppliers').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-
-    </script>
-
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
+    <script src="{{ asset('js')}}\globalvars.js"></script>
 @endpush
 
 

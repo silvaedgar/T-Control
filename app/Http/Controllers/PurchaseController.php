@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Models\PaymentSupplier;
 use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\Coin;
@@ -14,9 +15,14 @@ use App\Http\Requests\UpdatePurchaseRequest;
 
 class PurchaseController extends Controller
 {
+    public function __construct() {
+        $this->middleware('role');
+    }
+
     public function suppliers($id) {
         return  Supplier::select('purchases.*','suppliers.balance','coins.symbol')->leftjoin('purchases','suppliers.id','purchases.supplier_id')
-            ->leftjoin('coins','purchases.coin_id','coins.id')->where('suppliers.id',$id)->get();
+            ->leftjoin('coins','purchases.coin_id','coins.id')->where('suppliers.id',$id)
+            ->orderBy('name')->get();
 
 
             // ->where([['supplier_id',$id],['purchases.status','Pendiente']])
@@ -32,26 +38,35 @@ class PurchaseController extends Controller
 
     public function index()
     {
-        $purchases = Purchase::orderBy('purchase_date','desc')->orderBy('id')->get();
+        $purchases = Purchase::orderBy('purchase_date','desc')->orderBy('created_at','desc')->get();
         return view('purchases.index',compact('purchases'));
         //
     }
 
-    public function create()
+    public function loadcoinbase()
     {
-        $products = Product::where('status','Activo')->orderBy('name')->get();
-        $suppliers = Supplier::where('status','Activo')->get();
         $base = Coin::where('calc_currency_purchase','S')->orwhere('base_currency','S')
                 ->where('status','Activo')->orderBy('base_currency')->get();
         if (count($base) > 2) {
             $message = 'Error_Verifique la Configuración de las Monedas. Consulte con el administrador';
             $purchases = Purchase::orderBy('id','desc')->get();
-            return view('purchases.index',compact('purchases','message'));
+            return '';
         }
         $base_coins = ['base_id' => $base[0]->id, 'base_name' => $base[0]->name, 'base_symbol' => $base[0]->symbol,
         'base_calc_id'=> isset($base[1]->id)?$base[1]->id:$base[0]->id,
         'base_calc_name'=> isset($base[1]->name)?$base[1]->name:$base[0]->name,
         'base_calc_symbol'=> isset($base[1]->symbol)?$base[1]->symbol:$base[0]->symbol];
+        return $base_coins;
+    }
+
+    public function create()
+    {
+        $products = Product::where('status','Activo')->orderBy('name')->get();
+        $suppliers = Supplier::where('status','Activo')->orderBy('name')->get();
+        $base_coins = $this->loadcoinbase();
+        if ($base_coins == '')
+            return view('purchases.index',compact('purchases','message'));
+
         return view('purchases.create',compact('suppliers','products','base_coins'));
     }
 
@@ -59,24 +74,40 @@ class PurchaseController extends Controller
     {
         DB::beginTransaction();
         try {
-            $purchase = Purchase::create($request->all());
-            $purchase->status = ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada');
-            $purchase->paid_mount = ($request->conditions == "Credito" ?  0 : $request->mount);
-            $purchase->save();
-            // $purchase->update ([    Haciendo asi no me funcionaba no se porque
-            //     'status' => ($request->conditions == "Credito" ? 'Pendiente' : 'Cancelada'),
+            $status = 'Cancelada';
+            $paid_mount = $request->mount;
 
-            // ]);
             $supplier = Supplier::find($request->supplier_id);
-            $amount = $request->mount;
+            $last_balance = $supplier->balance;
+
             if($request->conditions == "Credito") {
                 if ($request->rate_exchange <> 1) {
-                    $amount = $request->mount / $request->rate_exchange;
+                    $paid_mount = $request->mount / $request->rate_exchange;
                 }
-                $balance_supplier = $supplier->balance + $amount;
-                $supplier->update([
-                    'balance' => $balance_supplier,
+                $balance_supplier = $supplier->balance + $paid_mount;
+                $supplier->balance = $balance_supplier;
+                $supplier->save();
+                $status = 'Pendiente';
+                $paid_mount = 0;
+                if ($last_balance < 0) {   // proveedor con saldo negativo antes de la compra
+                    $balance = $last_balance + $request->mount;
+                    $status = ($balance <= 0 ? 'Cancelada' : 'Parcial');
+                    $paid_mount = ($balance <= 0 ? $request->mount : -1 * $last_balance);
+                }
+            }
+            $purchase = Purchase::create($request->all());
+            if ($supplier->balance == 0) {
+                Purchase::where('supplier_id',$supplier->id)->update([
+                    'status' => 'Historico',
                 ]);
+                PaymentSupplier::where('supplier_id',$supplier->id)->update([
+                    'status' => 'Historico'
+                ]);
+            }
+            else {
+              $purchase->status = $status;
+              $purchase->paid_mount = $paid_mount;
+              $purchase->save();
             }
             $item = 1;
             foreach ($request->product_id as $key => $value) {
@@ -104,8 +135,9 @@ class PurchaseController extends Controller
 
     public function show($id)
     {
-        $suppliers = Supplier::where('status','=','Activo')->get();
+        $suppliers = Supplier::where('status','Activo')->get();
         $coins = Coin::where('status','Activo')->get();
+        $base_coins = $this->loadcoinbase();
         $purchase = Purchase::select('purchases.*','suppliers.name as proveedor','coins.name as moneda','coins.symbol as simbolo')
                 ->join('suppliers','purchases.supplier_id','suppliers.id')
                 ->join('coins','purchases.coin_id','coins.id')
@@ -115,8 +147,7 @@ class PurchaseController extends Controller
             ->where('purchase_details.purchase_id',$id)
             ->where('purchase_details.status','Activo')->orderBy('item')->get();
 
-        return view('purchases.show',compact('purchase','purchase_details','suppliers','coins'));
-
+        return view('purchases.show',compact('purchase','purchase_details','suppliers','coins','base_coins'));
     }
 
     public function edit(Purchase $purchase)

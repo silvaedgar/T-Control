@@ -18,12 +18,16 @@
         <div class="card">
           <div class="card-header card-header-primary">
               <div class="row">
-                <div class="col-xl-7 col-md-5 col-sm-3 align-middle">
+                <div class="col-xl-6 col-md-5 col-sm-3 align-middle">
                     <h4 class="card-title ">Listado Proveedores</h4>
                 </div>
-                <div class="col-xl-5 col-md-7 col-sm-9">
-                    <a href = "{{ route('suppliers.listprint')}}">
-                    <button class="btn btn-info">Generar PDF
+                <div class="col-xl-6 col-md-7 col-sm-9">
+                    <a href = "" target="_blank">
+                        <button class="btn btn-info">Reporte
+                            <i class="material-icons" aria-hidden="true">print</i>
+                        </button> </a>
+                    <a href = "{{ route('suppliers.listcreditors')}}" target="_blank">
+                    <button class="btn btn-info">Deuda
                         <i class="material-icons" aria-hidden="true">print</i>
                     </button> </a>
                     <a href="{{route('suppliers.create')}}">
@@ -35,7 +39,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table-sm table-hover table-striped" id="suppliers" style="width: 100%">
+              <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
                 <thead class=" text-primary">
                     <th>Item</th>
                     <th>Rif/Ci</th>
@@ -53,24 +57,21 @@
                         <td> {{ $supplier->contact }} </td>
                         <td> {{ $supplier->balance }} {{ $symbolcoin->symbol }} </td>
                         <td>
-                            {{-- <a href="{{route('suppliers.balance',$supplier->id)}}">
-                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Ver Movimientos">
-                                    <span class="material-icons-outlined">
-                                        account_balance_wallet
-                                        </span>
-                                 </button> </a> --}}
-
                             <a href="{{route('suppliers.edit',$supplier->id)}}">
-                                <button class="btn-sm btn-danger" data-bs-toggle="tooltip" title="Editar Proveedor">
+                                <button class="btn-info" data-bs-toggle="tooltip" title="Editar Proveedor">
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " Al Proveedor: {{ $supplier->name}}">
                             <form action="{{ route('suppliers.destroy',$supplier->id)}}"  method="post"
                                     class = "d-inline" id="delete-item">
                                 @csrf
                                 @method('delete')
-                                <button class="btn-sm btn-danger"  data-bs-toggle="tooltip" title="Eliminar Proveedor">
+                                <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Proveedor">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                             </form>
+                            <a href="{{route('suppliers.balance',$supplier->id)}}">
+                            <button class="btn-primary" data-bs-toggle="tooltip" title="Ver Movimientos">
+                                <i class="fa fa-money" aria-hidden="true"></i>
+                            </button> </a>
                        </td>
                    </tr>
                     @endforeach
@@ -90,16 +91,5 @@
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="{{asset('js')}}/globalvars.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#suppliers').DataTable({
-                lengthMenu : [[5,10,15,-1],[5,10,20,"All"]],
-                responsive : true,
-                autoWidth : false
-            });
-        });
-
-    </script>
-
 @endpush
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\UserClientFacade;
 
 
 use App\Http\Controllers\ClientController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TaxController;
 use App\Http\Controllers\UnitMeasureController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserClientController;
+use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,17 +34,18 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
+Route::get('/','App\Http\Controllers\HomeController@welcome')->name('/');
+Route::get('/whoaim','App\Http\Controllers\HomeController@whoaim')->name('whoaim');
+Route::get('/home-guest','App\Http\Controllers\HomeController@homeguest')->name('home-guest');
+Route::get('/home-tcontrol','App\Http\Controllers\HomeController@hometcontrol')->name('home-tcontrol');
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Auth::routes();
+// Auth::routes();
 
-Route::get('/home', 'App\Http\Controllers\HomeController@index')->name('home')->middleware('auth');
+// Route::get('/home', 'App\Http\Controllers\HomeController@index')->name('home')->middleware('auth');
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'App\Http\Controllers\UserController', ['except' => ['show']]);
@@ -49,22 +53,36 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'App\Http\Controllers\ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'App\Http\Controllers\ProfileController@password']);
 
-    Route::get('suppliers/listprint',[SupplierController::class,'listprint'])->name('suppliers.listprint');
-    Route::get('suppliers/balance/{id}',[SupplierController::class,'balance'])->name('suppliers.balance');
 
+    Route::get('clients/accountstate/{id}',[ClientController::class,'accountstate'])->name('clients.accountstate');
+    Route::get('clients/printbalance/{id}/{mensaje?}',[ClientController::class,'printbalance'])->name('clients.printbalance');
+    Route::get('clients/balance/{id}/{mensaje?}',[ClientController::class,'balance'])->name('clients.balance');
+    Route::get('clients/listdebtor',[ClientController::class,'listdebtor'])->name('clients.listdebtor');
+    Route::resource('clients', ClientController::class)->names('clients');
+
+    Route::get('suppliers/listcreditors',[SupplierController::class,'listcreditors'])->name('suppliers.listcreditors');
+    Route::get('suppliers/balance/{id}/{mensaje?}',[SupplierController::class,'balance'])->name('suppliers.balance');
     Route::resource('suppliers', SupplierController::class)->names('suppliers');
 
-    Route::get('clients/listprint',[ClientController::class,'listprint'])->name('clients.listprint');
-    Route::resource('clients', ClientController::class)->names('clients');
 
     Route::get('products/listprint',[ProductController::class,'listprint'])->name('products.listprint');
     Route::resource('products', ProductController::class)->names('products');
 
+    Route::resource('purchases', PurchaseController::class)->names('purchases');
+
+
     Route::resource('productcategories', ProductCategoryController::class)->names('maintenance.productcategories');
 
+    Route::post('sales/filtersale', [SaleController::class,'filtersale'])->name('sales.filtersale');
+    Route::post('sales/report',[SaleController::class,'report'])->name('sales.report');
+    Route::get('sales/print/{id}',[SaleController::class,'print'])->name('sales.print');
     Route::resource('sales', SaleController::class)->names('sales');
 
-    Route::resource('purchases', PurchaseController::class)->names('purchases');
+    Route::post('paymentclients/filterpayment', [PaymentClientController::class,'filterpayment'])->name('paymentclients.filterpayment');
+    Route::post('paymentclients/report', [PaymentClientController::class,'report'])->name('paymentclients.report');
+    Route::resource('paymentclients', PaymentClientController::class)->names('paymentclients');
+
+
     Route::resource('productgroups', ProductGroupController::class)->names('maintenance.productgroups');
     Route::resource('paymentforms', PaymentFormController::class)->names('maintenance.paymentforms');
     Route::resource('coins', CoinController::class)->names('maintenance.coins');
@@ -72,42 +90,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('taxes', TaxController::class)->names('maintenance.taxes');
     Route::resource('unitmeasures', UnitMeasureController::class)->names('maintenance.unitmeasures');
     Route::resource('paymentsuppliers', PaymentSupplierController::class)->names('paymentsuppliers');
-    Route::resource('paymentclients', PaymentClientController::class)->names('paymentclients');
     Route::resource('users', UserController::class)->names('users');
+    Route::resource('userclients', UserClientController::class)->names('userclients');
+
+    Route::resource('roles', RoleController::class)->names('roles');
 
     Route::get('coinbase', [CoinBaseController::class,'index'])->name('coinbase.index');
     Route::put('coinbase', [CoinBaseController::class,'update'])->name('coinbase.update');
 
 });
 
-
-// Route::group(['middleware' => 'auth'], function () {
-// 	Route::get('table-list', function () {
-// 		return view('pages.table_list');
-// 	})->name('table');
-
-// 	Route::get('typography', function () {
-// 		return view('pages.typography');
-// 	})->name('typography');
-
-// 	Route::get('icons', function () {
-// 		return view('pages.icons');
-// 	})->name('icons');
-
-// 	Route::get('map', function () {
-// 		return view('pages.map');
-// 	})->name('map');
-
-// 	Route::get('notifications', function () {
-// 		return view('pages.notifications');
-// 	})->name('notifications');
-
-// 	Route::get('rtl-support', function () {
-// 		return view('pages.language');
-// 	})->name('language');
-
-// 	Route::get('upgrade', function () {
-// 		return view('pages.upgrade');
-// 	})->name('upgrade');
-// });
 
