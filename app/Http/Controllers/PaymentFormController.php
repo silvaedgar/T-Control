@@ -18,10 +18,8 @@ class PaymentFormController extends Controller
 
     public function index()
     {
-        $paymentforms = PaymentForm::all();
+        $paymentforms = PaymentForm::where('status','Activo')->get();
         return view('maintenance.payment-forms.index',compact('paymentforms'));
-        // return PaymentForm::all();  //para la api
-
     }
 
     public function create()
@@ -38,21 +36,16 @@ class PaymentFormController extends Controller
     public function show(PaymentForm $paymentform)
     {
         return view('maintenance.paymentforms.index');
-        //
     }
 
     public function edit($id)
     {
         $paymentform = PaymentForm::find($id);
         return view('maintenance.payment-forms.edit',compact('paymentform'));
-        //
     }
 
     public function update(UpdatePaymentFormRequest $request)
     {
-        // $request->validate ([
-        //     'payment_form' => ["required","max:20",Rule::unique('payment_forms')->ignore($request->id)]
-        // ]);
         $paymentform = PaymentForm::find($request->id);
         $paymentform->update($request->all());
         return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Forma de Pago $request->description. Actualizado exitosamente");;
@@ -62,7 +55,9 @@ class PaymentFormController extends Controller
     public function destroy($id)
     {
         $paymentform = PaymentForm::find($id);
-        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Eliminación de Forma de Pago  $paymentform->description. NO AFECTA BD");
+        $paymentform->status = 'Inactivo';
+        $paymentform->save();
+        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Eliminación de Forma de Pago  $paymentform->description");
     }
 
 }

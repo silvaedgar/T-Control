@@ -21,7 +21,7 @@ use App\Http\Controllers\TaxController;
 use App\Http\Controllers\UnitMeasureController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserClientController;
-use App\Http\Controllers\RoleController;
+// use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,33 +54,38 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'App\Http\Controllers\ProfileController@password']);
 
 
-    Route::get('clients/accountstate/{id}',[ClientController::class,'accountstate'])->name('clients.accountstate');
+    Route::get('clients/account_state/{id}',[ClientController::class,'account_state'])->name('clients.account_state');
     Route::get('clients/printbalance/{id}/{mensaje?}',[ClientController::class,'printbalance'])->name('clients.printbalance');
-    Route::get('clients/balance/{id}/{mensaje?}',[ClientController::class,'balance'])->name('clients.balance');
-    Route::get('clients/listdebtor',[ClientController::class,'listdebtor'])->name('clients.listdebtor');
+    Route::get('clients/balance/{client}/{mensaje?}',[ClientController::class,'balance'])->name('clients.balance');
+    Route::get('clients/listdebtor',[ClientController::class,'list_debtor'])->name('clients.list_debtor');
     Route::resource('clients', ClientController::class)->names('clients');
 
     Route::get('suppliers/listcreditors',[SupplierController::class,'listcreditors'])->name('suppliers.listcreditors');
-    Route::get('suppliers/balance/{id}/{mensaje?}',[SupplierController::class,'balance'])->name('suppliers.balance');
+    Route::get('suppliers/balance/{supplier}/{mensaje?}',[SupplierController::class,'balance'])->name('suppliers.balance');
     Route::resource('suppliers', SupplierController::class)->names('suppliers');
 
 
     Route::get('products/listprint',[ProductController::class,'listprint'])->name('products.listprint');
+    Route::get('products/prueba', [ProductController::class,'prueba'])->name('products.prueba');
+
     Route::resource('products', ProductController::class)->names('products');
 
+    Route::post('purchases/filter', [PurchaseController::class,'filter'])->name('purchases.filter');
+    Route::get('purchases/print/{id}',[PurchaseController::class,'print'])->name('purchases.print');
     Route::resource('purchases', PurchaseController::class)->names('purchases');
 
 
     Route::resource('productcategories', ProductCategoryController::class)->names('maintenance.productcategories');
 
-    Route::post('sales/filtersale', [SaleController::class,'filtersale'])->name('sales.filtersale');
-    Route::post('sales/report',[SaleController::class,'report'])->name('sales.report');
+    Route::post('sales/filter', [SaleController::class,'filter'])->name('sales.filter');
     Route::get('sales/print/{id}',[SaleController::class,'print'])->name('sales.print');
     Route::resource('sales', SaleController::class)->names('sales');
 
-    Route::post('paymentclients/filterpayment', [PaymentClientController::class,'filterpayment'])->name('paymentclients.filterpayment');
-    Route::post('paymentclients/report', [PaymentClientController::class,'report'])->name('paymentclients.report');
+    Route::post('paymentclients/filter', [PaymentClientController::class,'filter'])->name('paymentclients.filter');
     Route::resource('paymentclients', PaymentClientController::class)->names('paymentclients');
+
+    Route::post('paymentsupplier/filter', [PaymentSupplierController::class,'filter'])->name('paymentsuppliers.filter');
+    Route::resource('paymentsuppliers', PaymentSupplierController::class)->names('paymentsuppliers');
 
 
     Route::resource('productgroups', ProductGroupController::class)->names('maintenance.productgroups');
@@ -89,11 +94,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('currencyvalues', CurrencyValueController::class)->names('maintenance.currencyvalues');
     Route::resource('taxes', TaxController::class)->names('maintenance.taxes');
     Route::resource('unitmeasures', UnitMeasureController::class)->names('maintenance.unitmeasures');
-    Route::resource('paymentsuppliers', PaymentSupplierController::class)->names('paymentsuppliers');
+
     Route::resource('users', UserController::class)->names('users');
     Route::resource('userclients', UserClientController::class)->names('userclients');
 
-    Route::resource('roles', RoleController::class)->names('roles');
+    // Route::resource('roles', RoleController::class)->names('roles');
 
     Route::get('coinbase', [CoinBaseController::class,'index'])->name('coinbase.index');
     Route::put('coinbase', [CoinBaseController::class,'update'])->name('coinbase.update');

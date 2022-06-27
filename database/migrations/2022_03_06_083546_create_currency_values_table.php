@@ -19,8 +19,8 @@ class CreateCurrencyValuesTable extends Migration
             $table->unsignedBigInteger('coin_id');
             $table->unsignedBigInteger('base_currency_id');
             $table->datetime('date_value')->default(now());
-            $table->float('purchase_price',12,3);  // precio en relacion a la moneda base (Bs)
-            $table->float('sale_price',12,3);
+            $table->float('purchase_price',12,4);  // precio en relacion a la moneda base (Bs)
+            $table->float('sale_price',12,4);
             $table->enum('status',['Activo','Inactivo'])->default('Activo');
             $table->timestamps();
 

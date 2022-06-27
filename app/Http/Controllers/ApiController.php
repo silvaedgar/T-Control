@@ -19,31 +19,16 @@ class ApiController extends Controller
             ->join('taxes','taxes.id','products.tax_id')->where('products.id',$id)->first();
     }
 
+    public function search_invoice_client($id,$calc_coin_id,$base_coin_id) {
+// Busca las facturas asociadas a un cliente para generar un pago
+        return  Client::GetDataSales($id,$calc_coin_id,$base_coin_id)->select('sales.*','coins.symbol as symbol','clients.balance','clients.count_in_bs')
+                ->orderBy('sales.sale_date')->get();
+    }
 
-    public function balancesuppliers($id) {
-        $first = Supplier::select('purchase_date as date','suppliers.id as supplier','symbol','mount','rate_exchange','suppliers.name','balance','purchases.id')
-        ->selectRaw("'Compras' as type")->selectRaw('mount / rate_exchange as mountbalance')
-        ->join('purchases','suppliers.id','purchases.supplier_id')->join('coins','purchases.coin_id','coins.id')
-        ->where('supplier_id',$id);
 
-        return  Supplier::select('payment_date as date','suppliers.id as supplier','symbol','mount','rate_exchange','suppliers.name','balance','payment_suppliers.id')
-        ->selectRaw("'Pagos' as type")->selectRaw('mount / rate_exchange  as mountbalance')
-        ->join('payment_suppliers','suppliers.id','payment_suppliers.supplier_id')
-        ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id)
-        ->union($first)
-        ->orderBy('date','desc')->get();
-
-        $first = Supplier::select('purchase_date as date','symbol','mount','rate_exchange','suppliers.name','balance','purchases.id')
-            ->selectRaw("'Compras' as type")->selectRaw('mount / rate_exchange as mountbalance')
-            ->join('purchases','suppliers.id','purchases.supplier_id')->join('coins','purchases.coin_id','coins.id')
-            ->where('supplier_id',$id)->where('purchases.status','<>','Historico');
-
-        return  Supplier::select('payment_date as date','symbol','mount','rate_exchange','suppliers.name','balance','payment_suppliers.id')
-                ->selectRaw("'Pagos' as type")->selectRaw('mount / rate_exchange  as mountbalance')
-                ->join('payment_suppliers','suppliers.id','payment_suppliers.supplier_id')
-                ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id)
-                ->where('payment_suppliers.status','<>','Historico')->union($first)->orderBy('date','desc')->get();
-
+    public function search_invoice_supplier($id,$calc_coin_id,$base_coin_id) {
+        return Supplier::GetDataPurchases($id,$calc_coin_id,$base_coin_id)->select('purchases.*','coins.symbol as symbol','suppliers.balance','suppliers.name')
+                ->orderBy('purchases.purchase_date')->get();
     }
 
     public function loadcoins ($id) {
@@ -53,8 +38,13 @@ class ApiController extends Controller
     }
 
     public function rate_exchange($id) {
+        // return  (CurrencyValue::select('currency_values.*','coins.symbol')->join('coins','currency_values.coin_id','coins.id')
+        //     ->where([['coin_id',$id],['currency_values.status','Activo']])->orwhere([['base_currency_id',$id],['currency_values.status','Activo']])
+        //     ->get());
+
         return  (CurrencyValue::select('currency_values.*','coins.symbol')->join('coins','currency_values.coin_id','coins.id')
-            ->where('coin_id',$id)->where('currency_values.status','Activo')->first());
+            ->where([['coin_id',$id],['currency_values.status','Activo']])->orwhere([['base_currency_id',$id],['currency_values.status','Activo']])
+            ->first());
     }
 
     public function loadcategories($id) {

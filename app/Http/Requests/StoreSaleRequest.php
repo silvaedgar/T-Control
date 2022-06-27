@@ -33,16 +33,6 @@ class StoreSaleRequest extends FormRequest
         ];
     }
 
-    public function attributes () {
-        return [
-            'client_id' => 'Cliente',
-            'coin_id' => 'Moneda',
-            'rate_exchange' => 'Tasa de Cambio',
-            'sale_date' => 'fecha',
-            'mount' => 'Monto'
-        ];
-    }
-
     public function messages() {
 
         return [

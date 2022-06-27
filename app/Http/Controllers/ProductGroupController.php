@@ -41,11 +41,10 @@ class ProductGroupController extends Controller
         //
     }
 
-    public function edit($id)
+    public function edit(ProductGroup $productgroup)
     {
-        $productgroup = ProductGroup::find($id);
+        // $productgroup = ProductGroup::find($id);
         return view('maintenance.product-groups.edit',compact('productgroup'));
-        //
     }
 
     public function update(Request $request)
@@ -61,7 +60,7 @@ class ProductGroupController extends Controller
 
     public function destroy($id)
     {
-        $productgroup = ProductCategory::find($id);
+        $productgroup = ProductGroup::find($id);
         $productgroup->status = 'Inactivo';
         $productgroup->save();
 

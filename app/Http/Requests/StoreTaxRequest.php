@@ -25,8 +25,19 @@ class StoreTaxRequest extends FormRequest
     public function rules()
     {
         return [
-            'percent' => ["min:0",Rule::unique('taxes')],
-            'description' => ["required",Rule::unique('taxes')]
+            'percent' => 'min:0|unique:taxes',
+            'description' => 'required|unique:taxes'
         ];
     }
+
+    public function messages() {
+        return [
+            'percent.min' => "Ingrese un Porcentaje de Impuesto > 0",
+            'percent.unique' => "Porcentaje de Impuesto ya existe",
+            'description.required' => "La descripción es obligatoria",
+            'description.unique' => 'Descripción ya existe'
+
+        ];
+    }
+
 }

@@ -21,4 +21,5 @@ class CurrencyValue extends Model
         return $this->belongsTo(Coin::class, 'base_currency_id', 'id');
     }
 
+
 }

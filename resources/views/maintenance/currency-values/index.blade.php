@@ -16,10 +16,10 @@
               <div class="row">
                 <div class="col-8 align-middle">
                     <h4 class="card-title ">Relacion Valor Costo-Venta de Monedas</h4>
-                    <p class="card-category">{{ __('Moneda Base: ')  }}{{ $base_currency->name }} ({{$base_currency->symbol}})</p>
+                    {{-- <p class="card-category">{{ __('Moneda Base: ')  }}{{ $base_currency->name }} ({{$base_currency->symbol}})</p> --}}
                 </div>
                 <div class="col-3 justify-end">
-                    <a href="{{route('maintenance.currencyvalues.edit',$base_currency->id)}}">
+                    <a href="{{route('maintenance.currencyvalues.create')}}">
                         <button class="btn btn-info"> Crear Valor Compra-Venta
                             <i class="material-icons" aria-hidden="true">person_add</i>
                         </button> </a>
@@ -32,7 +32,7 @@
                 <thead class=" text-primary">
                     <th>Item</th>
                     <th> Fecha </th>
-                    <th>Moneda</th>
+                    <th>Moneda Relacionadas</th>
                     <th>Precio Compra</th>
                     <th>Precio Venta</th>
                 </thead>
@@ -41,9 +41,11 @@
                     <tr style="height: 1%">
                         <td> {{ $loop->iteration }} </td>
                         <td> {{ date(('d-m-Y H:i:s'),strtotime($coin->date_value)) }} </td>
-                        <td> {{ $coin->Coin->name }} ({{ $coin->Coin->symbol }}) </td>
-                        <td> 1{{$base_currency->symbol}}  =  {{ $coin->Coin->symbol }} {{ number_format($coin->purchase_price,2) }} </td>
-                        <td> 1{{$base_currency->symbol}} = {{ $coin->Coin->symbol }} {{ number_format($coin->sale_price,2) }} </td>
+                        <td> {{ $coin->BaseCurrency->name }} ({{ $coin->BaseCurrency->symbol }}) ----
+                             {{ $coin->Coin->name }} ({{ $coin->Coin->symbol }})
+                        </td>
+                        <td> 1{{$coin->BaseCurrency->symbol}}  =  {{ $coin->Coin->symbol }} {{ number_format($coin->purchase_price,2) }} </td>
+                        <td> 1{{$coin->BaseCurrency->symbol}} = {{ $coin->Coin->symbol }} {{ number_format($coin->sale_price,2) }} </td>
                     </tr>
                     @endforeach
 

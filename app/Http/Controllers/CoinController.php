@@ -20,7 +20,7 @@ class CoinController extends Controller
 
     public function index()
     {
-        $coins = Coin::GetCoins()->orderby('name')->get();
+        $coins = Coin::where('status','Activo')->orderby('id')->get();
         return view('maintenance.coins.index',compact('coins'));
     }
 
@@ -57,9 +57,8 @@ class CoinController extends Controller
 
     public function destroy($id)
     {
-        $coin = Coin::find($id);
         $coin->status = 'Inactivo';
-        // $coin->save();
+        $coin->save();
         return redirect()->route('maintenance.coins.index')->with('status',"Ok_Eliminar Moneda $coin->name satisfactorio");
         //
     }

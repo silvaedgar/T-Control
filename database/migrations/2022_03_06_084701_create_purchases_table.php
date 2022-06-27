@@ -18,12 +18,12 @@ class CreatePurchasesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('supplier_id');
             $table->unsignedBigInteger('coin_id');
-            $table->float('rate_exchange',13,3)->default(1);
-            $table->date('purchase_date')->default(now());
+            $table->float('rate_exchange',12,4);
+            $table->date('purchase_date');
             $table->string('invoice',10)->nullable(); // Numero de factura
-            $table->float('mount',13,3);
-            $table->float('tax_mount',13,3);
-            $table->float('paid_mount',13,3)->default(0);
+            $table->float('mount',12,2);
+            $table->float('tax_mount',12,2);
+            $table->float('paid_mount',12,2)->default(0);
             $table->enum('conditions',['Credito','Contado'])->default('Credito');
             $table->string('observations',150)->nullable();
             $table->enum('status',['Pendiente','Parcial','Cancelada','Anulada','Historico'])->default('Pendiente');

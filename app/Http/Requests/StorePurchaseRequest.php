@@ -33,22 +33,12 @@ class StorePurchaseRequest extends FormRequest
         ];
     }
 
-    public function attributes () {
-        return [
-            'supplier_id' => 'Proveedor',
-            'coin_id' => 'Moneda',
-            'rate_exchange' => 'Tasa de Cambio',
-            'purchase_date' => 'Fecha',
-            'mount' => "Monto"
-        ];
-    }
-
     public function messages() {
 
         return [
         'mount.gt' => 'Debe Ingresar los productos de la factura',
         'supplier.gt' => 'Debe Seleccionar el Proveedor',
-        'rate_exchange.gt' => 'Ingrese el valor de la tasa de cambio',
+        'rate_exchange.gt' => 'El valor de la tasa de cambio es obligatorio',
         'purchase_date.required' => 'Ingrese la Fecha'
     ];
     }

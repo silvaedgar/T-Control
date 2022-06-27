@@ -52,7 +52,7 @@
                             <input type="hidden" id="message-item-delete" value = "La Categoria de Producto: {{ $category->description}}">
 
                             <form action="{{ route('maintenance.productcategories.destroy',$category->id)}}"
-                                method="post" class = "d-inline" id="delete-item">
+                                method="post" class = "d-inline delete-item">
                                 @csrf
                                 @method('delete')
                                 <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Categoria de Producto">

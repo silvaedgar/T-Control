@@ -18,33 +18,34 @@ class CurrencyValueController extends Controller
     public function index()
     {
         // busca la moneda base de calculo
-        $base_currency = Coin::GetCoinBase()->first();
+        // $base_currency = Coin::where('activo','S')->('base_currency','S')->first();
 
-        if (isset($base_currency)) {
+        // if (isset($base_currency)) {
         // busca las relacion de precios de las monedas con la de base
-            $coinvalues = CurrencyValue::where('base_currency_id',$base_currency->id)
-                    ->where('status','Activo')
-                    ->orderBy('coin_id')->get();
-            if (isset($coinvalues))
-                return view('maintenance.currency-values.index',compact('coinvalues','base_currency'));
-            return view('maintenance.currency-values.index',compact('base_currency'));
-        }
-        else {
-            return view ('home');
-        }
+        $coinvalues = CurrencyValue::where('status','Activo')->orderBy('coin_id')->get();
+        // return $coinvalues;
+        if (isset($coinvalues))
+            return view('maintenance.currency-values.index',compact('coinvalues'));
+        return view('maintenance.currency-values.index');
+        // }
+        // else {
+        //     return view ('home');
+        // }
     }
 
     public function create()
     {
+        $base_currency = Coin::where('status','Activo')->get();
+        $coins = Coin::where('status','Activo')->get();
+        return view('maintenance.currency-values.create',compact('coins','base_currency'));
     }
 
     public function store(StoreCurrencyValueRequest $request)
     {
         DB::beginTransaction();
         try {
-            CurrencyValue::where('base_currency_id','=',$request->base_currency_id)
-                    ->where('coin_id','=',$request->coin_id)
-                    ->update(['status' => 'Inactivo']);
+            CurrencyValue::where([['base_currency_id',$request->base_currency_id],['coin_id',$request->coin_id]])
+                    ->orwhere([['base_currency_id',$request->coin_id],['coin_id',$request->base_currency_id]])->update(['status' => 'Inactivo']);
             CurrencyValue::create($request->all());
             $message = "Ok_Se establecieron el Precio Compra y Venta de la moneda ";
             DB::commit();
@@ -64,7 +65,7 @@ class CurrencyValueController extends Controller
     public function edit($coinid)
     {
         $base_currency = Coin::find($coinid);
-        $coins = Coin::GetCoins()->get();
+        $coins = Coin::where('activo','S')->get();
         return view('maintenance.currency-values.edit',compact('coins','base_currency'));
     }
 

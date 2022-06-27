@@ -21,6 +21,7 @@ class CreateClientsTable extends Migration
             $table->string('names',100);
             $table->string('address', 200);
             $table->float('balance',13,3)->default(0);
+            $table->enum('count_in_bs',['S','N'])->default('N'); // Campo de uso solo para mi tienda casos especiales de manejo solo en Bs sin importar lo otro
             $table->enum('status',['Activo','Inactivo'])->default('Activo');
             $table->timestamps();
 

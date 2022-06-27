@@ -45,7 +45,7 @@
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " La Forma de Pago: {{ $paymentform->description}}">
                             <form action="{{ route('maintenance.paymentforms.destroy',$paymentform->id)}}" method="post"
-                                class = "d-inline" id="delete-item">
+                                class = "d-inline delete-item">
                                 @csrf
                                 @method('delete')
                                 <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Forma de Pago">

@@ -26,4 +26,11 @@ class Product extends Model
         return $this->hasMany(SaleDetail::class,'product_id','id');
     }
 
+    public function scopeGetProducts($query,$filter='') {
+        if ($filter == '') {
+            return $query->where('status','Activo')->orderBy('name');
+        }
+        return $query->where('status',$filter)->orderBy('name');
+    }
+
 }

@@ -26,4 +26,9 @@ class Sale extends Model
         return $this->belongsTo(Coin::class, 'coin_id', 'id');
     }
 
+    public function scopeGetPendings($query) {
+        return $query->where('status','<>','Historico')->where('status','<>','Anulada')
+            ->orderBy('sale_date','desc')->orderBy('created_at','desc');
+    }
+
 }

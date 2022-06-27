@@ -23,9 +23,8 @@ class UpdatePaymentFormRequest extends FormRequest
      */
     public function rules()
     {
-        $paymentform = $this->route('paymentform');
         return [
-            'payment_form' => 'required|max:20|min:3|unique:payment_forms,payment_form,' . $paymentform,
+            'payment_form' => 'required|max:20|min:3|unique:payment_forms,payment_form,'.$this->id,
             'description' => 'required|min:5|max:50',            //
         ];
     }

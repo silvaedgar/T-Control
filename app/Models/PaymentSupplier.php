@@ -10,7 +10,7 @@ class PaymentSupplier extends Model
     use HasFactory;
 
     protected $fillable = ['user_id','supplier_id', 'coin_id','payment_form_id','payment_date',
-        'rate_exchange','mount','details'];
+        'rate_exchange','mount','observations'];
 
     public function Supplier()
     {

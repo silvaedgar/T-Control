@@ -13,7 +13,7 @@ class UpdateTaxRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,18 @@ class UpdateTaxRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'percent' => 'min:0|unique:taxes'.$this->id,
+            'description' => 'required|unique:taxes'.$this->id
+        ];
+    }
+
+    public function messages() {
+        return [
+            'percent.min' => "Ingrese un Porcentaje de Impuesto > 0",
+            'percent.unique' => "Porcentaje de Impuesto ya existe",
+            'description.required' => "La descripción es obligatoria",
+            'description.unique' => 'Descripción ya existe'
+
         ];
     }
 }

@@ -46,7 +46,7 @@
                                 <i class="fa fa-edit"></i> </button> </a>
                             <input type="hidden" id="message-item-delete" value = " Al Impuesto: {{ $tax->description}}">
                             <form action="{{ route('maintenance.taxes.destroy',$tax->id)}}"  method="post"
-                                    class = "d-inline" id="delete-item">
+                                    class = "d-inline delete-item">
                                 @csrf
                                 @method('delete')
                                 <button class="btn-danger"  data-bs-toggle="tooltip" title="Eliminar Impuesto">

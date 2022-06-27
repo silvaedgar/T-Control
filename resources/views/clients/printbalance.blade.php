@@ -18,6 +18,7 @@
                 </div>
                 <div class="col-sm-5">
                     <h5> Cliente:  {{ $movements[0]->names }} </h5>
+                    {{ ($symbolcoin->symbol != 'BsD' ? "Tasa del Dia: ".number_format($tasa->sale_price,2) : '') }}
                 </div>
               </div>
           </div>
@@ -31,43 +32,95 @@
                     <th>Abono</th>
                     <th>Saldo</th>
             </thead>
-                <tbody>
-                    @php
-                        $balance = $movements[0]->balance;
-                    @endphp
-                    @if ($movements[0]->type != 'Balance')
-                        @foreach ($movements as $movement)
-                        <tr>
-                            <td> {{ $loop->iteration }} </td>
-                            <td> {{ date("d-m-Y",strtotime($movement->date))  }} </td>
-                            <td> {{ ($movement->type == 'Compras' ? number_format($movement->mountbalance,2).' ('.$movement->symbol.')' : '') }}
-                                {{ ($movement->symbol == '$' && $movement->type == 'Compras' ? '    ('.(number_format($movement->mount,2)).' $)' : '') }} </td>
-                            </td>
-                            <td> {{ ($movement->type == 'Pagos' ?  number_format($movement->mountbalance,2) : '') }}
-                                {{ ($movement->symbol == '$' && $movement->type == 'Pagos' ? '    ('.(number_format($movement->mount,2))." $movement->symbol )" : '') }} </td>
-                            <td>
-                                {{ number_format($balance,2) }} (BsD)
-                                @php
-                                    $balance = ($movement->type == 'Pagos' ? $balance + $movement->mountbalance : $balance - $movement->mountbalance);
-                                @endphp
-                            </td>
-                        </tr>
-                        @endforeach
-                    @endif
-                    {{-- Fila del Balance Inicial en caso de ser diferemte de 0 --}}
-                    @if ($balance != 0)
-                        <tr>
-                            <td> {{ (count($movements) == 1 ? 1 : count($movements)  + 1) }} </td>
-                            <td>  Balance Inicial </td>
-                            <td>  {{ $movements[0]->name }} </td>
-                            <td>  </td>
-                            <td> {{ number_format($balance,2) }} (BsD) </td>
-                            <td> </td>
-                        </tr>
-                    @endif
+            <tbody>
+                @php
+                    $balance = $movements[0]->balance;
+                @endphp
+                @if ($movements[0]->type != 'Balance')
+                    @foreach ($movements as $movement)
+                    <tr>
+                        <td> {{ $loop->iteration }} </td>
+                        <td> {{ date("d-m-Y",strtotime($movement->date))  }} </td>
+                        <td> @php
+                                if ($movement->type == 'Compras' && $movement->symbol == 'BsD') {
+                                    $mount = $movement->mount;
+                                    print (number_format($movement->mount,2))."($movement->symbol) ";
+                                    if ($symbolcoin->symbol != 'BsD' && $movement->count_in_bs == 'N') {
+                                        $mount = $movement->mountbalance;
+                                        print (number_format($movement->mountbalance,2))."($symbolcoin->symbol)";
+                                    }
+                                }
+                                if ($movement->type == 'Compras' && $movement->symbol != 'BsD') {
+                                    print (number_format($movement->mountbalance,2))."(BsD) ";
+                                    $mount = $movement->mountbalance;
+                                    if ($movement->count_in_bs == 'N') {
+                                        print (number_format($movement->mount,2))."($movement->symbol)";
+                                        $mount = $movement->mount;
+                                    }
+                                }
+                            @endphp
+                        </td>
+                        <td> @php
+                                if ($movement->type == 'Pagos' && $movement->symbol == 'BsD') {
+                                    $mount = $movement->mount;
+                                    print (number_format($movement->mount,2))."($movement->symbol) ";
+                                    if ($symbolcoin->symbol != 'BsD' && $movement->count_in_bs == 'N') {
+                                        $mount = $movement->mountbalance;
+                                        print (number_format($movement->mountbalance,2))."($symbolcoin->symbol)";
+                                    }
+                                }
+                                if ($movement->type == 'Pagos' && $movement->symbol != 'BsD') {
+                                    $mount = $movement->mountbalance;
+                                    print (number_format($movement->mountbalance,2))."(BsD) ";
+                                    if ($movement->count_in_bs == 'N') {
+                                        print (number_format($movement->mount,2))."($movement->symbol)";
+                                        $mount = $movement->mount;
+                                    }
+                                }
+                            @endphp
+                        </td>
+                        <td>
+                            {{ number_format($balance,2) }}
+                            @if ($movement->count_in_bs == 'N')
+                                {{ $symbolcoin->symbol}}
+                            @else
+                                BsD
+                            @endif
+                            {{ ($symbolcoin->symbol != 'BsD' && $movement->count_in_bs != 'S'  ? " - ".number_format($balance * $tasa->sale_price,2).'(BsD)' :'')}}
+                            @php
+                                $balance = ($movement->type == 'Pagos' ? $balance + $mount : $balance - $mount);
+                            @endphp
+                        </td>
+                        <td>
+                            @if ($movement->type == 'Compras')
+                                <a href = "{{ route('sales.show',$movement->id)}}">
+                                    <button class="btn-info" data-bs-toggle="tooltip" title="Ver Detalle">
+                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                    </button> </a>
+                            @else
+                                <a href = "{{ route('paymentclients.show',$movement->id)}}">
+                                    <button class="btn-info" data-bs-toggle="tooltip" title="Ver Detalle">
+                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                    </button> </a>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                @endif
+                {{-- Fila del Balance Inicial en caso de ser diferemte de 0 --}}
+                @if ($balance != 0)
+                    <tr>
+                        <td> {{ (count($movements) == 1 ? 1 : count($movements)  + 1) }} </td>
+                        <td>  Balance Inicial </td>
+                        <td>  {{ $movements[0]->name }} </td>
+                        <td>  </td>
+                        <td> {{ number_format($balance,2) }} {{ $symbolcoin->symbol }} </td>
+                        <td> </td>
+                    </tr>
+                @endif
 
-                </tbody>
-              </table>
+            </tbody>
+          </table>
             </div>
           </div>
         </div>

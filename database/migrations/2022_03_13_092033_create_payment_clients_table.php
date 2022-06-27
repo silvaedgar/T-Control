@@ -19,9 +19,9 @@ class CreatePaymentClientsTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('coin_id');
             $table->unsignedBigInteger('payment_form_id');
-            $table->date('payment_date')->default(now());
-            $table->float('rate_exchange');
-            $table->float('mount');
+            $table->date('payment_date');
+            $table->float('rate_exchange',12,4);
+            $table->float('mount',12,2);
             $table->string('observations',100)->nullable();
             $table->enum('status',['Procesado','Anulado','Historico'])->default('Procesado');
             $table->timestamps();

@@ -11,11 +11,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/purchases/{id}/product_price',[ApiController::class,'product_price'])->name('product.price');
-Route::get('/currencyvalues/{id}/rate_exchange',[ApiController::class,'rate_exchange']);
 Route::get('/products/{id}/categories',[ApiController::class,'loadcategories']);
 Route::get('/purchases/{id}/suppliers',[PurchaseController::class,'suppliers'])->name('purchase.suppliers');
-Route::get('/sales/{id}/clients',[SaleController::class,'clients'])->name('sale.clients');
+
+Route::get('/product_price/{id}',[ApiController::class,'product_price']);
+Route::get('/search_invoice_client/{id}/{calc_coin_id}/{base_coin_id}',[ApiController::class,'search_invoice_client']);
+Route::get('/search_invoice_supplier/{id}/{calc_coin_id}/{base_coin_id}',[ApiController::class,'search_invoice_supplier']);
+Route::get('/rate_exchange/{id}',[ApiController::class,'rate_exchange']);
+
 Route::get('/coins/{id}/loadcoins',[ApiController::class,'loadcoins'])->name('loadcoins');
 
-Route::get('/suppliers/{id}/balancesuppliers',[ApiController::class,'balancesuppliers'])->name('balancesuppliers');

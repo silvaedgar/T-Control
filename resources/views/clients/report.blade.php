@@ -25,11 +25,18 @@
 </head>
 <body>
   <h3>Listado  de Clientes con Deuda al {{ date("d-m-Y",strtotime(now())) }} </h3>
+  @if ($base_coins->id != 1)
+    <h4> Tasa de Cambio del Dia: {{ $tasa }} </h4>
+  @endif
+
     <table>
         <thead>
             <th>Renglon</th>
             <th>Nombre</th>
             <th>Saldo</th>
+            @if ($base_coins->id != 1)
+                <th> Saldo Bs. </th>
+            @endif
         </thead>
         <tbody>
             @php
@@ -37,17 +44,23 @@
             @endphp
              @foreach ($clients as $client)
                     <tr>
-                        <td style="width: 15%; text-align:center "> {{$loop->iteration}} </td>
-                        <td style="width: 60%; text-align:center" > {{ $client->names }} </td>
-                        <td style = "text-align: left "> {{ $client->balance }}BsD </td>
+                        <td style="width: 13%; text-align:center "> {{$loop->iteration}} </td>
+                        <td style="width: 55%; text-align:center" > {{ $client->names }} </td>
+                        <td style = "text-align: left "> {{ ($client->count_in_bs == 'S' ? number_format($client->balance / $tasa,2) : $client->balance) }} {{ $base_coins->symbol }} </td>
+                        @if ($base_coins->id != 1)
+                            <td style = "text-align: left "> {{ ($client->count_in_bs == 'S' ? $client->balance : number_format($client->balance * $tasa,2)) }} BsD. </td>
+                        @endif
                     </tr>
                     @php
-                        $total += $client->balance;
+                        if ($client->count_in_bs == 'S')
+                            $total += $client->balance / $tasa;
+                        else
+                            $total += $client->balance;
                     @endphp
              @endforeach
         </tbody>
         <br>
     </table>
-    <span> Monto Total deudores: {{ $total }} BsD</span>
+    <span> Monto Total deudores: {{ number_format($total,2) }} {{ $base_coins->symbol }}</span>
 </body>
 </html>

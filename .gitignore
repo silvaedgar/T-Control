@@ -16,3 +16,12 @@ yarn-error.log
 /.vscode
 .000web
 .pendiente
+resources/views/payment-clients/delete/
+resources/views/payment-suppliers/.delete/
+resources/views/purchases/delete/
+resources/views/sales/.delete/
+resources/views/shared/.delete/
+resources/views/prueba/
+sql/balanceclientsbsadolar.csv
+sql/obtenermonedasrelacionadas.sql
+resources/views/clients/calc-table-balance.blade.php

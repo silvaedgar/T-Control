@@ -60,7 +60,8 @@
         <!-- Plugin for the momentJs  -->
         <script src="{{ asset('material') }}/js/plugins/moment.min.js"></script>
         <!--  Plugin for Sweet Alert -->
-        <script src="{{ asset('material') }}/js/plugins/sweetalert2.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        {{-- <script src="{{ asset('material') }}/js/plugins/sweetalert2.js"></script> --}}
         <!-- Forms Validations Plugin -->
         <script src="{{ asset('material') }}/js/plugins/jquery.validate.min.js"></script>
         <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
@@ -97,7 +98,27 @@
         {{-- <script src="{{ asset('material') }}/demo/demo.js"></script> --}}
         <script src="{{ asset('material') }}/js/settings.js"></script>
 
-        <script>
+        <script lang="text/javascript">
+
+            $('.delete-item').submit(function(e) {
+                e.preventDefault();
+                let message = document.getElementById('message-item-delete').value
+                Swal.fire({
+                    title: 'Seguro de Eliminar el registro seleccionado ',
+                    text: 'Esta Accion no se podrá deshacer',
+                    icon: 'question',
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Si'
+                    }).then((result) => {
+                    if (result.value) {
+                    this.submit();
+                    }
+                })
+            })
+
             if (document.getElementById('mensaje')) {
                 message = document.getElementById('mensaje').value;
                 if (message != "") {
