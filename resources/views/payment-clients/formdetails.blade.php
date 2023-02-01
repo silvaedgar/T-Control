@@ -1,6 +1,5 @@
-<br />
 <div style="height: 16rem; overflow: scroll; margin-top: -10px">
-    <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped" id="details-table">
+    <table class="table-sm table-hover table-responsive-sm tblscroll table-striped" id="details-table">
         <thead style="background: rgb(186, 186, 219); text-align: center; font-size: small;  ">
             <tr style="height: 3px">
                 <th style="width: 3%"> Item </td>

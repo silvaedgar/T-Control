@@ -14,32 +14,9 @@
                 <div class="card">
                     <div class="card-header card-header-primary  ">
                         @include('shared.header')
-                        {{-- <div class="card-header card-header-primary">
-                        <div class="row">
-                            <div class="col-xl-6 col-lg-4 col-md-6 col-sm-3 ">
-                                <h4 class="card-title ">Listado de Clientes</h4>
-                                <a style="color: #99ffff; font-size: 12px" href="{{ route('sales.create') }}">
-                                    Crear Factura </a> /
-                                <a style="color: #99ffff; font-size: 12px" href="{{ route('paymentclients.create') }}">
-                                    Generar Pago </a>
-                            </div>
-                            <div class="col-xl-6 col-lg-8 col-md-6 col-sm-9">
-                                <a href="" target="_blank" class="float-end">
-                                    <button class="btn btn-info">Listado
-                                        <i class="material-icons" aria-hidden="true">print</i>
-                                    </button> </a>
-
-                                <a href="{{ route('clients.listdebtor') }}" target="_blank" class="float-end">
-                                    <button class="btn btn-info">Deudores
-                                        <i class="material-icons" aria-hidden="true">print</i>
-                                    </button> </a>
-
-                                <a href="{{ route('clients.create') }}" class="float-end">
-                                    <button class="btn btn-info"> Crear
-                                        <i class="material-icons" aria-hidden="true">person_add</i>
-                                    </button> </a>
-                            </div>
-                        </div> --}}
+                        @if (session('message_status'))
+                            @include('shared.message-session')
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">

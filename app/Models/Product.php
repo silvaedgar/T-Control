@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected  static $logAttributes = ['name', 'code','cost_price','sale_price'];
 
     protected $fillable = ['user_id','tax_id','category_id', 'code', 'name', 'cost_price', 'sale_price',
             'stock'];

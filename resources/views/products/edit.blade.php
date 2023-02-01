@@ -7,7 +7,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form method="post" action="{{ route('products.update', $product) }}" autocomplete="off"
+                    <form method="post" action="{{ route('products.update', $data['product']) }}" autocomplete="off"
                         class="form-horizontal" enctype="multipart/form-data">
                         @csrf
                         @method('put')
@@ -18,11 +18,24 @@
                             <div class="card-body ">
                                 @include('products.form')
                             </div>
-                            <div class="card-footer ml-auto mr-auto">
-                                <button type="submit" class="btn btn-primary">{{ __('Grabar Producto') }}</button>
+                            <div class="card-footer">
+                                @if (count($data['purchases']) > 0)
+                                    <div class="col-sm-4" style="top: -100px">
+                                        <div class="row ml-5 ">
+                                            <button type="submit"
+                                                class="btn btn-primary">{{ __('Grabar Producto') }}</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        @include('products.last_purchases')
+                                    </div>
+                                @else
+                                    <div class="mx-auto">
+                                        <button type="submit" class="btn btn-primary">{{ __('Grabar Producto') }}</button>
+                                    </div>
+                                @endif
                             </div>
                             <a href="{{ route('products.index') }}"> {{ __('Volver al listado') }} </a>
-
                         </div>
                     </form>
                 </div>

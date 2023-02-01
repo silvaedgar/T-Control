@@ -2,92 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sale;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
-use App\Models\SaleDetail;
+
+use App\Models\Sale;
 use App\Models\Client;
-use App\Models\Product;
-use App\Models\Coin;
-use \Illuminate\Support\Facades\DB;
-use \Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 use Carbon\Carbon;
 use PDF;
+
 use App\Traits\FiltersTrait;
 use App\Traits\GetDataCommonTrait;
+use App\Traits\CalculateMountsTrait;
 
+use App\Facades\DataCommonFacade;
+use App\Facades\SaleFacade;
 
 class SaleController extends Controller
 {
-    use FiltersTrait, GetDataCommonTrait;
+    use FiltersTrait, GetDataCommonTrait, CalculateMountsTrait;
 
     public function __construct() {
         $this->middleware('role')->only('index','create','edit','store','update','report');
     }
 
-
-    public function load_sales($filter) {
-        if (!is_array($filter))
-            return Sale::select('sales.*','clients.names as cliente','coins.name as moneda','coins.symbol as simbolo')
-                    ->join('clients','sales.client_id','clients.id')->join('coins','sales.coin_id','coins.id')
-                    ->where('sales.id',$filter);
-        if (count($filter) ==0)
-            return Sale::select('sales.*','sales.sale_date as date')
-                ->orderBy('sale_date','desc')->orderBy('created_at','desc');
-        else
-            return Sale::select('sales.*','sales.sale_date as date')
-                ->where($filter)->orderBy('sale_date','desc')->orderBy('created_at','desc');
-    }
-
-    public function filter(Request $request) {
-        $filter = $this->create_filter($request,'sale_date');
-        $sales = $this->load_sales($filter)->get();
-        $data_common = ['header' => 'Facturas de Ventas','buttons' =>[['message' => 'Reporte',
-            'icon' => 'print','url' => route('sales.filter')], ['message' => 'Crear Factura de Venta',
-            'icon' => 'person_add','url' => route('sales.create')]],
-            'links' => [['message' => 'Generar Pago de Cliente', 'url' =>route('paymentclients.create')]],
-            'data_filter' => $this->data_filter($filter),
-            'controller' => 'Sale'];
-        if ($request->option == "Report") {
-            $pdf = PDF::loadView('shared.payment-list-report',['models' => $sales,'data_common'=> $data_common]);
-            return $pdf->stream();
-        }
-        else
-            return view('sales.index',compact('sales','data_common'));
-    }
-
     public function index()
     {
-        $sales = $this->load_sales([])->get();
-        $data_common = ['header' => 'Facturas de Ventas','buttons' =>[['message' => 'Reporte',
-            'icon' => 'print','url' => route('sales.filter')], ['message' => 'Crear Factura de Venta',
-            'icon' => 'person_add','url' => route('sales.create')]],
-            'links' => [['message' => 'Generar Pago de Cliente', 'url' =>route('paymentclients.create')]],
-            'data_filter' => $this->data_filter([]), 'cols' => 2,
-            'controller' => 'Sale'];
+        $sales = Sale::GetSales()->get();
+        $data = ['data_filter' => $this->data_filter([]), 'header' => 'Facturas de Venta' ];
+        $data_common = DataCommonFacade::index('Sale',$data);
         return view('sales.index',compact('sales','data_common'));
     }
 
     public function create()
     {
-        $products = Product::GetProducts()->get();
-        $clients = Client::where('status','Activo')->orderby('names')->get();
-
-        $base_coin = $this->get_base_coin('base_currency')->first();
-        $calc_coin = $this->get_base_coin('calc_currency_sale')->first();
-        $rate = $this->get_base_coin_rate($calc_coin->id);
-        $coins = $this->get_coins_invoice_payment($rate,'calc_currency_sale')->get();
-        $rate = $rate->first();
-        $data_common = ['base_coin_id'=> $base_coin->id, 'base_coin_symbol'=> $base_coin->symbol,
-            'calc_coin_id' => $calc_coin->id, 'calc_coin_symbol' => $calc_coin->symbol, 'rate' => $rate->sale_price,
-            'controller' => 'Sale', 'header' => 'Crear Factura de Venta',
-            'sub_header' => "Moneda de Calculo: ".$calc_coin->symbol.' - Tasa :'.number_format($rate->sale_price,2),
-            'message_title' => '0.00 '.$calc_coin->symbol,
-            'message_subtitle' => ($calc_coin->symbol != $base_coin->symbol ? '0.00 '.$base_coin->symbol : ''),
-            'links_header' => ['message' => 'Atras','url' => url()->previous()],
-            'links_create' => [['message' => 'Generar Pago', 'url' => route('paymentclients.create')]], 'cols'=>'3'];
-        return view('sales.create',compact('clients','products','coins','data_common'));
+        $data['header'] = 'Creando Factura de Venta';
+        $data = SaleFacade::getData();
+        $data_common = DataCommonFacade::create('Sale',$data);
+        return view('sales.create',compact('data','data_common'));
     }
 
     public function store(StoreSaleRequest $request)
@@ -100,128 +56,65 @@ class SaleController extends Controller
             if ($fecha1->diffInMinutes(now()) < 40)
                 $continue = false;
         }
-        if ($continue) {
-            DB::beginTransaction();
-            try {
-                $rate_exchange = $request->rate_exchange;
-                if ($request->rate_exchange == 1) {
-                    // la taza es automatica cuando la Factura es la moneda de calculo
-                    $rate_exchange = $request->rate_exchange_date;
-                }
-                $sale = Sale::create($request->all());
-                $sale->update(["rate_exchange" => $rate_exchange]); // Actualiza la tasa en caso de ser 1
-                $status = 'Cancelada';
-                $mount = $request->mount;
-                $client = Client::find($request->client_id);
-                $last_balance = $client->balance;
-                if($request->conditions == "Credito") {
-                    $status = 'Pendiente';
-                    if ($request->rate_exchange <> 1 && $client->count_in_bs != 'S') {
-                        $mount = $request->mount / $request->rate_exchange;
-                    }
-                    if ($client->count_in_bs == 'S' && $request->coin_id != 1) { // si tiene cuenta solo en bs y la factura es diferente del bolivar
-                        // rate exchange tiene la tasa del dia
-                        $balance_client = $client->balance + ($mount * $rate_exchange);
-                    }
-                    else {
-                        $balance_client = $client->balance + $mount;
-                    }
-                    $client->balance = $balance_client;
-                    $client->save();
-                    if ($last_balance < 0) {   // cliente con saldo a favor antes de la venta
-                        $status = ($balance_client <= 0 ? 'Cancelada' : 'Parcial');
-                        $mount = ($balance_client <= 0 ? $request->mount : -1 * $last_balance);
-                    }
-                    if ($balance_client == 0) {
-                        $status = "Historico";
-                        PaymentClient::where('client_id',$client->id)->update([
-                            'status' => 'Historico'
-                        ]);
-                    }
-                    $sale->update([
-                        'status' => $status,
-                        'paid_mount' => $mount
-                    ]); // Actualiza la tasa en caso de ser 1
-                }
-                $item = 1;
-                foreach ($request->product_id as $key => $value) {
-                    $results[] = array("product_id"=>$request->product_id[$key], "tax_id"=>$request->tax_id[$key],
-                        "item"=>$item,"quantity"=>$request->quantity[$key], "price"=>$request->price[$key],
-                        "tax"=>$request->tax[$key]);
-                    $item++;
-                }
-                $sale->sale_details()->createMany($results);
-
-                $message = 'Ok_Factura de Venta creada con exito';
-                DB::commit();
-            } catch (\Throwable $th) {
-                DB::rollback();
-                // echo $th;
-                $message =  'Error_Error generando Factura de Venta. Consulte con el Administrador del Sistema';
-            }
-            // echo $message;
-            return redirect()->route('sales.index')->with('status',$message);
-        }
-        else {
-            // return "Registro existente";
-            return back()->with('status','Error_Registro ya existente espere 5 minuto para intentar nuevamente');
-        }
+        return redirect()->route('sales.index')->with('message_status', $continue ? SaleFacade::storeSale($request)
+                : 'Registro ya existe espere 5 minuto para intentar nuevamente');
     }
 
     public function show($id)
     {
         $continue = true;
-        $invoice = $this->load_sales($id,true)->first();
-        if (Auth::user()->hasRole('Client')) { 
+        $invoice = Sale::with('Client')->where('id',$id)->first(); //para verificar la consulta de clientes y que sea el cliente
+        if (Auth::user()->hasRole('Client')) {
            $user_client = $this->get_user_clients(Auth::user()->id)->first();
-           $continue = $user_client->client_id == $invoice->client_id;
+           $continue = $user_client->client_id == $invoice->client->id;
         }
         if ($continue)
         {
-            $filter = ['sales.id',$id];
-            $invoice_details = $this->load_sale_details($id)->get();
-            $clients = Client::where('status','Activo')->where('id',$invoice->client_id)->orderBy('names')->get();
-
-            $base_coin = $this->get_base_coin('base_currency')->first();
-            $calc_coin = $this->get_base_coin('calc_currency_sale')->first();
-            $rate = $this->get_base_coin_rate($calc_coin);
-            $coins = $this->get_coins_invoice_payment($rate,'calc_currency_sale')->get();
-            $rate = $rate->first();
-            $mount_other = '';
-            if ($calc_coin->id != $base_coin->id)
-                $mount_other = "Monto en ".($invoice->simbolo == $calc_coin->symbol ?
-                    $base_coin->symbol.': '.number_format($invoice->mount * $invoice->rate_exchange,2) :
-                    $calc_coin->symbol.': '.number_format($invoice->mount / $invoice->rate_exchange,2));
-            $data_common = ['base_coin_id'=> $base_coin->id, 'base_coin_symbol'=> $base_coin->symbol,
-                'calc_coin_id' => $calc_coin->id, 'calc_coin_symbol' => $calc_coin->symbol, 'rate' => $rate->sale_price,
-                'controller' => 'Sale', 'header' => 'Detalle Factura de Venta',
-                'sub_header' => "Facturada en ".$invoice->simbolo.' - Tasa :'.number_format($invoice->rate_exchange,2),
-                'message_title' => "Monto: ".$invoice->mount." ".$invoice->simbolo,
-                'message_subtitle' => $mount_other, 'cols'=> 3,
-                'links_header' => ['message' => 'Atras','url' => url()->previous()],
-                'links_create' => [['message' => 'Crear Factura', 'url' =>route('sales.create')],
-                        ['message' => 'Generar Pago de Cliente', 'url' =>route('paymentclients.create')]]];
-            return view('sales.show',compact('invoice','invoice_details','clients','coins','data_common'));
+            $data = SaleFacade::getData($id);
+            $data_common = DataCommonFacade::edit('Sale',$data);
+            return view('sales.show',compact('data','data_common'));
         }
-        else 
+        else
         {   $exist_client = ($user_client == ''?false :true);
             return view('home-auth',compact('exist_client'));
         }
-
-
     }
 
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        $message="";
+        $sale = Sale::with('Client','Coin')->find($id);
+        if ($sale->conditions == "Credito") {
+            $calc_coin = $this->get_base_coin('calc_currency_sale')->first();
+            $mount = $sale->coin_id != $calc_coin->id ? $this->mount_other($sale,$calc_coin) : $sale->mount;
+            Client::where('id',$sale->client->id)->update(['balance' => $sale->client->balance - $mount]);
+            $message = "Actualizado Balance del Cliente";
+        }
+        $sale->status = "Anulada";
+        $sale->save();
+        // Sale::where('id',$sale->id)->update(['status' => 'Anulada']);
+        DB::commit();
+        return redirect()->route('sales.index')->with('message_status',"Factura de Venta del Cliente: ".$sale->Client->names
+                ." por un monto de: ".$sale->mount." ".$sale->Coin->symbol." Anulada con exito. ".$message);
+    }
 
-    public function load_sale_details ($id) {
-        return  SaleDetail::select('sale_details.*','products.name')
-            ->join('products','sale_details.product_id','products.id')
-            ->where('sale_details.sale_id',$id)
-            ->where('sale_details.status','Activo')->orderBy('item');
+    public function filter(Request $request) {
+        $filter = $this->create_filter($request,'sale_date');
+        $sales = Sale::GetSales($filter)->get();
+        $data = ['data_filter' => $this->data_filter($filter), 'header' => 'Facturas de Venta' ];
+        $data_common = DataCommonFacade::index('Sale',$data);
+        if ($request->option == "Report") {
+            $pdf = PDF::loadView('shared.payment-list-report',['models' => $sales,'data_common'=> $data_common]);
+            return $pdf->stream();
+        }
+        else
+            return view('sales.index',compact('sales','data_common'));
     }
 
     public function print($id) {
-        $sale = $this->loadsale($id);
-        $sale_details = $this->load_sale_details($id)->get();
+        $filter = ['id',$id]; // aun no se para que es
+        $sale = Sale::with('SaleDetails','Coin','Client')->where('id',$id)->get();
         // Si el usuario es de tipo cliente verifica cual cliente_id tiene asignado
         // para verificar que no imprima una factura que no corresponda
         if (!Auth::user()->hasRole('Admin') && !Auth::user()->hasRole('User')) {
@@ -231,40 +124,7 @@ class SaleController extends Controller
             if ($sale->client_id <> $userclient->client_id)
                 return view('home-auth',compact('exist_client'));
         }
-        $client = Client::find($sale->client_id);
-        $coin = Coin::find($sale->coin_id);
-        $pdf = PDF::loadView('sales.printinvoice',['sale' =>$sale,'sale_details'=>$sale_details,'client'=>$client]);
+        $pdf = PDF::loadView('sales.printinvoice',['sale' =>$sale]);
         return $pdf->stream();
-    }
-
-    public function report(Request $request) {
-        $filter = $this->create_filter($request);
-        $sales = $this->load_sales($request->status,$filter)->get();
-        $pdf = PDF::loadView('sales.report',['sales' => $sales,'filter'=> $filter]);
-        return $pdf->stream();
-    }
-
-    public function edit(Sale $sale)
-    {
-    }
-
-    public function update(UpdateSaleRequest $request, Sale $sale)
-    {
-    }
-
-    public function destroy(Sale $sale)
-    {
-        DB::beginTransaction();
-        $message="";
-        if ($sale->conditions == "Credito") {
-
-            $client = Client::find($sale->client_id);
-            Client::where('id',$sale->client_id)->update(['balance' => $client->balance - $sale->mount]);
-            $message = "Actualizado Balance del Cliente";
-        }
-        Sale::where('id',$sale->id)->update(['status' => 'Anulada']);
-        DB::commit();
-        return redirect()->route('sales.index')->with('status',"Ok_Factura de Venta Anulada. ");
-
     }
 }

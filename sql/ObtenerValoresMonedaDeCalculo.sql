@@ -1,0 +1,2 @@
+SELECT cv.purchase_price, cv.sale_price FROM  coins c INNER JOIN currency_values cv ON 
+	c.id = cv.coin_id WHERE (cv.status = 'Activo' AND cv.coin_id = 1) or (cv.status = 'Activo' AND cv.base_currency_id = 1)

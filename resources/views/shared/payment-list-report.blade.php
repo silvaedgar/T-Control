@@ -11,53 +11,70 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="card">
-            <h5 class="card-title"> {{ $data_common['header'] }} </h5>
-            <p class="card-text">{{ $data_common['data_filter']['message'] }}</p>
-        </div>
-        <table class="table-sm table-hover table-striped" id="data-table" style="width: 120%">
-            <thead class=" text-primary">
-                <th>Item</th>
-                <th>Fecha</th>
-                <th>{{ $data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'Sale' ? 'Cliente' : 'Proveedor' }}
-                </th>
-                <th>Monto</th>
-                <th>{{ $data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'PaymentSupplier' ? 'Forma de Pago' : 'Saldo Pendiente' }}
-                </th>
-            </thead>
-            <tbody>
-                @php
-                    $total = 0;
-                @endphp
-                @foreach ($models as $payment)
-                    <tr>
-                        <td> {{ $loop->iteration }} </td>
-                        <td> {{ date('d-m-Y', strtotime($payment->date)) }} </td>
-                        @if ($data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'Sale')
-                            <td> {{ $payment->Client->names }} </td>
-                        @else
-                            <td> {{ $payment->Supplier->name }} </td>
-                        @endif
-
-                        <td> {{ $payment->mount }} ({{ $payment->Coin->symbol }}) </td>
-                        @if ($data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'PaymentSupplier')
-                            <td> {{ $payment->PaymentForm->description }} </td>
-                        @else
-                            <td> {{ $payment->mount - $payment->paid_mount }}({{ $payment->Coin->symbol }}) </td>
-                        @endif
-
-                    </tr>
-                    @php
-                        $total += $payment->mount;
-                    @endphp
-                @endforeach
-            </tbody>
-        </table>
-        <br>
-        {{-- <span> Monto Total:  {{ number_format($total,2) }} BsD </span> --}}
-
+    <div class="card">
+        <h5 class="card-title"> {{ $data_common['header'] }} </h5>
+        <p class="card-text">{{ $data_common['data_filter']['message'] }}</p>
     </div>
+    <table class="table-sm table-hover table-striped" id="data-table"
+        style="width: 125%; margin-left: -15px; font-size:11px; ">
+        <thead>
+            <th style="width: 5%">Item</th>
+            <th style="width: 15%">Fecha</th>
+            <th style="width: 40%">
+                {{ $data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'Sale' ? 'Cliente' : 'Proveedor' }}
+            </th>
+            <th style="width: 20%">Monto</th>
+            <th style="width: 20%">
+                {{ $data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'PaymentSupplier' ? 'Forma de Pago' : 'Saldo Pendiente' }}
+            </th style="width: 5%">
+            <th>
+            </th>
+        </thead>
+        <tbody>
+            @php
+                $total = 0;
+            @endphp
+            @foreach ($models as $payment)
+                <tr>
+                    <td> {{ $loop->iteration }} </td>
+                    @switch($data_common['controller'])
+                        @case('Sale')
+                            <td> {{ date('d-m-Y', strtotime($payment->sale_date)) }} </td>
+                        @break;
+                        @case('Purchase')
+                            <td> {{ date('d-m-Y', strtotime($payment->purchase_date)) }} </td>
+                        @break;
+
+                        @default
+                            <td> {{ date('d-m-Y', strtotime($payment->payment_date)) }} </td>
+                    @endswitch
+                    @if ($data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'Sale')
+                        <td> {{ $payment->Client->names }} </td>
+                    @else
+                        <td> {{ $payment->Supplier->name }} </td>
+                    @endif
+
+                    <td> {{ number_format($payment->mount, 2) }} {{ $payment->Coin->symbol }} </td>
+                    @if ($data_common['controller'] == 'PaymentClient' || $data_common['controller'] == 'PaymentSupplier')
+                        <td> {{ $payment->PaymentForm->description }} </td>
+                    @else
+                        <td> {{ number_format($payment->mount - $payment->paid_mount, 2) }}
+                            {{ $payment->Coin->symbol }}
+                        </td>
+                    @endif
+                    <td class="text-start">
+                        {{ $payment->status == 'Anulado' || $payment->status == 'Anulada' ? $payment->status : '' }}
+                    </td>
+                </tr>
+                @php
+                    $total += $payment->mount;
+                @endphp
+            @endforeach
+        </tbody>
+    </table>
+    <br>
+    {{-- <span> Monto Total:  {{ number_format($total,2) }} BsD </span> --}}
+
 </body>
 
 </html>

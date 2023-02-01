@@ -12,7 +12,6 @@
                     <div class="card ">
                         <div class="card-header card-header-primary">
                             @include('shared.header')
-                            {{-- <h4 class="card-title">{{ __('Creando Producto') }}</h4> --}}
                         </div>
                         <div class="card-body ">
                             @include('products.form')

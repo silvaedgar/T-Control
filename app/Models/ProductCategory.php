@@ -21,4 +21,8 @@ class ProductCategory extends Model
         return $this->hasMany(Product::class, 'category_id', 'id');
     }
 
+    // Ambito Local del Scope
+    public function scopeLoadCategoryAndGroup($query) {
+        return $query->with('ProductGroup')->where('status','Activo');
+    }
 }

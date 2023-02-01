@@ -40,6 +40,9 @@
                                     </button> </a>
                             </div>
                         </div>
+                        @if (session('message_status'))
+                            @include('shared.message-session')
+                        @endif
                     </div>
                     <form class="mt-3" method="POST" action="{{ route('paymentclients.filter') }}"> @csrf
                         @include('shared.filter')
@@ -57,24 +60,33 @@
                                     <th> </th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($paymentclients as $paymentclient)
+                                    @foreach ($payments as $payment)
                                         <tr
-                                            class="{{ $paymentclient->status == 'Historico' || $paymentclient->status == 'Anulado' ? 'bg-warning' : '' }}">
+                                            class="
+                                            @switch($payment->status)
+                                                        @case('Anulado')
+                                                            bg-danger
+                                                            @break
+                                                        @case('Historico')
+                                                            bg-warning
+                                                            @break
+                                                        @default
+                                                            ''
+                                                    @endswitch">
                                             <td> {{ $loop->iteration }} </td>
-                                            <td> {{ $paymentclient->Client->names }} </td>
-                                            <td> {{ date('d-m-Y', strtotime($paymentclient->payment_date)) }} </td>
-                                            <td> {{ $paymentclient->mount }} ({{ $paymentclient->Coin->symbol }})
+                                            <td> {{ $payment->Client->names }} </td>
+                                            <td> {{ date('d-m-Y', strtotime($payment->payment_date)) }} </td>
+                                            <td> {{ $payment->mount }} ({{ $payment->Coin->symbol }})
                                             </td>
-                                            <td> {{ $paymentclient->PaymentForm->description }} </td>
-                                            <td> {{ $paymentclient->status }} </td>
-                                            <td> <a href="{{ route('paymentclients.show', $paymentclient->id) }}">
+                                            <td> {{ $payment->PaymentForm->description }} </td>
+                                            <td> {{ $payment->status }} </td>
+                                            <td> <a href="{{ route('paymentclients.show', $payment->id) }}">
                                                     <button class="btn-info" data-bs-toggle="tooltip" title="Ver Pago">
                                                         <i class="fa fa-table" aria-hidden="true"></i> </button>
                                                 </a>
                                                 <input type="hidden" id="message-item-delete" value=" Anular el Pago ">
-                                                @if ($paymentclient->status != 'Historico')
-                                                    <form
-                                                        action="{{ route('paymentclients.destroy', $paymentclient->id) }}"
+                                                @if ($payment->status == 'Procesado')
+                                                    <form action="{{ route('paymentclients.destroy', $payment->id) }}"
                                                         method="post" class="d-inline delete-item">
                                                         @csrf
                                                         @method('delete')
@@ -83,6 +95,12 @@
                                                             <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                                                     </form>
                                                 @endif
+                                                <a href="{{ route('clients.balance', $payment->client_id) }}">
+                                                    <button class="btn-primary" data-bs-toggle="tooltip"
+                                                        title="Ver Movimientos">
+                                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                                    </button> </a>
+
                                             </td>
                                         </tr>
                                     @endforeach

@@ -46,7 +46,7 @@ function CalculateMountOtherCoin() {
         }
         else {
             if (coin_id == base_coin_id) // Divisa de pago o factura igual a la de calculo
-                document.getElementById('message_subtitle').innerHTML = "Monto en " + calc_coin_symbol + " " + 
+                document.getElementById('message_subtitle').innerHTML = "Monto en " + calc_coin_symbol + " " +
                         parseFloat(mount_current / rate).toFixed(2)
             else
                 document.getElementById('message_subtitle').innerHTML = "Monto: " + parseFloat(mount_current / rate).toFixed(2) + "(" + calc_coin_symbol + ")" +
@@ -93,10 +93,10 @@ function CalcSubtotal(field) {
     totales.price = document.getElementById("pprecio").value;
     totales.price_other = document.getElementById("pprecioother").value;
     switch (field) {
-        case 'PriceOther' :  document.getElementById("pprecio").value =  (coin_id == calc_coin_id ? parseFloat(totales.price_other / tasa).toFixed(2) : parseFloat(totales.price_other * tasa).toFixed(2))                        
+        case 'PriceOther' :  document.getElementById("pprecio").value =  (coin_id == calc_coin_id ? parseFloat(totales.price_other / tasa).toFixed(2) : parseFloat(totales.price_other * tasa).toFixed(2))
                 break;
         case 'Price' :  document.getElementById("pprecioother").value =  (coin_id == calc_coin_id ? parseFloat(totales.price * tasa).toFixed(2) : parseFloat(totales.price / tasa).toFixed(2))
-                console.log(" div ",totales.price / tasa)                
+                console.log(" div ",totales.price / tasa)
         default : break;
     }
     totales.price = document.getElementById("pprecio").value;
@@ -186,9 +186,9 @@ function CreateTable(table,data,tipo) {
             row.style = "font-size: smaller; background: white; text-align: left "
             CreateElementCell("hidden","item[]",element.id,item + 1, 0,row)
             if (tipo == "Venta")
-                var fecha = element.sale_date
+                var fecha = (element.sale_date).substr(8,2) + "-" + (element.sale_date).substr(5,3) + (element.sale_date).substr(0,4)
             else
-                var fecha = element.purchase_date
+                var fecha = (element.purchase_date).substr(8,2) + "-" + (element.purchase_date).substr(5,3) + (element.purchase_date).substr(0,4)
             CreateElementCell("hidden","purchase_date[]",'',fecha, 1,row)
             CreateElementCell("hidden","invoice[]",'',element.invoice,2,row)
             CreateElementCell("hidden","amount[]",'',parseFloat(element.mount).toFixed(2) + element.symbol,3,row)

@@ -26,6 +26,14 @@ class Client extends Model
         return $this->hasMany(UserClient::class, 'client_id', 'id');
     }
 
+    public function scopeGetClients($query,$all_clients=false,$filter='') {
+        if ($all_clients)
+            return $query->orderBy('names');
+        if ($filter == '')
+            return $query->where('status','Activo')->orderBy('names');
+        return $query->where('status',$filter)->orderBy('names');
+    }
+
 //  Funcion que busca las compras del cliente
     public function scopeGetDataSales($query,$id,$calc_coin_id,$base_coin_id) {
         if ($calc_coin_id == $base_coin_id) {
@@ -55,64 +63,3 @@ class Client extends Model
             ->join('coins','payment_clients.coin_id','coins.id')->where('client_id',$id);
     }
 }
-
-
-
-
-
-
-
-            // if ($symbol == "BsD" || $symbol == '') {
-        //     $column_balance_sales = "(CASE WHEN sales.coin_id = 1 THEN mount ELSE mount * rate_exchange END) as mountbalance";
-        //     $column_balance_payments = "(CASE WHEN payment_clients.coin_id = 1 THEN mount ELSE mount * rate_exchange END) as mountbalance ";
-        // }
-        // else { // ojo el id en una conversion
-        //     $column_balance_sales = "(CASE WHEN sales.coin_id = 1 THEN mount / rate_exchange ELSE mount * rate_exchange END) as mountbalance ";
-        //     $column_balance_payments = "(CASE WHEN payment_clients.coin_id = 1 THEN mount / rate_exchange ELSE mount * rate_exchange END) as mountbalance ";
-        // }
-        // if ($mensaje == 'Mostrar Historicos') {
-        //     $saleclient = Client::select('sale_date as date','symbol','mount','clients.names','clients.count_in_bs',
-        //             'balance','sales.id','clients.id as client_id','sales.created_at as create')
-        //         ->selectRaw("'Compras' as type")->selectRaw($column_balance_sales)
-        //         ->join('sales','clients.id','sales.client_id')->join('coins','sales.coin_id','coins.id')
-        //         ->where('client_id',$id)->where('sales.status','<>','Historico')->where('sales.status','<>','Anulada');
-        //     $movements =  Client::select('payment_date as date','symbol','mount','clients.names','clients.count_in_bs',
-        //             'balance','payment_clients.id','clients.id as client_id','payment_clients.created_at as create')
-        //         ->selectRaw("'Pagos' as type")->selectRaw($column_balance_payments)
-        //         ->join('payment_clients','clients.id','payment_clients.client_id')
-        //         ->join('coins','payment_clients.coin_id','coins.id')->where('client_id',$id)
-        //         ->where('payment_clients.status','<>','Historico')->where('payment_clients.status','<>','Anulado')
-        //         ->union($saleclient)->orderBy('date','desc')->orderBy('create','desc')->get();
-        // }
-        // else {
-        //     $saleclient = Client::select('sale_date as date','symbol','mount','clients.names','clients.count_in_bs',
-        //             'balance','sales.id','clients.id as client_id','sales.created_at as create')
-        //         ->selectRaw("'Compras' as type")->selectRaw($column_balance_sales)
-        //         ->join('sales','clients.id','sales.client_id')->join('coins','sales.coin_id','coins.id')
-        //         ->where('client_id',$id)->where('sales.status','<>','Anulada');
-        //     $movements =  Client::select('payment_date as date','symbol','mount','clients.names','clients.count_in_bs',
-        //             'balance','payment_clients.id','clients.id as client_id','payment_clients.created_at as create')
-        //         ->selectRaw("'Pagos' as type")->selectRaw($column_balance_payments)
-        //         ->join('payment_clients','clients.id','payment_clients.client_id')
-        //         ->join('coins','payment_clients.coin_id','coins.id')->where('client_id',$id)
-        //         ->where('payment_clients.status','<>','Anulado')
-        //         ->union($saleclient)->orderBy('date','desc')->orderBy('create','desc')->get();
-        // }
-        // if (count($movements) == 0) {  // esto solo sucede cuando solo existe balance inicial
-        //         $movements = Client::select('*','clients.id as client_id')->selectRaw("'Balance' as type")->where('id',$id)->get();
-        // }
-        // return $movements;
-
-
-    // public function scopeLoadClients() {
-    //     return Client::where('clients.status','Activo')->orderby('names');
-    // }
-
-    // public function scopeLoadUserClients($query,$id) {
-    //     return
-        // Client::select('*')->join('user_clients','clients.id','user_clients.client_id')
-        //     ->where('user_clients.user_id',$id)->get(); consulta original
-    // }
-
-
-

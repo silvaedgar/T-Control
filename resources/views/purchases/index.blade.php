@@ -41,6 +41,10 @@
                                     </button> </a>
                             </div>
                         </div>
+                        @if (session('message_status'))
+                            @include('shared.message-session')
+                        @endif
+
                     </div>
                     <form class="mt-3" method="POST" action="{{ route('purchases.filter') }}">
                         @csrf
@@ -62,7 +66,16 @@
                                 <tbody>
                                     @foreach ($purchases as $purchase)
                                         <tr
-                                            class="{{ $purchase->status == 'Anulada' || $purchase->status == 'Historico' ? 'bg-warning' : '' }}">
+                                            class=" @switch($purchase->status)
+                                                        @case('Anulada')
+                                                            bg-danger
+                                                            @break
+                                                        @case('Historico')
+                                                            bg-warning
+                                                            @break
+                                                        @default
+                                                            ''
+                                                    @endswitch">
                                             <td> {{ $loop->iteration }} </td>
                                             <td> {{ $purchase->Supplier->name }} </td>
                                             <td> {{ date('d-m-Y', strtotime($purchase->purchase_date)) }} </td>
@@ -85,8 +98,15 @@
                                                             <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                                                     </form>
                                                 @endif
+                                                <a href="{{ route('suppliers.balance', $purchase->supplier_id) }}">
+                                                    <button class="btn-primary" data-bs-toggle="tooltip"
+                                                        title="Ver Movimientos">
+                                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                                    </button> </a>
+
                                             </td>
-                                            <td> </td>
+                                            <td>
+                                            </td>
                                             {{-- esta columna vacia se usa por el datatable sino da error no se porque --}}
                                         </tr>
                                     @endforeach

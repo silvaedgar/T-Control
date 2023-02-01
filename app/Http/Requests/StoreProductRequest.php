@@ -28,7 +28,7 @@ class StoreProductRequest extends FormRequest
             'name' => "required|unique:products,name",
             'category_id' => 'gt:0',
             'tax_id' => 'gt:0',
-            'imagefile' => 'image',
+            'image_file' => 'image:max:2048',
             'cost_price' => 'numeric|gt:-1',
             'sale_price' => 'numeric|gt:-1',
         ];
@@ -42,7 +42,8 @@ class StoreProductRequest extends FormRequest
             'name.unique' => 'Nombre o Descripción del Producto ya existe',
             'tax_id.gt' => 'Seleccione tipo de Impuesto del Producto',
             'category_id.gt' => 'Seleccione Grupo y Categoria del Producto',
-            'imagefile.image' => 'Formato de Imagen Invalido',
+            'image_file.image' => 'Formato de Imagen Invalido',
+            'image_file.max' => 'Tamaño no valido de la Imagen',
             'cost_price.numeric' => 'Costo del producto tiene que ser numerico',
             'cost_price.gt' => 'Costo del producto no puede ser negativo',
             'sale_price.numeric' => 'Precio de Venta del producto tiene que ser numerico',

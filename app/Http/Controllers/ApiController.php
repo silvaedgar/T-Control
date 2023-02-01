@@ -48,7 +48,7 @@ class ApiController extends Controller
     }
 
     public function loadcategories($id) {
-        return ProductCategory::where('group_id',$id)->orderby('description')->get();
+        return ProductCategory::with('ProductGroup')->where('id',$id)->first();
     }
 
 }

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use PDF;
 use App\Traits\GetDataCommonTrait;
+use App\Facades\DataCommonFacade;
+
 
 class SupplierController extends Controller
 {
@@ -24,31 +26,15 @@ class SupplierController extends Controller
     public function index()
     {
         $base_coin = $this->get_base_coin('calc_currency_sale')->first();
-        $data_common = ['header' => 'Listado de Proveedores','base_coin_symbol'=> $base_coin->symbol,
-            'buttons' => [['message' => 'Listado','icon' => 'print','url' => '','target'=>false],
-                ['message' => 'Deudores','icon' => 'print','url' => route('suppliers.listcreditors'),'target'=>true],
-                ['message' => 'Crear','icon' => 'person_add','url' => route('suppliers.create'),'target' => false]],
-            'links_create' => [['message' => 'Crear Factura', 'url' =>route('purchases.create')],
-                    ['message' => 'Generar Pago a Proveedor', 'url' =>route('paymentsuppliers.create')]],
-            'links_header' => ['message' => '','url' => ''],
-            'rate' => 0, 'cols' => 2,
-            'controller' => 'Supplier'];
-
+        $data = ['base_coin' => $base_coin,'header' =>'Listado de Proveedores'];
+        $data_common = DataCommonFacade::index('Supplier',$data);
         $suppliers = Supplier::GetSuppliers()->get();
         return view('suppliers.index',compact('suppliers','data_common'));
     }
 
     public function create()
     {
-        $base_coin = $this->get_base_coin('calc_currency_sale')->first();
-        $mensaje = ($mensaje=='' || $mensaje=='Sin Historicos' ? 'Mostrar Historicos' : 'Sin Historicos');
-        $data_common = ['header' => 'Crear Proveedor', 'sub_header' => "", 'base_coin_id' => 0,
-            'base_coin_symbol'=> '', 'rate' => 0, 'message_title' => '','message_subtitle' => '',
-            'controller' => 'Client', 'buttons' => [], 'cols' => 2,
-            'links_header' => ['message' => 'Ir al Listado','url' => route('suppliers.index')],
-            'links_create' => [['message' => 'Crear Factura', 'url' =>route('purchases.create')],
-                    ['message' => 'Generar Pago a Proveedor', 'url' =>route('paymentsuppliers.create')]]];
-
+        $data_common = DataCommonFacade::create('Supplier',['header' =>'Creando Proveedor']);
         return view('suppliers.create',compact('data_common'));
     }
 
@@ -64,14 +50,7 @@ class SupplierController extends Controller
     }
     public function edit(Supplier $supplier)
     {
-        $data_common = ['header' => 'Editando Proveedor', 'sub_header' => "", 'base_coin_id' => 0,
-            'base_coin_symbol'=> '', 'rate' => 0, 'message_title' => '','message_subtitle' => '',
-            'controller' => 'Client', 'buttons' => [], 'cols' => 2,
-            'links_header' => ['message' => 'Ir al Listado','url' => route('suppliers.index')],
-            'links_create' => [['message' => 'Crear Factura', 'url' =>route('purchases.create')],
-                    ['message' => 'Generar Pago a Proveedor', 'url' =>route('paymentsuppliers.create')]]];
-
-        // $supplier = Supplier::find($supplier->id);
+        $data_common = DataCommonFacade::edit('Supplier',['header' =>'Editando Proveedor']);
         return view('suppliers.edit',compact('supplier','data_common'));
     }
 
@@ -94,7 +73,7 @@ class SupplierController extends Controller
         return redirect()->route('products.index')->with("status","Ok_Se elimino el proveedor  $supplier->name con exito.");
     }
 
-    public function listcreditors() {
+    public function list_creditors() {
 
         $suppliers = Supplier::Balance('<>',0)->orderBy('name')->get();
         $pdf = PDF::loadView('suppliers.report',['suppliers' =>$suppliers]);
@@ -110,35 +89,28 @@ class SupplierController extends Controller
         }
         $movements = $movements->union($first)->orderBy('date','desc')->orderBy('create','desc')->get();
         if (count($movements) == 0) {  // esto solo sucede cuando solo existe balance inicial
-            $movements = Supplier::select('*','suppliers.id as supplier')->selectRaw("'Balance' as type")->where('id',$id)->get();
+            $movements = Supplier::select('*','suppliers.id as supplier_id')->selectRaw("'Balance' as type")->where('id',$id)->get();
         }
         return $movements;
     }
 
-    public function balance(Supplier $supplier,$mensaje='') {
+    public function balance($supplier_id,$mensaje='') {
 
-        $base_coin = $this->get_base_coin('base_currency')->first();
-        $calc_coin = $this->get_base_coin('calc_currency_purchase')->first();
-        $rate = $this->get_base_coin_rate($calc_coin->id)->first();
+        $supplier = Supplier::find($supplier_id);
+        $data = $this->generate_data_coin('calc_currency_purchase');
         $mensaje = ($mensaje=='' || $mensaje=='Sin Historicos' ? 'Mostrar Historicos' : 'Sin Historicos');
-        $movements = $this->load_movements_supplier($supplier->id,$calc_coin->id,$base_coin->id,$mensaje);
-        $message_balance = 'Saldo: '.$movements[0]->balance." ".$calc_coin->symbol;
+        $movements = $this->load_movements_supplier($supplier->id,$data['calc_coin']->id,$data['base_coin']->id,$mensaje);
+        $message_balance = 'Saldo: '.$movements[0]->balance." ".$data['calc_coin']->symbol;
+
+        // la linea de abajo es si se queire poner los Bs para cuando el calculo sean en otra moneda no lo uso no me parece. la tasa depende del proveedor
         // $message_balance .= ($calc_coin->symbol != $base_coin->symbol ? ' - '.number_format($movements[0]->balance * $rate->sale_price,2).$base_coin->symbol:'');
 
-        $data_common = ['base_coin_id'=> $base_coin->id, 'base_coin_symbol'=> $base_coin->symbol,
-            'calc_coin_id' => $calc_coin->id, 'calc_coin_symbol' => $calc_coin->symbol, 'rate' => $rate->purchase_price,
-            'controller' => 'Supplier', 'header' => 'Detalle de Movimientos',
-            'sub_header' => 'Moneda de Calculo: '.$calc_coin->symbol,
-            'message_title' => 'Proveedor: '.$movements[0]->name,
-            'message_subtitle' => $message_balance,
-            'links_header' => ['message' => 'Listado de Proveedores','url' => route('suppliers.index')],
-            'links_create' => [['message' => 'Crear Factura', 'url' =>route('purchases.create')],
-                    ['message' => 'Generar Pago a Proveedor', 'url' =>route('paymentsuppliers.create')]],
-            'cols'=> 3];
-        // return response()->json([
-        //     'movimientos' => $movements,
-        //     'data' => $data_common,
-        // ], 200);
+        $data["supplier"] = $movements[0]->name;
+        $data["message_balance"] = $message_balance;
+        $data["header"] = "Detalle de Movimientos";
+        $data_common = DataCommonFacade::balance('Supplier',$data);
+        $base_coin = $data['base_coin'];
+        // return $movements;
         return view('suppliers.balance',compact('movements','mensaje','base_coin','data_common'));
     }
 

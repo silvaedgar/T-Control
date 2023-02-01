@@ -12,6 +12,11 @@
                 <div class="card">
                     <div class="card-header card-header-primary">
                         @include('shared.header')
+                        @if (session('message_status'))
+                            <div class="bg-info mt-1 font-bold ">
+                                {{ session('message_status') }}
+                            </div>
+                        @endif
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -33,19 +38,20 @@
                                             <td> {{ $loop->iteration }} </td>
                                             <td> {{ $product->code }} </td>
                                             <td> {{ $product->name }} </td>
-                                            <td> {{ $product->description }} </td>
-                                            <td> {{ $product->category }} </td>
-                                            <td> {{ $product->sale_price }} {{ $data_common['sale_symbol'] }}
-                                            <td> {{ $product->cost_price }} {{ $data_common['purchase_symbol'] }} </td>
+                                            <td> {{ $product->ProductCategory->ProductGroup->description }} </td>
+                                            <td> {{ $product->ProductCategory->description }} </td>
+                                            <td> {{ $product->sale_price }} {{ $data_common['sale_coin_symbol'] }}
+                                            <td> {{ $product->cost_price }} {{ $data_common['purchase_coin_symbol'] }}
+                                            </td>
                                             <td>
-                                                <a href="{{ route('products.edit', $product->id) }}">
+                                                <a href="{{ route('products.edit', $product) }}">
                                                     <button class="btn-info" data-bs-toggle="tooltip"
                                                         title="Editar Producto">
                                                         <i class="fa fa-edit"></i> </button> </a>
                                                 <input type="hidden" id="message-item-delete"
                                                     value=" Al Producto: {{ $product->name }}">
-                                                <form action="{{ route('products.destroy', $product->id) }}"
-                                                    method="post" class="d-inline delete-item">
+                                                <form action="{{ route('products.destroy', $product->id) }}" method="post"
+                                                    class="d-inline delete-item">
                                                     @csrf
                                                     @method('delete')
                                                     <button class="btn-danger" data-bs-toggle="tooltip"

@@ -1,47 +1,3 @@
-// function SearchCoinBaseOld(tipo) {
-//     let coin_id = document.getElementById('coin_id').value;
-//     let calc_currency = document.getElementById('calc_currency').value
-//     var table = document.getElementById('details-table');
-
-// // moneda de calculo es la misma de la factura la tasa es 1
-//     if (coin_id == calc_currency) {
-//         document.getElementById("last_rate").value = document.getElementById("rate_exchange").value;
-//         document.getElementById("rate_exchange").value = 1
-//         document.getElementById("factor").value = "/"
-//         document.getElementById('message_subtitle').innerHTML = ""
-//         // document.getElementById("rate_exchange").disabled = true
-//         if (table.rows.length > 0) {
-//             let tasa = document.getElementById("last_rate").value
-//             RecalculateInvoice(tasa,table.rows);  // cambio la tasa recalcula factura si hay renglones
-//         }
-//     }
-//     else {
-//         try {
-//             fetch( url_base +'api/currencyvalues/'+ coin_id  +'/rate_exchange')
-//             .then(datos =>{
-//                 return datos.json();
-//             })
-//             .then (data => {
-//                 console.log("data ",data)
-//                 document.getElementById("last_rate").value = (tipo=="Venta" ? data.sale_price : data.purchase_price);
-//                 document.getElementById("factor").value = ( coin_id ==1 ? "*" : "/");
-//     // La linea anterior es asi porque tengo fijo Bs en Id 1 y $ en Id 2 debe agregarse un factor en la relacion y tomarlo de alli
-//                 document.getElementById("rate_exchange").value = (tipo=="Venta" ? data.sale_price : data.purchase_price);
-//                 // document.getElementById("rate_exchange").disabled = false
-//                 if (table.rows.length > 0) {
-//                     RecalculateInvoice(tipo=="Venta" ? data.sale_price : data.purchase_price,table.rows);  // cambio la tasa recalcula factura si hay renglones
-//                 }
-//                 CalculateMountOtherCoin();
-//             })
-//         }
-//         catch(err) {
-//             document.getElementById("rate_exchange").value = 0
-//             alert("Error leyendo tasa de cambio de la moneda");
-//         }
-//     }
-//     // OJO hay que verificar si hay error en la conexion
-// }
-
 function SearchCoinBase(type,option) {
     let coin = document.getElementById('coin_id');
     let coin_id = coin.options[coin.selectedIndex].value;
@@ -113,7 +69,7 @@ function SearchProductPrice(tipo) {
                 document.getElementById("pprecio").value = precio
                 document.getElementById("ptax").value =  data.percent;
                 document.getElementById("ptax_id").value = data.tax_id;
-                CalcSubtotal('Price')                               
+                CalcSubtotal('Price')
             })
         }
     }
@@ -228,19 +184,36 @@ function SearchSaleClients() {   // usado para la lista de las facturas pendient
 
 function LoadCategories () {
 
-    var id = $('#group-id').val()
-    var category = $('#category_id').val()
-    $.get(url_base + 'api/products/'+ id +'/categories', function (data){
-        var html_select_group = '<option value = 0> Seleccione la categoria ... </option>'
-        for (var i=0; i < data.length; i++) {
-            html_select_group += '<option value = "' + data[i].id + '"';
-            if (category > 0 && data[i].id == category) {
-                html_select_group += ' selected'
-            }
-            html_select_group += '> '+ data[i].description + '</option>';
+    let category_current = document.getElementById('category_id');
+    if (category_current.selectedIndex >= 0) {
+        try {
+            fetch( url_base +'api/products/' + category_current.options[category_current.selectedIndex].value + "/categories")
+            .then(datos =>{
+                return datos.json();
+            })
+            .then (data => {
+                document.getElementById('label-group').value = data.product_group.description
+                console.log("DATA" , data.product_group.description)
+            })
         }
-        $('#category-id').html(html_select_group);
-    })
+        catch(err) {
+            alert("Error leyendo Categorias de Productos");
+        }
+    }
+    // LIneas Originales antes de hacer el cambio a leer categhoria y de alli tomar el grupo
+    // var id = $('#group-id').val()
+    // var category = $('#category_id').val()
+    // $.get(url_base + 'api/products/'+ id +'/categories', function (data){
+    //     var html_select_group = '<option value = 0> Seleccione la categoria ... </option>'
+    //     for (var i=0; i < data.length; i++) {
+    //         html_select_group += '<option value = "' + data[i].id + '"';
+    //         if (category > 0 && data[i].id == category) {
+    //             html_select_group += ' selected'
+    //         }
+    //         html_select_group += '> '+ data[i].description + '</option>';
+    //     }
+    //     $('#category-id').html(html_select_group);
+    // })
 }
 
 function VerifyGetFocusRateExchange() {

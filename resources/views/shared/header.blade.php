@@ -2,8 +2,7 @@
 <div class="row">
     @if ($data_common['cols'] == 2)
         {{-- Si entra aqui es el header de los form que no son compras o pagos --}}
-        <div class="col-sm-2 col-md-5 col-xl-6  align-middle">
-            {{-- {{ dd($data_common) }} --}}
+        <div class="col-sm-3 col-md-5 col-xl-6">
             <h4 class="card-title "> {{ $data_common['header'] }} </h4>
             @foreach ($data_common['links_create'] as $key => $link)
                 <a style="color: #99ffff; font-size: 12px" href="{{ $link['url'] }}">
@@ -34,9 +33,15 @@
             @endif
         </div>
         <div class="col-sm-5 col-lg-5">
-            <span id="message_title" style="font-size:17px"> {{ $data_common['message_title'] }}
-            </span><br />
+            <span id="message_title" style="font-size:17px"> {{ $data_common['message_title'] }}</span>
+            <br />
             <span id="message_subtitle" style="font-size: 14px"> {{ $data_common['message_subtitle'] }}</span>
+            @if (isset($data_common['link_print_detail']))
+                <a href="{{ $data_common['link_print_detail'] }}" target="_blank" class="text-dark"> <button
+                        type="button" class="bg-info" data-toggle="tooltip" data-placement="top"
+                        title="Imprimir Balance">
+                        <i class="fa fa-print" aria-hidden="true"></i> </a>
+            @endif
         </div>
         <div class="col-sm-3 col-md-3 col-lg-3" style="font-size:17px">
             <a class="text-white" href="{{ $data_common['links_header']['url'] }}">

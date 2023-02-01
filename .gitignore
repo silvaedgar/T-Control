@@ -24,4 +24,11 @@ resources/views/shared/.delete/
 resources/views/prueba/
 sql/balanceclientsbsadolar.csv
 sql/obtenermonedasrelacionadas.sql
-resources/views/clients/calc-table-balance.blade.php
+sql/comprasproductos.sql
+sql/salescontroller.clients.sql
+sql/ObtenerValoresMonedasDeCalculo.sql
+sql/predicciones.sql
+sql/puntos.sql
+txt
+borrar
+borrar.txt

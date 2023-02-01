@@ -23,13 +23,13 @@
                     <div class="card">
                         {{-- Hay que verioficar porque la tasa se usa en el paymentclient y no el en payment supplier
                             lo puse aqui pero no se usa en el controlador --}}
-                        <input type="hidden" id="rate" value="{{ $data_common['rate'] }}">
+                        <input type="hidden" id="rate" name="rate_date" value="{{ $data_common['rate'] }}">
                         <div class="card-header card-header-primary">
                             @include('shared.header')
                         </div>
                         <div class="card-body">
                             @include('shared.form-header-payment')
-                            @include('payment-suppliers.formdetails')
+                            @include('shared.form-details-payment')
                             <div class="row mt-2">
                                 <div class="col-sm-5 mt-3"> <a href="{{ route('paymentsuppliers.index') }}">
                                         {{ __('Ir a Listado de Pagos') }} </a>

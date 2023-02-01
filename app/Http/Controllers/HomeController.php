@@ -4,16 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
+    use LogsActivity;
+
     // public function __construct()
     // {
     //     $this->middleware('auth');
@@ -26,6 +23,9 @@ class HomeController extends Controller
      */
     public function index()
     {
+
+        activity()->log('Usuario '.auth()->user()->name." Logueado");
+        //     ->withProperties(['log_name' => "login"]);
         $exist_client = false;
         $verify_client = User::with('userclient')->role('Client')->where('id',auth()->user()->id)->get();
         if (count($verify_client) > 0) {

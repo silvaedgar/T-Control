@@ -27,10 +27,15 @@ class Tax extends Model
     {
         return $this->hasMany(PurchaseDetail::class, 'tax_id', 'id');
     }
-    
+
     public function SaleDetail()
     {
         return $this->hasMany(SaleDetail::class, 'tax_id', 'id');
+    }
+
+    // Ambito Local del Scope
+    public function scopeGetTaxes($query) {
+        return $query->where('status','Activo')->orderBy('percent');
     }
 
 

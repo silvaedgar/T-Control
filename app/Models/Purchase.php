@@ -18,7 +18,7 @@ class Purchase extends Model
         return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
 
-    public function purchase_details()
+    public function PurchaseDetails()
     {
         return $this->hasMany(PurchaseDetail::class, 'purchase_id', 'id');
     }
@@ -27,5 +27,12 @@ class Purchase extends Model
     {
         return $this->belongsTo(Coin::class, 'coin_id', 'id');
     }
+
+    public function scopeGetPurchases($query,$filter=[]) {
+        if (count($filter) == 0)
+            return $query->orderBy('purchase_date','desc')->orderBy('id','desc');
+        return $query->where($filter)->orderBy('purchase_date','desc')->orderBy('id','desc');
+    }
+
 
 }

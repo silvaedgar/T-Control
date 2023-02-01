@@ -43,7 +43,6 @@ Route::get('/home-tcontrol','App\Http\Controllers\HomeController@hometcontrol')-
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-// Auth::routes();
 
 // Route::get('/home', 'App\Http\Controllers\HomeController@index')->name('home')->middleware('auth');
 
@@ -55,17 +54,17 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('clients/account_state/{id}',[ClientController::class,'account_state'])->name('clients.account_state');
-    Route::get('clients/printbalance/{id}/{mensaje?}',[ClientController::class,'printbalance'])->name('clients.printbalance');
-    Route::get('clients/balance/{client}/{mensaje?}',[ClientController::class,'balance'])->name('clients.balance');
-    Route::get('clients/listdebtor',[ClientController::class,'list_debtor'])->name('clients.list_debtor');
+    Route::get('clients/print_balance/{id}/{mensaje?}',[ClientController::class,'print_balance'])->name('clients.print_balance');
+    Route::get('clients/balance/{id}/{mensaje?}',[ClientController::class,'balance'])->name('clients.balance');
+    Route::get('clients/list_debtor',[ClientController::class,'list_debtor'])->name('clients.list_debtor');
     Route::resource('clients', ClientController::class)->names('clients');
 
-    Route::get('suppliers/listcreditors',[SupplierController::class,'listcreditors'])->name('suppliers.listcreditors');
-    Route::get('suppliers/balance/{supplier}/{mensaje?}',[SupplierController::class,'balance'])->name('suppliers.balance');
+    Route::get('suppliers/list_creditors',[SupplierController::class,'list_creditors'])->name('suppliers.listcreditors');
+    Route::get('suppliers/balance/{id}/{mensaje?}',[SupplierController::class,'balance'])->name('suppliers.balance');
     Route::resource('suppliers', SupplierController::class)->names('suppliers');
 
 
-    Route::get('products/listprint',[ProductController::class,'listprint'])->name('products.listprint');
+    Route::get('products/list_print',[ProductController::class,'list_print'])->name('products.list_print');
     Route::get('products/prueba', [ProductController::class,'prueba'])->name('products.prueba');
 
     Route::resource('products', ProductController::class)->names('products');

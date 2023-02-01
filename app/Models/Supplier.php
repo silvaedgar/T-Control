@@ -42,7 +42,7 @@ class Supplier extends Model
 
         return  Supplier::select('purchase_date as date','mount','balance','rate_exchange','purchases.id',
             'purchases.created_at as create','suppliers.name','suppliers.id as supplier_id',
-            'coins.symbol','coins.id as coin_id')
+            'coins.symbol','coins.id as coin_id')->selectRaw(" 'N' as count_in_bs")
             ->selectRaw("'Compras' as type")->selectRaw($column_balance_purchases)
             ->join('purchases','suppliers.id','purchases.supplier_id')->join('coins','purchases.coin_id','coins.id')
             ->where('supplier_id',$id);
@@ -57,7 +57,7 @@ class Supplier extends Model
 
         return  Supplier::select('payment_date as date','mount','balance','rate_exchange','payment_suppliers.id',
             'payment_suppliers.created_at as create','suppliers.name','suppliers.id as supplier_id',
-            'coins.symbol','coins.id as coin_id')
+            'coins.symbol','coins.id as coin_id')->selectRaw("'N' as count_in_bs")
             ->selectRaw("'Pagos' as type")->selectRaw($column_balance_payments)
             ->join('payment_suppliers','suppliers.id','payment_suppliers.supplier_id')
             ->join('coins','payment_suppliers.coin_id','coins.id')->where('supplier_id',$id);

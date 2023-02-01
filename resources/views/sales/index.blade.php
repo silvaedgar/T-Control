@@ -18,11 +18,9 @@
                                 <h4 class="card-title ">Facturas de Ventas</h4>
                                 <a style="color: #99ffff; font-size: 12px" href="{{ route('paymentclients.create') }}">
                                     Generar Pago de Cliente </a>
-
                             </div>
                             <div class="col-sm-8 col-md-6 col-xl-5 ">
-                                <form action="{{ route('sales.filter') }}" method="post" class="d-inline"
-                                    target="_blank">
+                                <form action="{{ route('sales.filter') }}" method="post" class="d-inline" target="_blank">
                                     @csrf
                                     <input type="hidden" value="{{ $data_common['data_filter']['status'] }}"
                                         name="status">
@@ -43,6 +41,10 @@
                                     </button> </a>
                             </div>
                         </div>
+                        @if (session('message_status'))
+                            @include('shared.message-session')
+                        @endif
+
                     </div>
                     <form class="mt-3" method="POST" action="{{ route('sales.filter') }}">
                         @csrf
@@ -64,7 +66,17 @@
                                 <tbody>
                                     @foreach ($sales as $sale)
                                         <tr
-                                            class="{{ $sale->status != 'Parcial' && $sale->status != 'Pendiente' ? 'bg-warning' : '' }}">
+                                            class=" @switch($sale->status)
+                                                        @case('Anulada')
+                                                            bg-danger
+                                                            @break
+                                                        @case('Historico')
+                                                            bg-warning
+                                                            @break
+                                                        @default
+                                                            ''
+                                                    @endswitch">
+
                                             <td><a href="{{ route('sales.show', $sale->id) }}"> {{ $loop->iteration }}
                                                 </a> </td>
                                             <td> {{ date('d-m-Y', strtotime($sale->sale_date)) }} </td>
@@ -90,6 +102,12 @@
                                                             <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                                                     </form>
                                                 @endif
+                                                <a href="{{ route('clients.balance', $sale->client_id) }}">
+                                                    <button class="btn-primary" data-bs-toggle="tooltip"
+                                                        title="Ver Movimientos">
+                                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                                    </button> </a>
+
                                             </td>
                                             <td> </td>
                                         </tr>

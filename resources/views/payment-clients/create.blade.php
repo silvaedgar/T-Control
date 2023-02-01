@@ -30,7 +30,7 @@
                         </div>
                         <div class="card-body ">
                             @include('shared.form-header-payment')
-                            @include('payment-clients.formdetails')
+                            @include('shared.form-details-payment')
                             <div class="row mt-1">
                                 <div class="col-sm-5 mt-3"> <a href="{{ route('paymentclients.index') }}">
                                         {{ __('Ir a Listado de Pagos') }} </a>

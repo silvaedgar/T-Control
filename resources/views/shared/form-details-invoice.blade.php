@@ -1,4 +1,4 @@
-@if (!isset($invoice))
+@if (!isset($data['invoice']))
     @php
         $base_coin_id = $data_common['base_coin_id'];
         $calc_coin_id = $data_common['calc_coin_id'];
@@ -19,7 +19,7 @@
             <select name="pidproduct" id="pidproduct" class="form-control mt-0"
                 onchange="SearchProductPrice('{{ $type_operation }}')">
                 <option value=0> Seleccione un Producto ...</option>
-                @foreach ($products as $product)
+                @foreach ($data['products'] as $product)
                     <option value="{{ $product->id }}"> {{ $product->name }} </option>
                 @endforeach
             </select>
@@ -58,7 +58,8 @@
     </div>
 @endif
 <br>
-<div style="height: 16.5rem; overflow: scroll; margin-top: -55px">
+<div
+    style="height: 16.5rem; overflow: scroll; {{ isset($data['invoice']) ? 'margin-top: -15px' : 'margin-top: -50px' }} ">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped" id="details-table">
         <thead style="background: rgb(202, 202, 236); text-align: center; ">
             <tr>
@@ -69,15 +70,16 @@
                 <th style="width: 12%">Impuesto</th>
                 <th style="width: 13%">Subtotal</th>
                 <th style="width: 15%">Renglones: <span id="totalrenglones">
-                        {{ isset($invoice_details) ? count($invoice_details) : '' }} </span> </th>
+                        {{ isset($data['invoice']) ? count(isset($data['invoice']->PurchaseDetails) ? $data['invoice']->PurchaseDetails : $data['invoice']->SaleDetails) : '' }}
+                    </span> </th>
             </tr>
         </thead>
         <tbody>
-            @if (isset($invoice_details))
-                @foreach ($invoice_details as $detail)
+            @if (isset($data['invoice']))
+                @foreach (isset($data['invoice']->PurchaseDetails) ? $data['invoice']->PurchaseDetails : $data['invoice']->SaleDetails as $detail)
                     <tr style="font-size:small ; background: white; text-align: left">
                         <td> {{ $detail->item }}</td>
-                        <td> {{ $detail->name }}</td>
+                        <td> {{ $detail->Product->name }}</td>
                         <td> {{ number_format($detail->quantity, 2) }}</td>
                         <td> {{ number_format($detail->price, 2) }}</td>
                         <td> {{ number_format($detail->tax, 2) }}</td>

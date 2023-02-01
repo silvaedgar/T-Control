@@ -41,6 +41,9 @@
                                     </button> </a>
                             </div>
                         </div>
+                        @if (session('message_status'))
+                            @include('shared.message-session')
+                        @endif
                     </div>
                     <form class="mt-3" method="POST" action="{{ route('paymentsuppliers.filter') }}"> @csrf
                         @include('shared.filter')
@@ -58,7 +61,17 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($paymentsuppliers as $paymentsupplier)
-                                        <tr>
+                                        <tr
+                                            class=" @switch($paymentsupplier->status)
+                                                        @case('Anulado')
+                                                            bg-danger
+                                                            @break
+                                                        @case('Historico')
+                                                            bg-warning
+                                                            @break
+                                                        @default
+                                                            ''
+                                                    @endswitch">
                                             <td> {{ $loop->iteration }} </td>
                                             <td> {{ $paymentsupplier->Supplier->name }} </td>
                                             <td> {{ date('d-m-Y', strtotime($paymentsupplier->payment_date)) }} </td>
@@ -79,6 +92,12 @@
                                                     <button class="btn-danger" data-bs-toggle="tooltip" title="Anular Pago">
                                                         <i class="fa fa-trash-o" aria-hidden="true"></i></button>
                                                 </form>
+                                                <a href="{{ route('suppliers.balance', $paymentsupplier->supplier_id) }}">
+                                                    <button class="btn-primary" data-bs-toggle="tooltip"
+                                                        title="Ver Movimientos">
+                                                        <i class="fa fa-money" aria-hidden="true"></i>
+                                                    </button> </a>
+
                                             </td>
 
                                         </tr>

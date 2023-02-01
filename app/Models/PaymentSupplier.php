@@ -27,4 +27,10 @@ class PaymentSupplier extends Model
         return $this->belongsTo(PaymentForm::class, 'payment_form_id', 'id');
     }
 
+    public function scopeGetPayments($query,$filter=[]) {
+        if (count($filter) == 0)
+            return $query->orderBy('payment_date','desc')->orderBy('id','desc');
+        return $query->where($filter)->orderBy('payment_date','desc')->orderBy('id','desc');
+    }
+
 }
