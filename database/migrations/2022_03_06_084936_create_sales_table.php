@@ -22,8 +22,11 @@ class CreateSalesTable extends Migration
             $table->date('sale_date');
             $table->string('invoice',10)->nullable(); // Numero de factura no es obligatorio en las primeras de cambios
             $table->float('mount',12,2);
+            $table->float('associated_costs',12,2)->default(0);
+
             $table->float('tax_mount',12,2);
             $table->float('paid_mount',12,2)->default(0);
+
             $table->enum('conditions',['Credito','Contado'])->default('Credito');
             $table->string('observations',150)->nullable();
             $table->enum('status',['Pendiente','Parcial','Cancelada','Anulada','Historico'])->default('Pendiente');

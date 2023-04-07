@@ -16,15 +16,18 @@ class CreateTaxesTable extends Migration
         Schema::create('taxes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->float('percent',5,2);
-            $table->string('description',20);
-            $table->datetime('date_start')->default(now());
-            $table->enum('status',['Activo','Inactivo'])->default('Activo');
+            $table->float('percent', 5, 2);
+            $table->string('description', 20);
+            $table->datetime('date_start');
+            $table->boolean('status')->default(true);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
-
+            $table
+                ->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

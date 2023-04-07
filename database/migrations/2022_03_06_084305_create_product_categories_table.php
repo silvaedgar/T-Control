@@ -17,13 +17,23 @@ class CreateProductCategoriesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('group_id');
-            $table->string('description',50);
-            $table->enum('status',['Activo','Inactivo'])->default('Activo');
+            $table->string('description', 50);
+            $table->boolean('activo')->default(true);
+            $table->enum('status', ['Activo', 'Inactivo'])->default('Activo');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('group_id')->references('id')->on('product_groups')->onDelete('cascade')->onUpdate('cascade');
-
+            $table
+                ->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table
+                ->foreign('group_id')
+                ->references('id')
+                ->on('product_groups')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

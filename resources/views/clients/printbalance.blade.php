@@ -16,20 +16,32 @@
             <div class="card">
                 <div class="card-header card-header-primary">
                     <div class="row">
-                        <div class="col-md-5 col-sm-4">
-                            <span style="font-size: large; "> Balance de Movimientos </span>
+                        <div class="row">
+                            <div class="col-md-5 col-sm-4">
+                                <span style="font-size: large; "> Balance de Movimientos </span>
+                            </div>
                         </div>
-                        <div class="col-sm-5">
-                            <h5> Cliente: {{ $movements[0]->names }} </h5>
-                            {{ $data_common['calc_coin_id'] != $data_common['base_coin_id'] ? 'Tasa Actualizada: ' . number_format($data_common['rate'], 2) : '' }}
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <span class="font-weight-bold" style="font-size: 20px">
+                                    Cliente: {{ $movements[0]->names }} {{ $config['header']['subTitle2'] }}</span>
+
+
+                                {{-- <h4 class="d-inline"> {{ $config['header']['subTitle2'] }} </h4> --}}
+                            </div>
+                            <div class="col-sm-3">
+                                {{ $config['data']['calcCoin']->id != $config['data']['baseCoin']->id ? $config['header']['subTitle'] : '' }}
+                            </div>
                         </div>
+
                     </div>
                 </div>
-                <div class="card-body">
-                    @include('shared.table-balance')
-                </div>
+            </div>
+            <div class="card-body">
+                @include('shared.table-balance')
             </div>
         </div>
+    </div>
     </div>
     </div>
     </div>

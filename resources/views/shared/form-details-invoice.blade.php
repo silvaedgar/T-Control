@@ -1,65 +1,58 @@
-@if (!isset($data['invoice']))
-    @php
-        $base_coin_id = $data_common['base_coin_id'];
-        $calc_coin_id = $data_common['calc_coin_id'];
-        $type_operation = $data_common['controller'];
-    @endphp
-    <div class="row mt-md-2">
-        <input type="hidden" class="form-control" id="ptax" step="any">
-        <input type="hidden" class="form-control" id="ptax_id" step="any">
-        {{-- Use 2 coins, File config not yet active here show 2 price --}}
-    </div>
+@if (!isset($invoice))
+    <input type="hidden" class="form-control" id="ptax" step="any">
+    <input type="hidden" class="form-control" id="ptax_id" step="any">
+    {{-- Use 2 coins, File config not yet active here show 2 price --}}
     <div class="row">
-        <div class="col-sm-5 col-md-3 col-lg-4 col-xl-5 col-xxl-6 mb-3 ">
-            {{-- <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1"> --}}
+        {{--  Producto  --}}
+        <div class="col-sm-5 col-md-3 col-lg-4  mb-3">
             <label for="validationCustom01" class="form-label">Producto</label>
-            {{-- <span>Producto</span> --}}
-            {{-- </div> --}}
-            {{-- <div class="col-sm-4 col-md-2 col-lg-4 col-xl-4"> --}}
-            <select name="pidproduct" id="pidproduct" class="form-control mt-0"
-                onchange="SearchProductPrice('{{ $type_operation }}')">
+            <select name="pidproduct" id="pidproduct" class="form-control select2 mt-0"
+                onchange="ProductPrice('{{ $config['var_header']['labelCaption'] }}',event)">
+                {{-- onchange="SearchProductPrice('{{ $type_operation }}')"> --}}
                 <option value=0> Seleccione un Producto ...</option>
-                @foreach ($data['products'] as $product)
+                @foreach ($config['data']['products'] as $product)
                     <option value="{{ $product->id }}"> {{ $product->name }} </option>
                 @endforeach
             </select>
-            {{-- </div> --}}
         </div>
+        {{--  Cantidad  --}}
         <div class="col-sm-2 col-md-1 col-lg-1 mb-3">
             <div class="col-sm-2 col-md-1 col-lg-1">
                 <label for="validationCustom02" class="form-label">Ctdad</label>
             </div>
-            <input type="number" class="form-control" style="margin-top: -5px" id="pcantidad" step="any"
-                onkeyup="CalcSubtotal('Qty')">
+            <input type="text" class="form-control" style="margin-top: -5px" id="productQty" step="any"
+                onkeyup="CalcSubTotal('Qty',event) ">
         </div>
-        <div class="col-sm-3 col-md-2 col-lg-1 mb-4">
-            <div class="col-sm-3 col-md-2 col-lg-1">
-                <label for="validationCustom02" class="form-label">Precio</label>
+        {{--  Precio  --}}
+        <div class="col-12 col-sm-3 col-md-2 col-lg-1 mb-4">
+            <div class="col-3 col-md-2 col-lg-1">
+                <label for="validationCustom02" class="form-label">Precio </label>
             </div>
-
-            <input type="number" class="form-control" style="margin-top: -5px" onkeyup="CalcSubtotal('Price')"
-                id="pprecio" step="any">
-            <input type="{{ $calc_coin_id == $base_coin_id ? 'hidden' : 'number' }}" class="form-control"
-                style="margin-top: -5px" onkeyup="CalcSubtotal('PriceOther')" id="pprecioother" step="any">
+            <input type="text" class="form-control" style="margin-top: -5px" id="productPrice" step="any"
+                onkeyup="CalcSubTotal('Price', event)">
+            <input type="{{ $config['data']['calcCoin']->id == $config['data']['baseCoin']->id ? 'hidden' : 'text' }}"
+                class="form-control" style="margin-top: -5px" id="productPriceOther" step="any"
+                onkeyup="CalcSubTotal('PriceOther', event)">
         </div>
-        <div class="col-sm-2 col-md-1 col-lg-1 ">
-            <div class="col-sm-2 col-md-1 col-lg-1">
+        {{--  Subtotal  --}}
+        <div class="col-sm-2 col-md-1 col-lg-1">
+            <div class="col-1 col-sm-2 col-md-1 col-lg-1">
                 <label for="validationCustom02" class="form-label"> Subtotal </label>
             </div>
 
-            <label for="validationCustom02" id="psubtotal" class="form-label"> </label>
+            <label for="validationCustom02" id="productSubTotal" class="form-label"> </label>
         </div>
-        <div class="col-sm-6 col-md-2 col-lg-2 mt-sm-3 mt-md-2 mt-lg-2  ml-xl-2 mb-2">
+        {{--  Buttons  --}}
+        <div class="col-sm-6 col-md-2 col-lg-4 ms-lg-4  mt-sm-3 ms-md-2  mt-md-3 mt-lg-4 ml-xl-2 mb-5">
             <input type="button" value="Agrega Producto" onclick="AddItem()" id="additem" class="btn-sm btn-primary">
-        </div>
-        <div class="col-sm-6 col-md-2 col-lg-2 col-xl-1 mt-sm-3 mt-md-2 mt-lg-2  ml-md-5 mb-5">
             <button type="submit" class="btn-sm btn-danger">{{ __('Grabar') }}</button>
         </div>
+        {{--  <div class="col-sm-6 col-md-2 col-lg-1 col-xl-1 mt-sm-3 mt-md-3 mt-lg-4 ml-md-5 me-lg-3 mb-5">
+        </div>  --}}
     </div>
 @endif
 <br>
-<div
-    style="height: 16.5rem; overflow: scroll; {{ isset($data['invoice']) ? 'margin-top: -15px' : 'margin-top: -50px' }} ">
+<div style="max-height: 16.5rem; overflow: scroll; {{ isset($invoice) ? 'margin-top: -15px' : 'margin-top: -50px' }} ">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-bordered table-striped" id="details-table">
         <thead style="background: rgb(202, 202, 236); text-align: center; ">
             <tr>
@@ -70,13 +63,13 @@
                 <th style="width: 12%">Impuesto</th>
                 <th style="width: 13%">Subtotal</th>
                 <th style="width: 15%">Renglones: <span id="totalrenglones">
-                        {{ isset($data['invoice']) ? count(isset($data['invoice']->PurchaseDetails) ? $data['invoice']->PurchaseDetails : $data['invoice']->SaleDetails) : '' }}
+                        {{ isset($invoice) ? count(isset($invoice->PurchaseDetails) ? $invoice->PurchaseDetails : $invoice->SaleDetails) : '' }}
                     </span> </th>
             </tr>
         </thead>
         <tbody>
-            @if (isset($data['invoice']))
-                @foreach (isset($data['invoice']->PurchaseDetails) ? $data['invoice']->PurchaseDetails : $data['invoice']->SaleDetails as $detail)
+            @if (isset($invoice))
+                @foreach (isset($invoice->PurchaseDetails) ? $invoice->PurchaseDetails : $invoice->SaleDetails as $detail)
                     <tr style="font-size:small ; background: white; text-align: left">
                         <td> {{ $detail->item }}</td>
                         <td> {{ $detail->Product->name }}</td>

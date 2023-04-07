@@ -1,6 +1,6 @@
 <div class="table-responsive">
     <table class="table-sm table-hover table-striped" id="data-table" style="width: 100%">
-        <thead class=" text-primary">
+        <thead class="text-primary">
             <th>Item</th>
             <th>Fecha</th>
             <th>Monto</th>
@@ -13,6 +13,7 @@
                 $balance = $movements[0]->balance;
             @endphp
             @if ($movements[0]->type != 'Balance')
+
                 @foreach ($movements as $movement)
                     <tr>
                         <td> {{ $loop->iteration }} </td>
@@ -23,41 +24,32 @@
                                     @php
                                         $mount = $movement->mount_balance;
                                     @endphp
-                                    @if ($movement->coin_id == $data_common['calc_coin_id'])
+                                    @if ($movement->coin_id == $config['data']['calcCoin']->id)
                                         {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
-                                        @if ($data_common['controller'] == 'Client')
-                                            {{-- Este if es un parche por lo del rate_exchange de payment supplier en 1 no muestra bien los datos por eso se filtro para no mostrarse --}}
-                                            {{ $movement->coin_id != $data_common['base_coin_id']
-                                                ? ' - ' .
-                                                    number_format($movement->mount * $movement->rate_exchange, 2) .
-                                                    '(' .
-                                                    $data_common['base_coin_symbol'] .
-                                                    ')'
-                                                : '' }}
-                                        @endif
                                     @else
                                         {{ number_format($movement->mount / $movement->rate_exchange, 2) }}
-                                        ({{ $data_common['calc_coin_symbol'] }}) -
+                                        ({{ $config['data']['calcCoin']->symbol }})
+                                        -
                                         {{ number_format($movement->mount, 2) }}
-                                        ({{ $movement->coin_id == $data_common['base_coin_id'] ? $data_common['base_coin_symbol'] : $movement->symbol }})
+                                        ({{ $movement->coin_id == $config['data']['baseCoin']->id ? $config['data']['baseCoin']->symbol : $movement->symbol }})
                                     @endif
                                 @else
                                     {{-- Cuenta en Bs caso Livia y Paola --}}
                                     @php
                                         $mount = $movement->mount;
                                     @endphp
-                                    @if ($movement->coin_id == $data_common['calc_coin_id'])
+                                    @if ($movement->coin_id == $config['data']['calcCoin']->id)
                                         {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
-                                        @if ($movement->coin_id != $data_common['base_coin_id'])
+                                        @if ($movement->coin_id != $config['data']['baseCoin']->id)
                                             @php
                                                 $mount = $movement->mount * $movement->rate_exchange;
                                             @endphp
                                             {{-- // La moneda es diferenete al Bs y a la de calculo --}}
                                             - {{ number_format($movement->mount * $movement->rate_exchange, 2) }}
-                                            ({{ $data_common['base_coin_symbol'] }})
+                                            ({{ $config['data']['baseCoin']->symbol }})
                                         @endif
                                     @else
-                                        @if ($movement->coin_id == $data_common['base_coin_id'])
+                                        @if ($movement->coin_id == $config['data']['baseCoin']->id)
                                             {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
                                         @else
                                             {{-- si llega aqui la moneda no es $ ni Bs --}}
@@ -75,36 +67,26 @@
                                     @php
                                         $mount = $movement->mount_balance;
                                     @endphp
-                                    @if ($movement->coin_id == $data_common['calc_coin_id'])
+                                    @if ($movement->coin_id == $config['data']['calcCoin']->id)
                                         {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
-                                        {{-- @if ($data_common['controller'] == 'Client')
-                            Este if es un parche por lo del rate_exchange de payment supplier en 1 no muestra bien los datos por eso se filtro para no mostrarse
-                                            {{ $movement->coin_id != $data_common['base_coin_id']
-                                                ? ' - ' .
-                                                    number_format($movement->mount * $movement->rate_exchange, 2) .
-                                                    '(' .
-                                                    $data_common['base_coin_symbol'] .
-                                                    ')'
-                                                : '' }}
-                                        @endif --}}
                                     @else
                                         {{-- sino es moneda de calculo muestra la conversion y despues el monto --}}
                                         {{ number_format($movement->mount / $movement->rate_exchange, 2) }}
-                                        ({{ $data_common['calc_coin_symbol'] }}) -
+                                        ({{ $config['data']['calcCoin']->symbol }}) -
                                         {{ number_format($movement->mount, 2) }}
-                                        ({{ $movement->coin_id == $data_common['base_coin_id'] ? $data_common['base_coin_symbol'] : $movement->symbol }})
+                                        ({{ $movement->coin_id == $config['data']['baseCoin']->id ? $config['data']['baseCoin']->symbol : $movement->symbol }})
                                     @endif
                                 @else
                                     {{-- Cuenta en Bs caso Livia y Paola --}}
-                                    @if ($movement->coin_id == $data_common['calc_coin_id'])
+                                    @if ($movement->coin_id == $config['data']['calcCoin']->id)
                                         @php
                                             $mount = $movement->mount;
                                         @endphp
                                         {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
-                                        @if ($movement->coin_id != $data_common['base_coin_id'])
+                                        @if ($movement->coin_id != $config['data']['baseCoin']->id)
                                             {{-- // La moneda es diferenete al Bs y a la de calculo --}}
                                             - {{ number_format($movement->mount * $movement->rate_exchange, 2) }}
-                                            ({{ $data_common['base_coin_symbol'] }})
+                                            ({{ $config['data']['baseCoin']->symbol }})
                                         @endif
                                     @else
                                         {{ number_format($movement->mount, 2) }} ({{ $movement->symbol }})
@@ -117,29 +99,16 @@
                         </td>
                         <td>
                             {{ number_format($balance, 2) }}
-                            {{ $movement->count_in_bs == 'N' ? $data_common['calc_coin_symbol'] : $data_common['base_coin_symbol'] }}
+                            {{ $movement->count_in_bs == 'N' ? $config['data']['calcCoin']->symbol : $config['data']['baseCoin']->symbol }}
                             @php
                                 $balance = $movement->type == 'Pagos' ? $balance + $mount : $balance - $mount;
                             @endphp
                         </td>
                         <td>
-                            @if ($movement->type == 'Compras')
-                                <a
-                                    href="{{ $data_common['controller'] == 'Client'
-                                        ? route('sales.show', $movement->id)
-                                        : route('purchases.show', $movement->id) }}">
-                                    <button class="btn-info" data-bs-toggle="tooltip" title="Ver Detalle">
-                                        <i class="fa fa-money" aria-hidden="true"></i>
-                                    </button> </a>
-                            @else
-                                <a
-                                    href="{{ $data_common['controller'] == 'Client'
-                                        ? route('paymentclients.show', $movement->id)
-                                        : route('paymentsuppliers.show', $movement->id) }}">
-                                    <button class="btn-info" data-bs-toggle="tooltip" title="Ver Detalle">
-                                        <i class="fa fa-money" aria-hidden="true"></i>
-                                    </button> </a>
-                            @endif
+                            <a href="{{ route($movement->route, $movement->id) }}">
+                                <button class="btn-info" data-bs-toggle="tooltip" title="Ver Detalle">
+                                    <i class="fa fa-money" aria-hidden="true"></i>
+                                </button> </a>
                         </td>
                     </tr>
                 @endforeach

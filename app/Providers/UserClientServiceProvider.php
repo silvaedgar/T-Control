@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-Use App\UserClient;
+use App\UserClient;
 use Illuminate\Support\ServiceProvider;
 
 class UserClientServiceProvider extends ServiceProvider
 {
     public $bindings = [
-        "UserClient" => UserClient::class
+        'UserClient' => UserClient::class,
     ];
 
     public function register()
@@ -23,6 +23,7 @@ class UserClientServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        return Config('municipio');
         //
     }
 }

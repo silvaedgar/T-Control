@@ -9,28 +9,31 @@ class PaymentClient extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','client_id', 'coin_id','payment_form_id','payment_date',
-    'rate_exchange','mount','observations'];
+    protected $fillable = ['user_id', 'client_id', 'coin_id', 'payment_form_id', 'payment_date', 'rate_exchange', 'mount', 'observations'];
 
-    public function Client()
+    public function client()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        return $this->belongsTo(Client::class);
     }
 
-    public function Coin()
+    public function coin()
     {
-        return $this->belongsTo(Coin::class, 'coin_id', 'id');
+        return $this->belongsTo(Coin::class);
     }
 
-    public function PaymentForm()
+    public function paymentForm()
     {
         return $this->belongsTo(PaymentForm::class, 'payment_form_id', 'id');
     }
 
-    public function scopeGetPayments($query,$filter=[]) {
-        if (count($filter) == 0)
-            return $query->orderBy('payment_date','desc')->orderBy('id','desc');
-        return $query->where($filter)->orderBy('payment_date','desc')->orderBy('id','desc');
+    public function scopeGetPayments($query, $filter = [])
+    {
+        if (count($filter) == 0) {
+            return $query->orderBy('payment_date', 'desc')->orderBy('id', 'desc');
+        }
+        return $query
+            ->where($filter)
+            ->orderBy('payment_date', 'desc')
+            ->orderBy('id', 'desc');
     }
-
 }

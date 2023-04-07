@@ -23,22 +23,23 @@ class StoreProductGroupRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'description' => 'required|string|min:4|unique:product_groups'
-        ];
+        if ($this->id == 0) {
+            return [
+                'description' => 'required|string|min:4|unique:product_groups',
+            ];
+        } else {
+            return [
+                'description' => "required|string|min:4|unique:product_groups,description,$this->id",
+            ];
+        }
     }
 
-    public function attributes() {
+    public function messages()
+    {
         return [
-            'description' => 'descripcion de grupo'
-        ];
-    }
-
-
-    public function message() {
-
-        return [
-        'description.min' => 'La descripción debe tener al menos 5 caracteres',
+            'description.required' => 'Ingrese la Descripción',
+            'description.unique' => 'La descripcion ya esta en uso',
+            'description.min' => 'La descripción debe tener al menos 5 caracteres',
         ];
     }
 }

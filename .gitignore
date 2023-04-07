@@ -16,8 +16,9 @@ yarn-error.log
 /.vscode
 .000web
 .pendiente
-resources/views/payment-clients/delete/
-resources/views/payment-suppliers/.delete/
+resources/views/maintenance/.deleted
+resources/views/.deleted
+
 resources/views/purchases/delete/
 resources/views/sales/.delete/
 resources/views/shared/.delete/
@@ -32,3 +33,9 @@ sql/puntos.sql
 txt
 borrar
 borrar.txt
+public/js/tabledetails1.js
+resources/views/clients/balance.blade.php
+resources/views/shared/form-details-payment1.blade.php
+public/images/product/2.png
+public/images/product/TEST1.jpeg
+

@@ -1,4 +1,4 @@
-<div class="mt-2" style="height: 16rem; overflow: scroll;">
+<div class="mt-2" style="max-height: 16rem; overflow: scroll;">
     <table class="table-sm table-hover table-responsive-sm tblscroll table-striped" id="details-table">
         <thead style="background: rgb(186, 186, 219); text-align: center; font-size: small;  ">
             <tr style="height: 3px">

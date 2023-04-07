@@ -8,99 +8,102 @@ use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\ProductCategory;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
+use App\Http\Requests\ProductRequest;
 
+use App\Facades\Config;
 
-use App\Facades\DataCommonFacade;
-use App\Facades\ProductFacade;
-
-use App\Traits\GetDataCommonTrait;
+use App\Traits\CoinTrait;
 use App\Traits\ProductTrait;
-
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
-
+use App\Traits\ProductCategoryTrait;
+use App\Traits\SharedTrait;
 
 use PDF;
 
 class ProductController extends Controller
 {
-    use GetDataCommonTrait, ProductTrait;
+    use CoinTrait, ProductTrait, ProductCategoryTrait, SharedTrait;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('role');
+    }
+
+    public function loadDataCoins($config)
+    {
+        $rate = $this->getBaseCoinRate($this->getBaseCoin('calc_currency_purchase')->first()->id)->first();
+        $config['saleCoin'] = $this->getBaseCoin('calc_currency_sale')->first();
+        $config['purchaseCoin'] = $this->getBaseCoin('calc_currency_purchase')->first();
+        $config['baseCoin'] = $this->getBaseCoin('base_currency')->first();
+        $config['saleCoin']->sale_price = $rate->sale_price;
+        $config['purchaseCoin']->purchase_price = $rate->purchase_price;
+        $config['header']['title2'] = 'Tasa Venta: ' . $rate->sale_price . ' ' . $config['baseCoin']->symbol;
+        $config['header']['subTitle2'] = 'Tasa Compra: ' . $rate->purchase_price . ' ' . $config['baseCoin']->symbol;
+
+        return $config;
     }
 
     public function index()
     {
-        $products = $this->GetProducts()->orderBy('name')->get();
-        $data_common =  ProductFacade::getDataSharedProduct('index','Listado de Productos');
-        return view('products.index',compact('products','data_common'));
+        $config = Config::labels('Products', $this->getProducts()->get());
+        $config['header']['title'] = 'Listado de Productos';
+        $config['data']['coinSale'] = $this->getBaseCoin('calc_currency_sale')->first();
+        $config['data']['coinPurchase'] = $this->getBaseCoin('calc_currency_purchase')->first();
+        $config['isFormIndex'] = true;
+        return view('shared.index', compact('config'));
     }
 
     public function create()
     {
-        $data = ProductFacade::getDataProduct(0);
-        $data_common = ProductFacade::getDataSharedProduct('create','Crear Productos');
-        return view('products.create',compact('data','data_common'));
+        $config = Config::labels('Products');
+        $config['header']['title'] = 'Creando Producto';
+        $config = $this->loadDataCoins($config);
+        $categories = ProductCategory::GetProductCategories([['activo', '=', 1]])->get();
+        $taxes = Tax::GetTaxes([['activo', '=', 1]])->get(); // Ejemplo de LocalScope
+        return view('shared.create-edit', compact('config', 'categories', 'taxes'));
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(ProductRequest $request)
     {
-        try {
-            $image =  ProductFacade::save_image($request);
-            $product = Product::create($request->all());
-            if ($image != '') {
-                $product->image_file = $image;
-                $product->save();
-            }
-            return redirect()->route('products.index')->with('message_status',"Creado con exito producto $request->name ");
-        } catch (\Throwable $th) {
-            return redirect()->route('products.index')->with('message_status',"Producto $request->name NO pudo Crearse. Verifique por favor. Error: ".$th->getMessage());
-            // echo $th->getMessage();
-        }
+        return $this->saveProduct($request);
     }
 
     public function edit(Product $product)
     {
-        $data = ProductFacade::getDataProduct($product->id);
-        $data_common = ProductFacade::getDataSharedProduct('edit', 'Editar Producto');
-        return view('products.edit', compact('data', 'data_common'));
+        $config = Config::labels('Products', $product, true);
+        $config['header']['title'] = 'Editando Producto: ' . $product->name;
+        $config = $this->loadDataCoins($config);
+        $categories = ProductCategory::GetProductCategories([['activo', '=', 1]])->get();
+        $config['categories'] = $categories;
+        $config['data']['purchases'] = PurchaseDetail::with('Purchase', 'Purchase.Supplier', 'Purchase.Coin')
+            ->where('product_id', $product->id)
+            ->orderBy(Purchase::select('purchase_date')->whereColumn('purchase_details.purchase_id', 'purchases.id'), 'desc')
+            ->get();
+        $taxes = Tax::GetTaxes()->get(); // Ejemplo de LocalScope
+        return view('shared.create-edit', compact('config', 'categories', 'taxes', 'product'));
     }
 
-    public function update(UpdateProductRequest $request)
+    public function update(ProductRequest $request)
     {
-        $product = Product::find($request->id);
-        try {
-            $image = ProductFacade::save_image($request);
-            $product->update($request->all());
-            if ($image != '')
-                $product->image_file = $image;
-            $product->save();
-            return redirect()->route('products.index')->with('message_status',"Datos del Producto $request->name. ACTUALIZADO CON EXITO. ");
-        } catch (\Throwable $th) {
-            return redirect()->route('products.index')->with('message_status',"Datos del Producto $request->name. NO se pudieron ACTUALIZAR. Verifique por favor. Error: ".$th->getMessage());
-            // echo $th->getMessage();
-        }
-
+        return $this->saveProduct($request);
     }
 
     public function destroy($id)
     {
         $product = Product::find($id);
-        $product->status = $product->status == 'Inactivo' ? 'Activo' : 'Inactivo';
+        $product->activo = !$product->activo;
         $product->save();
-        $message = $product->status == 'Inactivo' ? 'elimino' : 'restauro';
-        return redirect()->route('products.index')->with("message_status","Se $message el producto $product->name con exito.");
+        $message = $product->status ? 'elimino' : 'restauro';
+        return redirect()
+            ->route('products.index')
+            ->with('message_status', "Se $message el producto $product->name con exito.");
     }
 
-    public function list_print() {
-
-        $products = Product::orderBy('name')->where('status','Activo')->get();
-        $pdf = PDF::loadView('products.report',['products' => $products]);
+    public function printProducts()
+    {
+        $products = $this->getProducts()
+            ->orderby('name')
+            ->get();
+        $pdf = PDF::loadView('products.report', ['products' => $products]);
         return $pdf->stream();
     }
-
 }

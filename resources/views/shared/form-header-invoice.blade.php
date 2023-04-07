@@ -1,148 +1,115 @@
+<input id="mount" name="mount" type="hidden">
+
 <div class="row">
-    @php
-        $calc_coin_id = $data_common['calc_coin_id'];
-        $controller = $data_common['controller'];
-        $option = $controller == 'Sale' || $controller == 'Purchase' ? 'Invoice' : '';
-    @endphp
-
-    <input type="hidden" value="{{ auth()->user()->id }}" name="user_id">
-    <div class="col-sm-12 ">
-        <div class="row">
-            <div class="col-sm-2 col-md-1 mt-md-3">
-                <label for="" class="form-label"> {{ $controller == 'Sale' ? 'Cliente' : 'Proveedor' }}
-                </label>
-            </div>
-            <div class="col-sm-10 col-md-3 col-lg-4 ml-md-2 mt-md-3 ">
-                @if ($controller == 'Sale')
-                    <select name="client_id" id="client_id" class="form-control"
-                        {{ isset($data['invoice']) ? 'disabled' : '' }}
-                        value={{ old('client_id', isset($data['invoice']) ? $data['invoice']->client_id : '') }}>
-                        <option value=0> Seleccione un Cliente ... </option>
-                        @foreach ($data['clients'] as $client)
-                            @php
-                                $selected = isset($data['invoice']) ? true : false;
-                                $selected = (old('client_id') > 0 && old('client_id') == $client->id) || $selected ? true : false;
-
-                                // $selected = isset($invoice) && $invoice->client_id == $client->id ? true : false;
-                                // $selected = (old('client_id') > 0 && old('client_id') == $client->id) || $selected ? true : false;
-
-                            @endphp
-                            <option value="{{ $client->id }}" {{ $selected ? 'selected' : '' }}>
-                                {{ $client->names }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @if ($errors->has('client_id'))
-                        <span id="client_id-error" class="error text-danger"
-                            for="input-client_id">{{ $errors->first('client_id') }}</span>
-                    @endif
-                @else
-                    <select name="supplier_id" id="supplier_id" class="form-control"
-                        {{ isset($data['invoice']) ? 'disabled' : '' }}
-                        value={{ old('supplier_id', isset($data['invoice']) ? $data['invoice']->Supplier->id : '') }}>
-                        <option value=0> Seleccione un Proveedor ... </option>
-                        @foreach ($data['suppliers'] as $supplier)
-                            @php
-                                $selected = isset($data['invoice']) ? true : false;
-                                $selected = (old('supplier_id') > 0 && old('supplier_id') == $supplier->id) || $selected ? true : false;
-                            @endphp
-                            {{-- @php
-                                $selected = isset($invoice) && $invoice->supplier_id == $supplier->id ? true : false;
-                                $selected = (old('supplier_id') > 0 && old('supplier_id') == $supplier->id) || $selected ? true : false;
-                            @endphp --}}
-                            <option value="{{ $supplier->id }}" {{ $selected ? 'selected' : '' }}>
-                                {{ $supplier->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @if ($errors->has('supplier_id'))
-                        <span id="supplier_id-error" class="error text-danger"
-                            for="input-supplier_id">{{ $errors->first('supplier_id') }}</span>
-                    @endif
-                @endif
-            </div>
-            <div class="col-sm-1 mt-sm-3">
-                <label for="" class="form-label">Fecha: </label>
-            </div>
-            <div class="col-sm-4 col-md-3 col-lg-2  ml-sm-2 mt-sm-2">
-                @if ($controller == 'Sale')
-                    <input type="date" name="sale_date" id="sale_date" class="form-control"
-                        {{ isset($data['invoice']) ? 'disabled' : '' }}
-                        value="{{ old('sale_date', isset($data['invoice']) ? $data['invoice']->sale_date : date('Y-m-d')) }}">
-                    @if ($errors->has('sale_date'))
-                        <span id="sale_date-error" class="error text-danger"
-                            for="input-sale_date">{{ $errors->first('sale_date') }}</span>
-                    @endif
-                @else
-                    <input type="date" name="purchase_date" id="purchase_date" class="form-control"
-                        {{ isset($data['invoice']) ? 'disabled' : '' }}
-                        value="{{ old('purchase_date', isset($data['invoice']) ? $data['invoice']->purchase_date : date('Y-m-d')) }}">
-                    @if ($errors->has('purchase_date'))
-                        <span id="purchase_date-error" class="error text-danger"
-                            for="input-purchase_date">{{ $errors->first('purchase_date') }}</span>
-                    @endif
-
-                @endif
-            </div>
-            <div class="col-sm-1 mt-sm-3 ml-lg-4">
-                <label for="" class="form-label">Factura</label>
-            </div>
-            <div class="col-sm-4 col-md-2  ml-sm-3 mt-sm-2 mr-lg-3">
-                <input type="text" name="invoice" id="invoice" class="form-control"
-                    {{ isset($data['invoice']) ? 'disabled' : '' }}
-                    value="{{ old('invoice', isset($data['invoice']) ? $data['invoice']->invoice : '') }}">
-            </div>
+    {{-- <div class="col-sm-12"> --}}
+    <div class="row mt-lg-2 d-flex flex-wrap">
+        {{--  <div class="col-2 col-sm-1 mt-sm-3  mt-md-3 ">  --}}
+        <div class="col-2 col-sm-1 mt-md-2 ">
+            <label for="" class="form-label"> {{ $config['var_header']['labelCaption'] }}:
+            </label>
         </div>
-        <div class="row">
-            <div class="col-sm-1 mt-sm-2">
-                <label for="" class="form-label">Moneda</label>
-            </div>
-            <div class="col-sm-2 col-md-1 col-xl-1 ml-sm-3">
-                <select name="coin_id" id="coin_id" class="form-control"
-                    onchange="SearchCoinBase('{{ $controller }}','{{ $option }}')"
-                    {{ isset($invoice) ? 'disabled' : '' }}>
-                    @foreach ($data['coins'] as $coin)
-                        <option value="{{ $coin->id }}"
-                            @php $selected = isset($data['invoice']) ? true : false;
-                                $selected = old('coin_id') == 0 && $calc_coin_id == $coin->id && !$selected ? true : false;
-                                // $selected = (isset($invoice) && $invoice->coin_id == $coin->id && old('coin_id') == 0) || $selected ? true : false;
-                                $selected = (old('coin_id') > 0 && old('coin_id') == $coin->id) || $selected ? true : false; @endphp
-                            {{ $selected ? 'selected' : '' }}>
-                            {{ $coin->name }} - {{ $coin->symbol }} - {{ $coin->id }}
-                        </option>
-                    @endforeach
-                </select>
-                @if ($errors->has('coin_id'))
-                    <span id="coin_id-error" class="error text-danger"
-                        for="input-coin_id">{{ $errors->first('coin_id') }}</span>
-                @endif
-            </div>
-            <div class="col-sm-2 mt-sm-2">
-                <input type="number" name="rate_exchange" id="rate_exchange" class="form-control" step="any"
-                    {{ isset($data['invoice']) ? 'disabled' : '' }} onfocus="VerifyGetFocusRateExchange()"
-                    onkeyup="RecalculateInvoice(false); CalcSubtotal('Price')"
-                    value="{{ isset($data['invoice']) ? $data['invoice']->rate_exchange : 1 }}">
-                @if ($errors->has('rate_exchange'))
-                    <span id="rate_exchange-error" class="error text-danger"
-                        for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
-                @endif
-            </div>
-            <div class="col-sm-2 col-md-1 col-xl-1 mt-sm-3">
-                <label for="" class="form-label">Condiciones</label>
-            </div>
-            <div class="col-sm-4  col-md-3 col-xl-2 mt-sm-3 ml-md-4" {{ isset($data['invoice']) ? 'disabled' : '' }}>
-                <input type="radio" name="conditions" value='Credito' id="conditions" checked> Credito
-                <input type="radio" name="conditions" value='Contado' id="conditions"> Contado
-            </div>
-            <div class="col-sm-1 mt-sm-3">
-                <label for="" class="form-label">Notas</label>
-            </div>
-            <div class="col-sm-10 col-md-2 col-xl-3">
-                <input type="text" name="observations" id="observations" class="form-control"
-                    {{ isset($data['invoice']) ? 'disabled' : '' }}
-                    value="{{ old('observations', isset($data['invoice']) ? $data['invoice']->observations : '') }}">
-            </div>
+        {{--  <div class="col-9 ms-3 col-sm-6 mt-sm-3 col-md-2 ms-sm-4 col-md-3 col-lg-4 ms-md-2 ms-lg-0  mt-md-3">  --}}
+        <div class="col-8 col-md-3 col-xl-2 mt-md-2 ms-xl-0 ms-md-2 ms-sm-0 ms-3">
+
+            @php
+                $variable = $config['var_header']['name'];
+            @endphp
+            <select name="{{ $config['var_header']['name'] }}" id="{{ $config['var_header']['name'] }}"
+                class="form-select select2" {{ isset($invoice) ? 'disabled' : '' }}>
+                <option value=0> Seleccione un {{ $config['var_header']['labelCaption'] }} ... </option>
+                @foreach ($config['var_header']['table'] as $table)
+                    <option value="{{ $table->id }}"
+                        {{ old($config['var_header']['name']) == $table->id || (isset($invoice) && $invoice->$variable == $table->id) ? 'selected' : '' }}>
+                        {{ isset($table->names) ? $table->names : $table->name }}
+                    </option>
+                @endforeach
+            </select>
+            <x-message-error :hasError="$errors->has($config['var_header']['name'])" :message="$errors->first($config['var_header']['name'])"></x-message-error>
+
+        </div>
+        {{--  Fecha  --}}
+        <div class="col-2 col-sm-1 mt-2">
+            <label for="" class="form-label">Fecha: </label>
+        </div>
+        <div class="col-10 col-md-3 col-xl-2 py-0 ">
+            @php
+                $date = $config['var_header']['date'];
+                // usado ya que np toma $invoice->$config['var_header']['date']
+            @endphp
+            <input type="date" name="{{ $config['var_header']['date'] }}" class="py-0 form-control"
+                {{ isset($invoice) ? 'disabled' : '' }}
+                value="{{ old($config['var_header']['date'], isset($invoice) ? $invoice->$date : date('Y-m-d')) }}">
+            <x-message-error :hasError="$errors->has($config['var_header']['date'])" :message="$errors->first($config['var_header']['date'])"></x-message-error>
+        </div>
+        {{--  Factura  --}}
+        <div class="col-2 col-sm-1 mt-2 ">
+            <label for="" class="form-label">Factura</label>
+        </div>
+        <div class="col-10 col-sm-2 col-xl-1 ">
+            <input type="text" name="invoice" id="invoice" class="form-control"
+                {{ isset($invoice) ? 'disabled' : '' }}
+                value="{{ old('invoice', isset($invoice) ? $invoice->invoice : '') }}">
+        </div>
+        {{--  Condiciones  --}}
+        <div class="col-2 col-sm-1 mt-3">
+            <label for="" class="form-label">Condiciones</label>
+
+        </div>
+        <div class="col-8 col-sm-2 col-xl-3 col-md-8 mt-md-3 ms-xl-0 ms-md-4 mt-sm-0 mt-3 ms-5"
+            {{ isset($invoice) ? 'disabled' : '' }}>
+            <input type="radio" name="conditions" value='Credito' id="conditions" checked> Credito
+            <input type="radio" name="conditions" value='Contado' id="conditions"> Contado
         </div>
 
+    </div>
+    <div class="row">
+        {{--  Moneda  --}}
+        <div class="col-2 col-sm-1 mt-3">
+            <label for="" class="form-label">Moneda</label>
+        </div>
+        <div class="col-5 col-sm-1 ">
+            <select name="coin_id" id="coin_id" class="form-control"
+                onchange="ChangeCoin('{{ $config['var_header']['labelCaption'] }}')"
+                {{ isset($invoice) ? 'disabled' : '' }}>
+
+                @foreach ($config['data']['coins'] as $coin)
+                    <option value="{{ $coin->id }}"
+                        {{ old('coin_id') == $coin->id || (isset($invoice) && $invoice->coin_id == $coin->id) ? 'selected' : '' }}>
+                        {{ $coin->symbol }}
+                    </option>
+                @endforeach
+            </select>
+            <x-message-error :hasError="$errors->has('coin_id')" :message="$errors->first('coin_id')"></x-message-error>
+        </div>
+        {{--  Tasa  --}}
+        <div class="col-4 col-sm-2 mt-2">
+            <input type="text" name="rate_exchange" id="rate_exchange" class="form-control" step="any"
+                {{ isset($invoice) ? 'disabled' : '' }} onfocus="JumpRateExchange()"
+                onkeyup="RecalculateInvoice(false,event)"
+                value="{{ old('rate_exchange', isset($invoice) ? $invoice->rate_exchange : 1) }}">
+            @if ($errors->has('rate_exchange'))
+                <span id="rate_exchange-error" class="error text-danger"
+                    for="input-rate_exchange">{{ $errors->first('rate_exchange') }}</span>
+            @endif
+            <x-message-error :hasError="$errors->has('rate_exchange')" :message="$errors->first('rate_exchange')"></x-message-error>
+        </div>
+
+        {{--  Notas  --}}
+        <div class="col-2 col-sm-1 mt-3">
+            <label for="" class="form-label">Notas</label>
+        </div>
+        <div class="col-9 col-sm-4 mt-1">
+            <input type="text" name="observations" id="observations" class="form-control"
+                {{ isset($invoice) ? 'disabled' : '' }}
+                value="{{ old('observations', isset($invoice) ? $invoice->observations : '') }}">
+        </div>
+        <div class="col-2 col-sm-1 mt-3">
+            <label for="" class="form-label">Costos</label>
+        </div>
+        <div class="col-8 col-sm-2 ">
+            <input type="text" name="associated_costs" id="associated_costs" class="form-control"
+                {{ isset($invoice) ? 'disabled' : '' }} onkeyup="CalcInvoice()"
+                value="{{ old('associated_costs', isset($invoice) ? $invoice->associated_costs : '') }}">
+        </div>
     </div>
 </div>

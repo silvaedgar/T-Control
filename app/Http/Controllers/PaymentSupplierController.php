@@ -3,50 +3,80 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentSupplier;
+use App\Models\PaymentForm;
 use App\Models\Supplier;
 
+use App\Http\Requests\PaymentSupplierRequest;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
+use App\Facades\Config;
 
 use App\Traits\FiltersTrait;
-use App\Traits\GetDataCommonTrait;
+use App\Traits\CoinTrait;
 use App\Traits\CalculateMountsTrait;
-
-use App\Facades\DataCommonFacade;
-use App\Facades\ProcessPaymentSupplierFacade;
-
-use App\Http\Requests\StorePaymentSupplierRequest;
-use App\Http\Requests\UpdatePaymentSupplierRequest;
+use App\Traits\PaymentSupplierTrait;
+use App\Traits\SharedTrait;
 
 use PDF;
 use Carbon\Carbon;
 
 class PaymentSupplierController extends Controller
 {
-    use FiltersTrait, GetDataCommonTrait, CalculateMountsTrait;
+    use FiltersTrait, CoinTrait, CalculateMountsTrait, PaymentSupplierTrait, SharedTrait;
 
     public function __construct()
     {
         $this->middleware('role');
     }
 
-    public function index()
+    public function fieldsFill()
     {
-        $paymentsuppliers = PaymentSupplier::GetPayments()->get();
-        $data = ['data_filter' => $this->data_filter([]), 'header' => 'Pagos Realizados a Proveedores'];
-        $data_common = DataCommonFacade::index('PaymentSupplier', $data);
-        return view('payment-suppliers.index', compact('paymentsuppliers', 'data_common'));
+        return ['field' => 'calc_currency_purchase', 'price' => 'purchase->price', 'isPayment' => true];
+    }
+
+    public function index(Request $request)
+    {
+        $report = false;
+        if (count($request->all()) > 0) {
+            $filter = $this->createFilter($request, 'payment_date');
+            $report = $request->option == 'Report';
+        } else {
+            $filter = $this->createFilter(['status' => 'Procesado'], 'payment_date');
+        }
+        $config = Config::labels('PaymentSuppliers', PaymentSupplier::GetPayments($filter)->get(), false, $filter);
+        $config['isFormIndex'] = 'true';
+        $config['hasFilter'] = true;
+        $config['data']['status'] = ['Todos', 'Procesado', 'Anulado', 'Historico'];
+
+        // $config = $this->headerInfoFill($config);
+        $config = $this->headerInfoFill($config, $this->fieldsFill());
+
+        if ($report) {
+            $pdf = PDF::loadView('shared.payment-list-report', ['models' => $purchases, 'data_common' => $data_common]);
+            return $pdf->stream();
+        }
+        // return $config;
+        return view('shared.index', compact('config'));
     }
 
     public function create()
     {
-        $data = ProcessPaymentSupplierFacade::getDataPayment();
-        $data_common = DataCommonFacade::create('PaymentSupplier', $data);
+        $config = Config::labels('PaymentSuppliers');
+        $config['header']['title'] = 'Creando Pago de Proveedores';
+        $config['data']['paymentForms'] = PaymentForm::where('activo', 1)
+            ->orderBy('payment_form')
+            ->get();
+        $config['data']['suppliers'] = Supplier::GetSuppliers()->get();
+        $config['var_header']['table'] = $config['data']['suppliers'];
 
-        return view('payment-suppliers.create', compact('data', 'data_common'));
+        $config = $this->headerInfoFill($config, $this->fieldsFill());
+
+        $config['cols'] = 3;
+        return view('shared.create', compact('config'));
     }
 
-    public function store(StorePaymentSupplierRequest $request)
+    public function store(PaymentSupplierRequest $request)
     {
         $continue = true;
         $exist_payment = PaymentSupplier::where('supplier_id', $request->supplier_id)
@@ -59,24 +89,32 @@ class PaymentSupplierController extends Controller
                 $continue = false;
             }
         }
-        // return ProcessPaymentSupplierFacade::store_payment_supplier($request); // solo para pruebas
+        // return $this->storePayment($request); // solo para pruebas
         return redirect()
             ->route('paymentsuppliers.index')
-            ->with('message_status', $continue ? ProcessPaymentSupplierFacade::storePayment($request) : 'Registro ya existente espere 5 minuto para intentar nuevamente');
+            ->with('message_status', $continue ? $this->storePayment($request) : 'Registro ya existente espere 5 minuto para intentar nuevamente');
     }
 
-    public function show($id)
+    public function show(PaymentSupplier $paymentsupplier)
     {
-        $data = ProcessPaymentSupplierFacade::getDataPayment($id);
-        $data_common = DataCommonFacade::edit('PaymentSupplier', $data);
-        return view('payment-suppliers.show', compact('data', 'data_common'));
+        $invoice = $paymentsupplier;
+        // $invoice->load(['coin', 'supplier', 'paymentForm']);
+        $config = Config::labels('PaymentSuppliers');
+        $config['cols'] = 3;
+        // $config = $this->headerInfoFill($config, $invoice);
+        $config = $this->headerInfoFill($config, $this->fieldsFill(), $invoice);
+
+        $config['var_header']['table'] = null;
+        $config['var_header']['name'] = $invoice->supplier->name;
+        $config['data']['update'] = true;
+        return view('shared.create', compact('config', 'invoice'));
     }
 
     public function destroy($id)
     {
         DB::beginTransaction();
         $payment = PaymentSupplier::with('Supplier')->find($id);
-        $calc_coin = $this->get_base_coin('calc_currency_purchase')->first();
+        $calc_coin = $this->getBaseCoin('calc_currency_purchase')->first();
         $mount = $payment->coin_id != $calc_coin->id ? $this->mount_other($payment, $calc_coin) : $payment->mount;
         Supplier::where('id', $payment->supplier->id)->update(['balance' => $payment->supplier->balance + $mount]);
         PaymentSupplier::where('id', $payment->id)->update(['status' => 'Anulado']);
@@ -85,13 +123,6 @@ class PaymentSupplierController extends Controller
             ->route('paymentsuppliers.index')
             ->with('message_status', 'Pago del Proveedor ' . $payment->supplier->name . " por un monto de $payment->mount " . $payment->coin->symbol . ' Anulado. Actualizado Balance del Cliente');
     }
-
-    // public function load_payments($filter=[]) {
-    //     if (count($filter) == 0)
-    //         return PaymentSupplier::orderBy('payment_date','desc')->orderBy('created_at','desc');
-    //     else
-    //         return PaymentSupplier::where($filter)->orderBy('payment_date','desc')->orderBy('created_at','desc');
-    // }
 
     public function filter(Request $request)
     {

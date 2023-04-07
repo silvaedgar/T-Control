@@ -24,12 +24,13 @@ class StorePaymentFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'payment_form' => 'required|max:20|min:3|unique:payment_forms,payment_form',
-            'description' => 'required|min:5|max:50',            //
+            'payment_form' => ['required', 'max:20', 'min:3', $this->id == 0 ? 'unique:payment_forms' : "unique:payment_forms,payment_form,$this->id"],
+            'description' => 'required|min:5|max:50', //
         ];
     }
 
-    public function messages() {
+    public function messages()
+    {
         return [
             'payment_form.required' => ' Tiene que ingresar la Forma de Pago',
             'payment_form.unique' => 'Forma de Pago ya existente',
@@ -41,4 +42,3 @@ class StorePaymentFormRequest extends FormRequest
         ];
     }
 }
-

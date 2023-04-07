@@ -3,61 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentForm;
+
 use App\Http\Requests\StorePaymentFormRequest;
-use App\Http\Requests\UpdatePaymentFormRequest;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Role;
+
+use App\Facades\Config;
+
+use App\Traits\PaymentFormTrait;
+use App\Traits\SharedTrait;
 
 class PaymentFormController extends Controller
 {
+    use PaymentFormTrait, SharedTrait;
 
-    public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
+    public function __construct()
+    {
+        // Manera de proteger ruta en RoleController hay otra forma
         $this->middleware('role.admin');
     }
 
     public function index()
     {
-        $paymentforms = PaymentForm::where('status','Activo')->get();
-        return view('maintenance.payment-forms.index',compact('paymentforms'));
+        $config = Config::labels('PaymentForms', $this->getPaymentForms()->get());
+        $config['header']['title'] = 'Listado de Formas de Pago';
+        $config['isFormIndex'] = true;
+        return view('shared.index', compact('config'));
     }
 
     public function create()
     {
-      return view('maintenance.payment-forms.create');
-        //
+        $config = Config::labels('PaymentForms');
+        $config['header']['title'] = 'Creacion de Formas de Pago';
+        return view('maintenance.shared.create-edit', compact('config'));
     }
 
     public function store(StorePaymentFormRequest $request)
     {
-        PaymentForm::create($request->all());
-        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Forma de Pago $request->description. Creado exitosamente");
-    }
-    public function show(PaymentForm $paymentform)
-    {
-        return view('maintenance.paymentforms.index');
+
+        return $this->savePaymentForm($request);
+        //     ->with('status', "Ok_Forma de Pago $request->description. Creado exitosamente");
     }
 
-    public function edit($id)
+    public function edit(PaymentForm $paymentform)
     {
-        $paymentform = PaymentForm::find($id);
-        return view('maintenance.payment-forms.edit',compact('paymentform'));
+        $config = Config::labels('PaymentForms', $paymentform, true);
+        $config['header']['title'] = 'Editando Forma de Pago: ' . $paymentform->description;
+        return view('maintenance.shared.create-edit', compact('paymentform', 'config'));
     }
 
-    public function update(UpdatePaymentFormRequest $request)
+    public function update(StorePaymentFormRequest $request)
     {
-        $paymentform = PaymentForm::find($request->id);
-        $paymentform->update($request->all());
-        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Forma de Pago $request->description. Actualizado exitosamente");;
+        return $this->savePaymentForm($request);
+        //     ->with('status', "Ok_Forma de Pago $request->description. Actualizado exitosamente");
         //
     }
 
-    public function destroy($id)
+    public function destroy(PaymentForm $paymentform)
     {
-        $paymentform = PaymentForm::find($id);
-        $paymentform->status = 'Inactivo';
+        $paymentform->activo = !$paymentform->activo;
         $paymentform->save();
-        return redirect()->route('maintenance.paymentforms.index')->with('status',"Ok_Eliminación de Forma de Pago  $paymentform->description");
+        return redirect()
+            ->route('maintenance.paymentforms.index')
+            ->with('status', (!$paymentform->activo ? 'Ok_Eliminación' : 'Ok_Activacion') . " de Forma de Pago $paymentform->description");
     }
-
 }

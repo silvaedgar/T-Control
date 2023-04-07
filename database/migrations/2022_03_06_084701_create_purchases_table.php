@@ -24,6 +24,7 @@ class CreatePurchasesTable extends Migration
             $table->float('mount',12,2);
             $table->float('tax_mount',12,2);
             $table->float('paid_mount',12,2)->default(0);
+            $table->float('associated_costs',12,2)->default(0);
             $table->enum('conditions',['Credito','Contado'])->default('Credito');
             $table->string('observations',150)->nullable();
             $table->enum('status',['Pendiente','Parcial','Cancelada','Anulada','Historico'])->default('Pendiente');

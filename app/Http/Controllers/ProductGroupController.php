@@ -2,68 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Pagination\Paginator;
+
 use App\Models\ProductGroup;
 
 use App\Http\Requests\StoreProductGroupRequest;
-use App\Models\ProductCategory;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 
-// use App\Http\Requests\UpdateProductGroupRequest;
+use App\Facades\Config;
+
+use App\Traits\ProductGroupTrait;
 
 class ProductGroupController extends Controller
 {
-    public function __construct() {      // Manera de proteger ruta en RoleController hay otra forma
+    use ProductGroupTrait;
+
+    public function __construct()
+    {
+        // Manera de proteger ruta en RoleController hay otra forma
         $this->middleware('role.admin');
-    // $this->middleware('can:users.create')->only('create');
+        // $this->middleware('can:users.create')->only('create');
     }
 
     public function index()
     {
-        $productgroups = ProductGroup::orderBy('description')->get();
-        return view('maintenance.product-groups.index',compact('productgroups'));
+        $config = Config::labels('ProductGroups', $this->getProductGroups()->get());
+        $config['header']['title'] = 'Listado de Grupos de Productos';
+        $config['isFormIndex'] = true;
+        return view('shared.index', compact('config'));
     }
 
     public function create()
     {
-      return view('maintenance.product-groups.create');
-        //
+        $config = Config::labels('ProductGroups');
+        $config['header']['title'] = 'Creacion de Grupos de Producto';
+
+        return view('maintenance.shared.create-edit', compact('config'));
     }
 
     public function store(StoreProductGroupRequest $request)
     {
-        ProductGroup::create($request->all());
-        return redirect()->route('maintenance.productgroups.index')->with('status',"Ok_Creación del Grupo Producto  $request->description");
-    }
-    public function show(ProductGroup $productRubric)
-    {
-        return view('maintenance.productgroups.index');
-        //
+        return $this->saveProductGroup($request);
     }
 
     public function edit(ProductGroup $productgroup)
     {
-        // $productgroup = ProductGroup::find($id);
-        return view('maintenance.product-groups.edit',compact('productgroup'));
+        $config = Config::labels('ProductGroups', $productgroup, true);
+        $config['header']['title'] = 'Editando Grupo de Producto: ' . $productgroup->description;
+
+        return view('maintenance.shared.create-edit', compact('productgroup', 'config'));
     }
 
-    public function update(Request $request)
+    public function update(StoreProductGroupRequest $request)
     {
-        $request->validate ([
-            'description' => "required|string|min:4|unique:product_groups,description,$request->id"
-        ]);
-        $productgroup = ProductGroup::find($request->id);
-        $productgroup->update($request->all());
-        return redirect()->route('maintenance.productgroups.index')->with('status',"Ok_Actualización del Grupo de Producto $request->description");
-        //
+        $response = $this->saveProductGroup($request);
+        return redirect()
+            ->route('maintenance.productgroups.index')
+            ->with('message_status', $response['message']);
     }
 
     public function destroy($id)
     {
-        $productgroup = ProductGroup::find($id);
-        $productgroup->status = 'Inactivo';
-        $productgroup->save();
+        $productGroup = ProductGroup::find($id);
+        $productGroup->activo = !$productGroup->activo;
+        $productGroup->save();
 
-        return redirect()->route('maintenance.productgroups.index')->with('status',"Ok_Eliminación de Grupo de Producto $productgroup->description");
+        return redirect()
+            ->route('maintenance.productgroups.index')
+            ->with('status', (!$productGroup->activo ? 'Ok_Eliminación' : 'Ok_Activacion') . " de Grupo de Producto $productGroup->description");
     }
 }

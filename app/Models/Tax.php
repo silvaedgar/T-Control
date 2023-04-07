@@ -9,14 +9,13 @@ use App\Models\SaleDetail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class Tax extends Model
 {
     use HasFactory;
 
     use HasFactory;
 
-    protected $fillable = ['user_id','percent','description','date_start'];
+    protected $fillable = ['user_id', 'percent', 'description', 'date_start'];
 
     public function Product()
     {
@@ -33,10 +32,9 @@ class Tax extends Model
         return $this->hasMany(SaleDetail::class, 'tax_id', 'id');
     }
 
-    // Ambito Local del Scope
-    public function scopeGetTaxes($query) {
-        return $query->where('status','Activo')->orderBy('percent');
+    // Ambito Local del Scope. El ordenamiento debe hacerse por percent o description ???
+    public function scopeGetTaxes($query, $filter = [])
+    {
+        return $query->where($filter)->orderBy('percent', 'asc');
     }
-
-
 }

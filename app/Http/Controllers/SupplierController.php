@@ -7,111 +7,166 @@ use App\Models\Coin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreSupplierRequest;
-use App\Http\Requests\UpdateSupplierRequest;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use PDF;
-use App\Traits\GetDataCommonTrait;
-use App\Facades\DataCommonFacade;
 
+// use Illuminate\Support\Facades\DB;
+// use Illuminate\Support\Facades\Auth;
+use App\Facades\Config;
+
+// use App\Facades\DataCommonFacade;
+
+use App\Traits\CoinTrait;
+use App\Traits\SupplierTrait;
+use App\Traits\SharedTrait;
+
+use PDF;
 
 class SupplierController extends Controller
 {
-    use GetDataCommonTrait;
+    use CoinTrait, SupplierTrait, SharedTrait;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('role');
     }
 
     public function index()
     {
-        $base_coin = $this->get_base_coin('calc_currency_sale')->first();
-        $data = ['base_coin' => $base_coin,'header' =>'Listado de Proveedores'];
-        $data_common = DataCommonFacade::index('Supplier',$data);
-        $suppliers = Supplier::GetSuppliers()->get();
-        return view('suppliers.index',compact('suppliers','data_common'));
+        $config = Config::labels('Suppliers', $this->getSuppliers()->get());
+        $config['header']['title'] = 'Listado de Proveedores';
+        $config['data']['baseCoin'] = $this->getBaseCoin('base_currency')->first();
+        // $config['data']['calcCoin'] = $this->getBaseCoinRate($this->getBaseCoin('base_currency')->first()->id)->first();
+        $config['data']['calcCoin'] = $this->getBaseCoin('calc_currency_purchase')->first();
+        $config['isFormIndex'] = true;
+        return view('shared.index', compact('config'));
     }
 
     public function create()
     {
-        $data_common = DataCommonFacade::create('Supplier',['header' =>'Creando Proveedor']);
-        return view('suppliers.create',compact('data_common'));
+        $config = Config::labels('Suppliers');
+        $config['header']['title'] = 'Creando Proveedor';
+        $config['cols'] = 2;
+        return view('shared.create-edit', compact('config'));
     }
 
     public function store(StoreSupplierRequest $request)
     {
-        $supplier = Supplier::create($request->all());
-        return redirect()->route('suppliers.index')->with("status","Ok_Proveedor $supplier->name Creado con Exito");
+        return redirect()
+            ->route('suppliers.index')
+            ->with('message_status', $this->saveSupplier($request)['message']);
     }
 
-    public function show(Supplier $supplier)
-    {
-        //
-    }
     public function edit(Supplier $supplier)
     {
-        $data_common = DataCommonFacade::edit('Supplier',['header' =>'Editando Proveedor']);
-        return view('suppliers.edit',compact('supplier','data_common'));
+        $config = Config::labels('Suppliers', $supplier, true);
+        $config['header']['title'] = 'Editando Proveedor: ' . $supplier->name;
+        $config['cols'] = 2;
+        return view('shared.create-edit', compact('config', 'supplier'));
     }
 
-    public function update(UpdateSupplierRequest $request, Supplier $supplier)
+    public function update(StoreSupplierRequest $request)
     {
-        $supplier = Supplier::find($supplier->id);
-        $supplier->update($request->all());
-        return redirect()->route('suppliers.index')->with("status","Ok_Proveedor $supplier->name  Actualizado con Exito");
-        //
+        return redirect()
+            ->route('suppliers.index')
+            ->with('message_status', $this->saveSupplier($request)['message']);
     }
 
     public function destroy($id)
     {
         $supplier = Supplier::find($id);
-        if ($supplier->balance !=0)
-            return redirect()->route('products.index')->with("status","Error_Proveedor  $supplier->name tiene saldo pendiente no se elimino");
-
-        $supplier->status = 'Inactivo';
+        if ($supplier->balance != 0) {
+            return redirect()
+                ->route('suppliers.index')
+                ->with('status', "Error_Proveedor  $supplier->name tiene saldo pendiente no se elimino");
+        }
+        $supplier->activo = !$supplier->activo;
         $supplier->save();
-        return redirect()->route('products.index')->with("status","Ok_Se elimino el proveedor  $supplier->name con exito.");
+        return redirect()
+            ->route('suppliers.index')
+            ->with('status', "Ok_Se elimino el proveedor  $supplier->name con exito.");
     }
 
-    public function list_creditors() {
-
-        $suppliers = Supplier::Balance('<>',0)->orderBy('name')->get();
-        $pdf = PDF::loadView('suppliers.report',['suppliers' =>$suppliers]);
+    public function list_creditors()
+    {
+        $suppliers = $this->getSuppliers([['balance', '<>', 0]])->get();
+        // Supplier::Balance('<>', 0)->orderBy('name')->get();  esta en el scope
+        $pdf = PDF::loadView('suppliers.report', ['suppliers' => $suppliers]);
         return $pdf->stream();
     }
 
-    public function load_movements_supplier($id,$calc_coin_id,$base_coin_id,$mensaje="") {
-        $first = Supplier::GetDataPurchases($id,$calc_coin_id,$base_coin_id)->where('purchases.status','<>','Anulada');
-        $movements = Supplier::GetDataPayments($id,$calc_coin_id,$base_coin_id)->where('payment_suppliers.status','<>','Anulada');
+    public function load_movements_supplier($id, $calc_coin_id, $base_coin_id, $mensaje = '')
+    {
+        $first = Supplier::GetDataPurchases($id, $calc_coin_id, $base_coin_id)->where('purchases.status', '<>', 'Anulada');
+        $movements = Supplier::GetDataPayments($id, $calc_coin_id, $base_coin_id)->where('payment_suppliers.status', '<>', 'Anulado');
         if ($mensaje == 'Mostrar Historicos') {
-            $first = $first->where('purchases.status','<>','Historico');
-            $movements = $movements->where('payment_suppliers.status','<>','Historico');
+            $first = $first->where('purchases.status', '<>', 'Historico');
+            $movements = $movements->where('payment_suppliers.status', '<>', 'Historico');
         }
-        $movements = $movements->union($first)->orderBy('date','desc')->orderBy('create','desc')->get();
-        if (count($movements) == 0) {  // esto solo sucede cuando solo existe balance inicial
-            $movements = Supplier::select('*','suppliers.id as supplier_id')->selectRaw("'Balance' as type")->where('id',$id)->get();
+        $movements = $movements
+            ->union($first)
+            ->orderBy('date', 'desc')
+            ->orderBy('create', 'desc')
+            ->get();
+        if (count($movements) == 0) {
+            // esto solo sucede cuando solo existe balance inicial
+            $movements = Supplier::select('*', 'suppliers.id as supplier_id')
+                ->selectRaw("'Balance' as type")
+                ->where('id', $id)
+                ->get();
         }
         return $movements;
     }
 
-    public function balance($supplier_id,$mensaje='') {
+    public function loadMovementSupplier($supplier, $data, $mensaje)
+    {
+        $purchases = $supplier->purchase;
+        $payments = $supplier->paymentSupplier;
+        return $payments->union($purchases)->get();
 
-        $supplier = Supplier::find($supplier_id);
-        $data = $this->generate_data_coin('calc_currency_purchase');
-        $mensaje = ($mensaje=='' || $mensaje=='Sin Historicos' ? 'Mostrar Historicos' : 'Sin Historicos');
-        $movements = $this->load_movements_supplier($supplier->id,$data['calc_coin']->id,$data['base_coin']->id,$mensaje);
-        $message_balance = 'Saldo: '.$movements[0]->balance." ".$data['calc_coin']->symbol;
-
-        // la linea de abajo es si se queire poner los Bs para cuando el calculo sean en otra moneda no lo uso no me parece. la tasa depende del proveedor
-        // $message_balance .= ($calc_coin->symbol != $base_coin->symbol ? ' - '.number_format($movements[0]->balance * $rate->sale_price,2).$base_coin->symbol:'');
-
-        $data["supplier"] = $movements[0]->name;
-        $data["message_balance"] = $message_balance;
-        $data["header"] = "Detalle de Movimientos";
-        $data_common = DataCommonFacade::balance('Supplier',$data);
-        $base_coin = $data['base_coin'];
-        // return $movements;
-        return view('suppliers.balance',compact('movements','mensaje','base_coin','data_common'));
+        //  Supplier::GetDataPurchases($id, $calc_coin_id, $base_coin_id)->where('purchases.status', '<>', 'Anulada');
+        $movements = $payments
+            ->union($purchases)
+            ->orderBy('date', 'desc')
+            ->orderBy('create', 'desc')
+            ->get();
+        if (count($movements) == 0) {
+            // esto solo sucede cuando solo existe balance inicial
+            $movements = Supplier::select('*', 'suppliers.id as supplier_id')
+                ->selectRaw("'Balance' as type")
+                ->where('id', $id)
+                ->get();
+        }
+        return $movements;
     }
 
+    public function balance(Supplier $supplier, $mensaje = '')
+    {
+        // $supplier = Supplier::with('purchase', 'purchase.coin', 'paymentSupplier', 'paymentSupplier.coin')
+        //     ->where('id', $supplier->id)->first();
+        $mensaje = $mensaje == '' || $mensaje == 'Sin Historicos' ? 'Mostrar Historicos' : 'Sin Historicos';
+
+        // $mensaje = $mensaje == '' || $mensaje == 'Sin Historicos' ? 'Mostrar Historicos' : 'Sin Historicos';
+        // $config = Config::labels('Clients', $client);
+        // $response = $this->loadConfigBalance($client, $mensaje, $config);
+        // $config = $response['config'];
+        // $movements = $response['movements'];
+        // $pdf = PDF::loadView('clients.printbalance', ['movements' => $movements, 'config' => $config]);
+        // return $pdf->stream();
+
+        // $config = $this->getDisplayInfoSupplier();
+        $config = Config::labels('Suppliers', $supplier, true);
+        $config['header']['title'] = 'Detalle de Movimientos ';
+        $config['buttons'] = [];
+        $config['cols'] = 3;
+        $rate = $this->getBaseCoinRate($this->getBaseCoin('calc_currency_purchase')->first()->id)->first();
+        $config['data']['calcCoin'] = $this->getBaseCoin('calc_currency_purchase')->first();
+        $config['data']['baseCoin'] = $this->getBaseCoin('base_currency')->first();
+        $config['data']['calcCoin']->purchase_price = $rate->purchase_price;
+        $config['data']['calcCoin']->rate = $rate->purchase_price;
+        $movements = $this->load_movements_supplier($supplier->id, $config['data']['calcCoin']->id, $config['data']['baseCoin']->id, $mensaje);
+        $config['isFormIndex'] = true;
+        $config['header']['subTitle2'] = 'Saldo: ' . $movements[0]->balance . ' ' . $config['data']['calcCoin']->symbol;
+        $config['header']['title2'] = 'Proveedor: ' . $movements[0]->name;
+        $config['header']['subTitle'] = 'Moneda de Calculo ' . $config['data']['calcCoin']->symbol . ' -- Tasa ' . $config['data']['calcCoin']->purchase_price . $config['data']['baseCoin']->symbol;
+        return view('suppliers.balance', compact('movements', 'mensaje', 'config'));
+    }
 }

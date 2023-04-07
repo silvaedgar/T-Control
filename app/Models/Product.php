@@ -4,36 +4,46 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
+// use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    // , LogsActivity;
 
-    protected  static $logAttributes = ['name', 'code','cost_price','sale_price'];
+    // protected static $logAttributes = ['name', 'code', 'cost_price', 'sale_price'];
 
-    protected $fillable = ['user_id','tax_id','category_id', 'code', 'name', 'cost_price', 'sale_price',
-            'stock'];
+    protected $fillable = ['user_id', 'tax_id', 'category_id', 'code', 'name', 'cost_price', 'sale_price', 'stock'];
 
-
-    public function ProductCategory()
+    public function productCategory()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id', 'id');
     }
 
-    public function PurchaseDetail() {
-        return $this->hasMany(PurchaseDetail::class,'product_id','id');
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class);
     }
 
-    public function SaleDetail() {
-        return $this->hasMany(SaleDetail::class,'product_id','id');
+    public function purchaseDetail()
+    {
+        return $this->hasMany(PurchaseDetail::class);
     }
 
-    public function scopeGetProducts($query,$filter='') {
-        if ($filter == '') {
-            return $query->where('status','Activo')->orderBy('name');
-        }
-        return $query->where('status',$filter)->orderBy('name');
+    public function saleDetail()
+    {
+        return $this->hasMany(SaleDetail::class);
     }
 
+    public function scopeGetProducts($query, $filter = [['activo', '=', 1]])
+    {
+        return $query
+            ->with('tax')
+            ->where($filter)
+            ->orderBy('name');
+        // if ($filter == '') {
+        //     return $query->with('tax')->where('activo', 1)->orderBy('name');
+        // }
+        // return $query->with('tax')->where('activo', $filter)->orderBy('name');
+    }
 }

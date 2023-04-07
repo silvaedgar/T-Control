@@ -9,10 +9,10 @@ class ProductGroup extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id','user_id','description'];
+    protected $fillable = ['id', 'user_id', 'description'];
 
-    public function ProductCategories () {
-        return $this->hasMany(ProductCategory::class,'group_id','id');
+    public function productCategory()
+    {
+        return $this->hasMany(ProductCategory::class, 'group_id', 'id');
     }
-
 }

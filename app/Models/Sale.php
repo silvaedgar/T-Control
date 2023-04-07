@@ -4,43 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-
+// use Spatie\Activitylog\Traits\LogsActivity;
 
 class Sale extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    // , LogsActivity;
 
-    protected  static $logAttributes = ['client_id', 'coin_id','rate_exchange','sale_date','mount','paid_mount'];
+    protected static $logAttributes = ['client_id', 'coin_id', 'rate_exchange', 'sale_date', 'mount', 'paid_mount'];
 
-    protected $fillable= ['user_id','client_id','coin_id','rate_exchange','sale_date','invoice','mount',
-    'tax_mount','conditions','observations','status'];
+    protected $fillable = ['user_id', 'client_id', 'coin_id', 'rate_exchange', 'sale_date', 'invoice', 'mount','associated_costs', 'tax_mount', 'conditions', 'observations', 'status'];
 
-    public function Client()
+    public function client()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        return $this->belongsTo(Client::class);
     }
 
-    public function SaleDetails()
+    public function coin()
     {
-        return $this->hasMany(SaleDetail::class, 'sale_id', 'id');
+        return $this->belongsTo(Coin::class);
     }
 
-    public function Coin()
+    public function user()
     {
-        return $this->belongsTo(Coin::class, 'coin_id', 'id');
+        return $this->belongsTo(User::class);
     }
 
-    public function scopeGetPendings($query) {   // creo no se utiliza las pendientes se obtienen con api fetch
-        return $query->where('status','<>','Historico')->where('status','<>','Anulada')
-            ->orderBy('sale_date','desc')->orderBy('created_at','desc');
+    public function saleDetails()
+    {
+        return $this->hasMany(SaleDetail::class, 'sale_id');
     }
 
-    public function scopeGetSales($query,$filter=[]) {
-        if (count($filter) == 0)
-            return $query->orderBy('sale_date','desc')->orderBy('id','desc');
-        return $query->where($filter)->orderBy('sale_date','desc')->orderBy('id','desc');
+    public function scopeGetPendings($query)
+    {
+        // creo no se utiliza las pendientes se obtienen con api fetch
+        return $query
+            ->where('status', '<>', 'Historico')
+            ->where('status', '<>', 'Anulada')
+            ->orderBy('sale_date', 'desc')
+            ->orderBy('created_at', 'desc');
     }
 
-
+    public function scopeGetSales($query, $filter = [])
+    {
+        if (count($filter) == 0) {
+            return $query->orderBy('sale_date', 'desc')->orderBy('id', 'desc');
+        }
+        //Pendiente el detalle de status Pendiente no toma los parcialmente canceladas
+        return $query
+            ->where($filter)
+            ->orderBy('sale_date', 'desc')
+            ->orderBy('id', 'desc');
+    }
 }

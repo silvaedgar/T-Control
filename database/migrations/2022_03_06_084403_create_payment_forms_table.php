@@ -16,13 +16,17 @@ class CreatePaymentFormsTable extends Migration
         Schema::create('payment_forms', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('payment_form',20);
-            $table->string('description',50);
-            $table->enum('status',['Activo','Inactivo'])->default('Activo');
+            $table->string('payment_form', 20);
+            $table->string('description', 50);
+            $table->boolean('activo')->default(true);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
+            $table
+                ->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 
