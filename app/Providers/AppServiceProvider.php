@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 
@@ -71,5 +72,24 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrap(); //
+
+        // Response::macro('success', function ($collection, $message = 'Proceso Exitoso') {
+        //     return Response::json(
+        //         [
+        //             'success' => true,
+        //             'collection' => $collection,
+        //             'message' => $message,
+        //         ],
+        //         200,
+        //     );
+
+        //     // return response()->json([
+
+        //     // ], 200, $headers);
+        // });
+        // public function processFail($message, $th = null)
+        // {
+        //     return ['success' => false, 'message' => $message . ($th == null ? '' : ' ' . $th->getMessage())];
+        // }
     }
 }

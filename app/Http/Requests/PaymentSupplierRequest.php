@@ -32,24 +32,13 @@ class PaymentSupplierRequest extends FormRequest
             'mount' => 'required|gt:0',
         ];
     }
-    public function attributes()
-    {
-        return [
-            'supplier_id' => 'Proveedor',
-            'coin_id' => 'Moneda o Divisa de pago',
-            'payment_form_id' => 'Forma de pago',
-            'payment_date' => 'Fecha',
-            'rate_exchange' => 'Tasa de Cambio',
-            'mount' => 'Monto a Pagar',
-        ];
-    }
 
     public function messages()
     {
         return [
-            'supplier_id.gt' => 'Debe seleccionar el proveedor',
-            'payment_form_id.gt' => 'Debe seleccionar la forma de pago',
-            'mount.gt' => 'Debe ingresar un monto de pago mayor a 0',
+            'supplier_id.gt' => config('messageerror.select') . ' el proveedor',
+            'payment_form_id.gt' => config('messageerror.select') . ' Forma de Pago',
+            'mount.gt' => config('messageerror.mountGreaterZero') . ' a pagar',
         ];
     }
 }

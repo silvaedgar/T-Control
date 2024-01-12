@@ -37,27 +37,8 @@ class PaymentClientController extends Controller
 
     public function fieldsFill()
     {
-        return ['field' => 'calc_currency_sale', 'price' => 'sale->price', 'isPayment' => true];
+        return ['field' => 'calc_currency_sale', 'price' => 'sale_price', 'isPayment' => true];
     }
-
-    // public function formInfoFill($config, $payment = null)
-    // {
-    //     $config = $this->loadCoinType('calc_currency_sale', 'sale_price', $config, true);
-
-    //     if ($payment != null) {
-    //         $config['header']['title2'] = 'Monto: ' . number_format($payment->mount, 2) . ' ' . $payment->coin->symbol;
-    //         if ($payment->coin_id == $config['data']['calcCoin']->id) {
-    //             $config['header']['subTitle2'] = number_format($payment->mount * $payment->rate_exchange, 2) . ' ' . $config['data']['baseCoin']->symbol;
-    //         } else {
-    //             $config['header']['subTitle2'] = number_format($payment->mount / $payment->rate_exchange, 2) . ' ' . $config['data']['calcCoin']->symbol;
-    //         }
-    //     } else {
-    //         $config['header']['title2'] = '0.00 ' . $config['data']['calcCoin']->symbol;
-    //         $config['header']['subTitle2'] = '0.00 ' . $config['data']['calcCoin']->symbol;
-    //     }
-
-    //     return $config;
-    // }
 
     public function index(Request $request)
     {
@@ -88,7 +69,7 @@ class PaymentClientController extends Controller
         $config = $this->headerInfoFill($config, $this->fieldsFill());
         $config['cols'] = 3;
         $config['data']['paymentForms'] = $this->getPaymentForms([['activo', 1]])->get();
-        $config['data']['clients'] = $this->getClients()->get();
+        $config['data']['clients'] = $this->getClients([['activo', 1]])->get();
         $config['var_header']['table'] = $config['data']['clients'];
 
         return view('shared.create', compact('config'));

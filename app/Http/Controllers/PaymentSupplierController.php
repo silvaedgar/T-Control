@@ -17,13 +17,14 @@ use App\Traits\CoinTrait;
 use App\Traits\CalculateMountsTrait;
 use App\Traits\PaymentSupplierTrait;
 use App\Traits\SharedTrait;
+use App\Traits\PaymentFormTrait;
 
 use PDF;
 use Carbon\Carbon;
 
 class PaymentSupplierController extends Controller
 {
-    use FiltersTrait, CoinTrait, CalculateMountsTrait, PaymentSupplierTrait, SharedTrait;
+    use FiltersTrait, CoinTrait, CalculateMountsTrait, PaymentSupplierTrait, SharedTrait, PaymentFormTrait;
 
     public function __construct()
     {
@@ -32,7 +33,7 @@ class PaymentSupplierController extends Controller
 
     public function fieldsFill()
     {
-        return ['field' => 'calc_currency_purchase', 'price' => 'purchase->price', 'isPayment' => true];
+        return ['field' => 'calc_currency_purchase', 'price' => 'purchase_price', 'isPayment' => true];
     }
 
     public function index(Request $request)
@@ -64,15 +65,19 @@ class PaymentSupplierController extends Controller
     {
         $config = Config::labels('PaymentSuppliers');
         $config['header']['title'] = 'Creando Pago de Proveedores';
-        $config['data']['paymentForms'] = PaymentForm::where('activo', 1)
-            ->orderBy('payment_form')
-            ->get();
-        $config['data']['suppliers'] = Supplier::GetSuppliers()->get();
+        $config['cols'] = 3;
+
+        // llevar esto al getsupplier
+        // PaymentForm::where('activo', 1)
+        //             ->orderBy('payment_form')
+        //             ->get();
+
+        $config['data']['paymentForms'] = $this->getPaymentForms([['activo', '=', 1]])->get();
+        $config['data']['suppliers'] = Supplier::GetSuppliers([['activo', 1]])->get();
         $config['var_header']['table'] = $config['data']['suppliers'];
 
         $config = $this->headerInfoFill($config, $this->fieldsFill());
 
-        $config['cols'] = 3;
         return view('shared.create', compact('config'));
     }
 

@@ -32,7 +32,7 @@ class SaleController extends Controller
 
     public function fieldsFill()
     {
-        return ['field' => 'calc_currency_sale', 'price' => 'sale->price', 'isPayment' => false];
+        return ['field' => 'calc_currency_sale', 'price' => 'sale_price', 'isPayment' => false];
     }
 
     public function index(Request $request)

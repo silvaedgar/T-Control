@@ -9,10 +9,9 @@ use App\Models\PaymentSupplier;
 use App\Models\Supplier;
 use App\Models\Product;
 
-use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\PurchaseRequest;
 
 use Illuminate\Support\Facades\DB;
-// use App\Facades\DataCommonFacade;
 use App\Facades\PurchaseFacade;
 use App\Facades\Config;
 
@@ -35,7 +34,7 @@ class PurchaseController extends Controller
 
     public function fieldsFill()
     {
-        return ['field' => 'calc_currency_purchase', 'price' => 'purchase->price', 'isPayment' => false];
+        return ['field' => 'calc_currency_purchase', 'price' => 'purchase_price', 'isPayment' => false];
     }
 
     public function index(Request $request)
@@ -64,17 +63,18 @@ class PurchaseController extends Controller
     public function create()
     {
         $config = Config::labels('Purchases');
-        $config = $this->headerInfoFill($config, $this->fieldsFill());
         $config['header']['title'] = 'Creando Factura de Compra';
         $config['cols'] = 3;
         $config['data']['products'] = Product::GetProducts([['activo', '=', 1]])->get();
         $config['data']['suppliers'] = Supplier::GetSuppliers([['activo', '=', 1]])->get();
         $config['data']['paymentForms'] = $this->getPaymentForms([['activo', '=', 1]])->get();
         $config['var_header']['table'] = $config['data']['suppliers'];
+        $config = $this->headerInfoFill($config, $this->fieldsFill());
+
         return view('shared.create', compact('config'));
     }
 
-    public function store(StorePurchaseRequest $request)
+    public function store(PurchaseRequest $request)
     {
         $continue = true;
         $exist_purchase = Purchase::where('supplier_id', $request->supplier_id)

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePurchaseRequest extends FormRequest
+class PurchaseRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,9 +32,9 @@ class StorePurchaseRequest extends FormRequest
         //         dd($renglon);
 
         //     }
-            // $results[] = array("product_id"=>$this->request->product_id[$key], "tax_id"=>$this->request->tax_id[$key],
-            //     "item"=>$item,"quantity"=>$this->request->quantity[$key], "price"=>$this->request->price[$key],
-            //     "tax"=>$this->request->tax[$key]);
+        // $results[] = array("product_id"=>$this->request->product_id[$key], "tax_id"=>$this->request->tax_id[$key],
+        //     "item"=>$item,"quantity"=>$this->request->quantity[$key], "price"=>$this->request->price[$key],
+        //     "tax"=>$this->request->tax[$key]);
         return [
             'supplier_id' => 'gt:0',
             'coin_id' => 'gt:0',
@@ -42,17 +42,15 @@ class StorePurchaseRequest extends FormRequest
             'purchase_date' => 'required',
             'mount' => 'gt:0',
         ];
-    
     }
 
     public function messages()
     {
         return [
-        'mount.gt' => 'Debe Ingresar los productos de la factura',
-        'supplier_id.gt' => 'Debe Seleccionar el Proveedor',
-        'rate_exchange.gt' => 'El valor de la tasa de cambio es obligatorio',
-        'purchase_date.required' => 'Ingrese la Fecha'
+            'mount.gt' => config('messageerror.mountGreaterZero') . ' a pagar. Ingrese los Productos',
+            'supplier_id.gt' => config('messageerror.select') . ' el proveedor',
+            'rate_exchange.gt' => 'El valor de la tasa de cambio es obligatorio',
+            'purchase_date.required' => 'Ingrese la Fecha',
         ];
     }
-
 }

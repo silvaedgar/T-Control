@@ -5,7 +5,7 @@ namespace App\Facades;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Facade;
 
-use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\PurchaseRequest;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Product;
@@ -35,7 +35,7 @@ class ProcessPurchase
         return $data;
     }
 
-    public function storePurchase(StorePurchaseRequest $request)
+    public function storePurchase(PurchaseRequest $request)
     {
         DB::beginTransaction();
         try {

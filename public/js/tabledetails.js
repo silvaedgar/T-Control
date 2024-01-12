@@ -58,7 +58,7 @@ function CalcInvoice(deleteItem, itemactual) {
     }
 
     total = subtotal.reduce((a, b) => a + b.monto, 0)
-    
+
     total = total + Number(document.getElementById('associated_costs').value)
     totalTax = 0   // calcular el monto del tax esta el porcentaje
     let coin = SearchCoin(document.getElementById('coin_id').value);
@@ -233,9 +233,9 @@ function AddItem() {
     let precio_other = parseFloat(document.getElementById('productPriceOther').value);
     let porcentaje = parseFloat(document.getElementById("ptax").value)
     let sel = document.getElementById('pidproduct');
-    if (sel.selectedIndex >= 0) // prevee la limpieza del select2 abajo que pone el indice en -1
+    // if (sel.selectedIndex > 0) // prevee la limpieza del select2 abajo que pone el indice en -1
+    if (tasa > 0 && cantidad > 0 && precio > 0 && sel.selectedIndex > 0) {
         var product = sel.options[sel.selectedIndex].text;
-    if (tasa > 0 && cantidad > 0 && precio > 0) {
         let tax = cantidad * (precio * porcentaje / 100);
         let monto = cantidad * precio + tax;
         let renglon = {
@@ -244,11 +244,9 @@ function AddItem() {
             "tax_id": document.getElementById('ptax_id').value, "tax": tax, 'tax_percent': porcentaje, "monto": monto
         }
         LoadItem(renglon)
-
         document.getElementById('productQty').value = 0;
         document.getElementById('productPrice').value = 0;
         document.getElementById("ptax").value = 0;
-
         $('#pidproduct').select2("val", 0);
         document.getElementById('pidproduct').focus();
         // console.log("SUBTOTAL ADDITEM ", subtotal, document.getElementById('coin_id').value);

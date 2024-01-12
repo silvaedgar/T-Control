@@ -50,15 +50,15 @@ trait CoinTrait
         return ['base_coin' => $base_coin, 'calc_coin' => $calc_coin, 'rate' => $coin_calc == 'calc_currency_sale' ? $rate->sale_price : $rate->purchase_price];
     }
 
-    public function loadCoinType($coinCalc, $field, $config, $isPayment = true)
+    public function loadCoinType($fieldCoin, $field, $config, $isPayment = true)
     {
-        $data = $this->generateDataCoin('calc_currency_purchase');
+        $data = $this->generateDataCoin($fieldCoin);
         $config['data']['calcCoin'] = $data['calc_coin'];
         $config['data']['baseCoin'] = $data['base_coin'];
         $config['data']['calcCoin']->$field = $data['rate']; // no se porque dos veces
         $config['data']['calcCoin']->rate = $data['rate']; // no se porque dos veces
 
-        $config['data']['coins'] = $this->getCoinsInvoicePayment($this->getBaseCoinRate($data['calc_coin']->id), 'calc_currency_purchase')->get();
+        $config['data']['coins'] = $this->getCoinsInvoicePayment($this->getBaseCoinRate($data['calc_coin']->id), $fieldCoin)->get();
         $config['header']['subTitle'] = 'Moneda de Calculo ' . $config['data']['calcCoin']->symbol;
 
         if (!$isPayment) {
